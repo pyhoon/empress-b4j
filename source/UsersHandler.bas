@@ -4,7 +4,7 @@ ModulesStructureVersion=1
 Type=Class
 Version=10.3
 @EndOfDesignText@
-' Topics Handler class
+' Index Handler class
 ' Version 6.30
 Sub Class_Globals
 	Private DB As MiniORM
@@ -25,18 +25,18 @@ Sub Handle (req As ServletRequest, resp As ServletResponse)
 	Method = req.Method
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
 	Dim path As String = req.RequestURI
-	If path = "/topics" Then
+	If path = "/users" Then
 		RenderPage
-	Else If path = "/hx/topics/table" Then
+	Else If path = "/hx/users/table" Then
 		HandleTable
-	Else If path = "/hx/topics/add" Then
+	Else If path = "/hx/users/add" Then
 		HandleAddModal
-	Else If path.StartsWith("/hx/topics/edit/") Then
+	Else If path.StartsWith("/hx/users/edit/") Then
 		HandleEditModal
-	Else If path.StartsWith("/hx/topics/delete/") Then
+	Else If path.StartsWith("/hx/users/delete/") Then
 		HandleDeleteModal
 	Else
-		HandleTopics
+		HandleUser
 	End If
 End Sub
 
@@ -46,26 +46,7 @@ Private Sub RenderPage
 	main1.LoadContent(ContentContainer)
 	main1.LoadModal(ModalContainer)
 	main1.LoadToast(ToastContainer)
-
 	Dim page1 As Tag = main1.Render
-	Dim ulist1 As Tag = FindUListTag(page1)
-	
-	Dim list0 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor0 As Tag = Anchor.href("/help").up(list0)
-	anchor0.cls("nav-link")
-	anchor0.add(Icon.cls("bi bi-gear mr-2").title("API"))
-	anchor0.text("API")
-
-	Dim list1 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor1 As Tag = Anchor.href("#").up(list1)
-	anchor1.cls("nav-link")
-	anchor1.text("Topics")
-
-	Dim list2 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor2 As Tag = Anchor.href("/users").up(list2)
-	anchor2.cls("nav-link")
-	anchor2.text("Users")
-	
 	Dim doc As Document
 	doc.Initialize
 	doc.AppendDocType
@@ -73,26 +54,18 @@ Private Sub RenderPage
 	App.WriteHtml2(Response, doc.ToString, App.ctx)
 End Sub
 
-' Retrieve ulist tag from DOM
-Private Sub FindUListTag (dom As Tag) As Tag
-	Dim body1 As Tag = dom.Child(1)
-	Dim nav1 As Tag = body1.Child(1)
-	Dim container1 As Tag = nav1.Child(0)
-	Dim navbar1 As Tag = container1.Child(3)
-	Dim ulist1 As Tag = navbar1.Child(0)
-	Return ulist1
-End Sub
-
 Private Sub ContentContainer As Tag
 	Dim content1 As Tag = Div.cls("row mt-3 text-center align-items-center justify-content-center")
 	Dim col1 As Tag = Div.cls("col-md-12 col-lg-6").up(content1)
 	Dim form1 As Tag = Form.cls("form mb-3").action("").up(col1)
+	
 	Dim row1 As Tag = Div.cls("row").up(form1)
 	Dim col2 As Tag = Div.cls("col-md-6 col-lg-6 text-start").up(row1)
-	H3.cls("text-uppercase").text("Topic List").up(col2)
+	H3.cls("text-uppercase").text("User List").up(col2)
+	
 	Dim div1 As Tag = Div.cls("col-md-6 col-lg-6").up(row1)
 	Dim div2 As Tag = Div.cls("text-end mt-2").up(div1)
-	
+
 	Dim anchor1 As Tag = Anchor.up(div2)
 	anchor1.hrefOf("$SERVER_URL$")
 	anchor1.cls("btn btn-primary me-2")
@@ -101,17 +74,17 @@ Private Sub ContentContainer As Tag
 
 	Dim button2 As Tag = Button.up(div2)
 	button2.cls("btn btn-success ml-2")
-	button2.hxGet("/hx/topics/add")
+	button2.hxGet("/hx/users/add")
 	button2.hxTarget("#modal-content")
 	button2.hxTrigger("click")
 	button2.data("bs-toggle", "modal")
 	button2.data("bs-target", "#modal-container")
 	button2.add(Icon.cls("bi bi-plus-lg me-2"))
-	button2.text("Add Topic")
+	button2.text("Add User")
 
 	Dim container1 As Tag = Div.up(col1)
-	container1.id("topics-container")
-	container1.hxGet("/hx/topics/table")
+	container1.id("users-container")
+	container1.hxGet("/hx/users/table")
 	container1.hxTrigger("load")
 	container1.text("Loading...")
 
@@ -146,51 +119,62 @@ End Sub
 
 ' Return table HTML
 Private Sub HandleTable
-	App.WriteHtml(Response, CreateTopicsTable.Build)
+	App.WriteHtml(Response, CreateUserTable.Build)
 End Sub
 
 ' Add modal
 Private Sub HandleAddModal
 	Dim form1 As Tag = Form.init
-	form1.hxPost("/hx/topics")
+	form1.hxPost("/hx/users")
 	form1.hxTarget("#modal-messages")
 	form1.hxSwap("innerHTML")
 	
 	Dim modalHeader As Tag = Div.cls("modal-header").up(form1)
-	H5.cls("modal-title").text("Add Topic").up(modalHeader)
+	H5.cls("modal-title").text("Add User").up(modalHeader)
 	Button.typeOf("button").cls("btn-close").data("bs-dismiss", "modal").up(modalHeader)
 
 	Dim modalBody As Tag = Div.cls("modal-body").up(form1)
 	Div.id("modal-messages").up(modalBody)'.hxSwapOob("true")
 	
-	Dim group1 As Tag = modalBody.add(Div.cls("form-group"))
-	Label.forId("name").text("Name ").up(group1).add(Span.cls("text-danger").text("*"))
-	Input.typeOf("text").up(group1).id("name").name("name").cls("form-control").attr3("required")
+	Dim group1 As Tag = Div.cls("form-group").up(modalBody)
+	Label.forId("first_name").text("First Name ").up(group1).add(Span.cls("text-danger").text("*"))
+	Input.typeOf("text").cls("form-control").id("first_name").name("first_name").valueOf("").attr3("required").up(group1)
+		
+	Dim group2 As Tag = Div.cls("form-group").up(modalBody)
+	Label.forId("last_name").text("Last Name ").up(group2).add(Span.cls("text-danger").text("*"))
+	Input.typeOf("text").cls("form-control").id("last_name").name("last_name").valueOf("").attr3("required").up(group2)
+	
+	Dim group3 As Tag = Div.cls("form-group").up(modalBody)
+	Label.forId("email").text("Email ").up(group3).add(Span.cls("text-danger").text("*"))
+	Input.typeOf("text").cls("form-control").id("email").name("email").valueOf("").attr3("required").up(group3)
 
 	Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 	Button.typeOf("submit").cls("btn btn-success px-3").text("Create").up(modalFooter)
 	Button.typeOf("button").cls("btn btn-secondary px-3").data("bs-dismiss", "modal").text("Cancel").up(modalFooter)
+
 	App.WriteHtml(Response, form1.Build)
 End Sub
 
 ' Edit modal
 Private Sub HandleEditModal
-	Dim id As String = Request.RequestURI.SubString("/hx/topics/edit/".Length)
+	Dim id As String = Request.RequestURI.SubString("/hx/users/edit/".Length)
 	Dim form1 As Tag = Form.init
-	form1.hxPut($"/hx/topics"$)
+	form1.hxPut($"/hx/users"$)
 	form1.hxTarget("#modal-messages")
 	form1.hxSwap("innerHTML")
 		
 	DB.SQL = Main.DBOpen
-	DB.Table = "topics"
-	DB.Columns = Array("id", "topic_name AS name")
+	DB.Table = "users"
+	DB.Columns = Array("id", "first_name", "last_name", "email")
 	DB.WhereParam("id = ?", id)
 	DB.Query
 	If DB.Found Then
-		Dim name As String = DB.First.Get("name")
+		Dim first_name As String = DB.First.Get("first_name")
+		Dim last_name As String = DB.First.Get("last_name")
+		Dim email As String = DB.First.Get("email")
 
 		Dim modalHeader As Tag = Div.cls("modal-header").up(form1)
-		H5.cls("modal-title").text("Edit Topic").up(modalHeader)
+		H5.cls("modal-title").text("Edit User").up(modalHeader)
 		Button.typeOf("button").cls("btn-close").data("bs-dismiss", "modal").up(modalHeader)
 		
 		Dim modalBody As Tag = Div.cls("modal-body").up(form1)
@@ -198,69 +182,79 @@ Private Sub HandleEditModal
 		Input.typeOf("hidden").up(modalBody).name("id").valueOf(id)
 		
 		Dim group1 As Tag = Div.cls("form-group").up(modalBody)
-		Label.forId("name").text("Name ").up(group1).add(Span.cls("text-danger").text("*"))
-		Input.typeOf("text").cls("form-control").id("name").name("name").valueOf(name).attr3("required").up(group1)
+		Label.forId("first_name").text("First Name ").up(group1).add(Span.cls("text-danger").text("*"))
+		Input.typeOf("text").cls("form-control").id("first_name").name("first_name").valueOf(first_name).attr3("required").up(group1)
+		
+		Dim group2 As Tag = Div.cls("form-group").up(modalBody)
+		Label.forId("last_name").text("Last Name ").up(group2).add(Span.cls("text-danger").text("*"))
+		Input.typeOf("text").cls("form-control").id("last_name").name("last_name").valueOf(last_name).attr3("required").up(group2)
+	
+		Dim group3 As Tag = Div.cls("form-group").up(modalBody)
+		Label.forId("email").text("Email ").up(group3).add(Span.cls("text-danger").text("*"))
+		Input.typeOf("text").cls("form-control").id("email").name("email").valueOf(email).attr3("required").up(group3)
 
 		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 		Button.typeOf("submit").cls("btn btn-primary px-3").text("Update").up(modalFooter)
 		Button.typeOf("button").cls("btn btn-secondary px-3").data("bs-dismiss", "modal").text("Cancel").up(modalFooter)
 	End If
 	DB.Close
+
 	App.WriteHtml(Response, form1.Build)
 End Sub
 
 ' Delete modal
 Private Sub HandleDeleteModal
-	Dim id As String = Request.RequestURI.SubString("/hx/topics/delete/".Length)
+	Dim id As String = Request.RequestURI.SubString("/hx/users/delete/".Length)
 	Dim form1 As Tag = Form.init
-	form1.hxDelete($"/hx/topics"$)
+	form1.hxDelete($"/hx/users"$)
 	form1.hxTarget("#modal-messages")
 	form1.hxSwap("innerHTML")
 
 	DB.SQL = Main.DBOpen
-	DB.Table = "topics"
-	DB.Columns = Array("id", "topic_name")
+	DB.Table = "users"
+	DB.Columns = Array("id", "first_name", "last_name", "email")
 	DB.WhereParam("id = ?", id)
 	DB.Query
 	If DB.Found Then
-		Dim topic_name As String = DB.First.Get("topic_name")
+		Dim first_name As String = DB.First.Get("first_name")
 
 		Dim modalHeader As Tag = Div.cls("modal-header").up(form1)
-		H5.cls("modal-title").text("Delete Topic").up(modalHeader)
+		H5.cls("modal-title").text("Delete User").up(modalHeader)
 		Button.typeOf("button").cls("btn-close").data("bs-dismiss", "modal").up(modalHeader)
 		
 		Dim modalBody As Tag = Div.cls("modal-body").up(form1)
 		Div.id("modal-messages").up(modalBody)
 		Input.typeOf("hidden").name("id").valueOf(id).up(modalBody)
-		Paragraph.text($"Delete ${topic_name}?"$).up(modalBody)
+		Paragraph.text($"Delete ${first_name}?"$).up(modalBody)
 
 		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 		Button.typeOf("submit").cls("btn btn-danger px-3").text("Delete").up(modalFooter)
 		Button.typeOf("button").cls("btn btn-secondary px-3").data("bs-dismiss", "modal").text("Cancel").up(modalFooter)
 	End If
 	DB.Close
+
 	App.WriteHtml(Response, form1.Build)
 End Sub
 
 ' Handle CRUD operations
-Private Sub HandleTopics
+Private Sub HandleUser
 	Select Method
 		Case "POST"
 			' Create
-			Dim topic_name As String = Request.GetParameter("name")
-			If topic_name = "" Or topic_name.Trim.Length < 2 Then
-				ShowAlert("Topic name must be at least 2 characters long.", "warning")
+			Dim name As String = Request.GetParameter("name")
+			If name = "" Or name.Trim.Length < 2 Then
+				ShowAlert("User name must be at least 2 characters long.", "warning")
 				Return
 			End If
 			Try
 				DB.SQL = Main.DBOpen
-				DB.Table = "topics"
-				DB.Where = Array("topic_name = ?")
-				DB.Parameters = Array(topic_name)
+				DB.Table = "users"
+				DB.Where = Array("user_name = ?")
+				DB.Parameters = Array(name)
 				DB.Query
 				If DB.Found Then
-					ShowAlert("Topic already exists!", "warning")
 					DB.Close
+					ShowAlert("User already exists!", "warning")
 					Return
 				End If
 			Catch
@@ -271,34 +265,34 @@ Private Sub HandleTopics
 			' Insert new row
 			Try
 				DB.Reset
-				DB.Columns = Array("topic_name", "created_date")
-				DB.Parameters = Array(topic_name, Main.CurrentDateTime)
+				DB.Columns = Array("user_name", "created_date")
+				DB.Parameters = Array(name, Main.CurrentDateTime)
 				DB.Save
-				ShowToast("topic", "created", "Topic created successfully!", "success")
+				DB.Close
+				ShowToast("User", "created", "User created successfully!", "success")
 			Catch
 				ShowAlert($"Database error: ${LastException.Message}"$, "danger")
 			End Try
-			DB.Close
 		Case "PUT"
 			' Update
 			Dim id As Int = Request.GetParameter("id")
-			Dim topic_name As String = Request.GetParameter("name")
+			Dim name As String = Request.GetParameter("name")
 			DB.SQL = Main.DBOpen
-			DB.Table = "topics"
+			DB.Table = "users"
 			
 			DB.Find(id)
 			If DB.Found = False Then
-				ShowAlert("Topic not found!", "warning")
+				ShowAlert("User not found!", "warning")
 				DB.Close
 				Return
 			End If
 
 			DB.Reset
-			DB.Where = Array("topic_name = ?", "id <> ?")
-			DB.Parameters = Array(topic_name, id)
+			DB.Where = Array("user_name = ?", "id <> ?")
+			DB.Parameters = Array(name, id)
 			DB.Query
 			If DB.Found Then
-				ShowAlert("Topic already exists!", "warning")
+				ShowAlert("User already exists!", "warning")
 				DB.Close
 				Return
 			End If
@@ -306,82 +300,89 @@ Private Sub HandleTopics
 			' Update row
 			Try
 				DB.Reset
-				DB.Columns = Array("topic_name", "modified_date")
-				DB.Parameters = Array(topic_name, Main.CurrentDateTime)
+				DB.Columns = Array("user_name", "modified_date")
+				DB.Parameters = Array(name, Main.CurrentDateTime)
 				DB.Id = id
 				DB.Save
-				ShowToast("topic", "updated", "Topic updated successfully!", "info")
+				DB.Close
+				ShowToast("User", "updated", "User updated successfully!", "info")
 			Catch
 				ShowAlert($"Database error: ${LastException.Message}"$, "danger")
 			End Try
-			DB.Close
 		Case "DELETE"
 			' Delete
 			Dim id As Int = Request.GetParameter("id")
 			DB.SQL = Main.DBOpen
-			DB.Table = "topics"
+			DB.Table = "users"
 			
 			DB.Find(id)
 			If DB.Found = False Then
-				ShowAlert("Topic not found!", "warning")
+				ShowAlert("User not found!", "warning")
 				DB.Close
 				Return
 			End If
 			
-			DB.Table = "pages"
-			DB.WhereParam("topic_id = ?", id)
+			DB.Table = "dbtable2" ' child table
+			DB.WhereParam("user_id = ?", id)
 			DB.Query
 			If DB.Found Then
-				ShowAlert("Cannot delete topic with associated pages!", "warning")
+				ShowAlert("Cannot delete user with associated rows!", "warning")
 				DB.Close
 				Return
 			End If
 
 			' Delete row
 			Try
-				DB.Table = "topics"
+				DB.Table = "users"
 				DB.Id = id
 				DB.Delete
-				ShowToast("topic", "deleted", "Topic deleted successfully!", "danger")
+				DB.Close
+				ShowToast("User", "deleted", "User deleted successfully!", "danger")
 			Catch
 				ShowAlert($"Database error: ${LastException.Message}"$, "danger")
 			End Try
-			DB.Close
 	End Select
 End Sub
 
-Private Sub CreateTopicsTable As Tag
+Private Sub CreateUserTable As Tag
 	Dim table1 As Tag = HtmlTable.cls("table table-bordered table-hover rounded small")
 	Dim thead1 As Tag = Thead.cls("table-light").up(table1)
 	thead1.add(Th.sty("text-align: right; width: 50px").text("#"))
-	thead1.add(Th.text("Name"))
+	thead1.add(Th.text("First Name"))
+	thead1.add(Th.text("Last Name"))
+	thead1.add(Th.text("Email"))
 	thead1.add(Th.sty("text-align: center; width: 120px").text("Actions"))
 	Dim tbody1 As Tag = Tbody.init.up(table1)
 	
 	DB.SQL = Main.DBOpen
-	DB.Table = "topics"
-	DB.Columns = Array("id", "topic_name AS name")
+	DB.Table = "users"
+	DB.Columns = Array("id", "first_name", "last_name", "email")
 	DB.OrderBy = CreateMap("id": "")
 	DB.Query
 	For Each row As Map In DB.Results
-		Dim tr1 As Tag = CreateTopicsRow(row)
+		Dim tr1 As Tag = CreateUserRow(row)
 		tr1.up(tbody1)
 	Next
 	DB.Close
 	Return table1
 End Sub
 
-Private Sub CreateTopicsRow (data As Map) As Tag
+Private Sub CreateUserRow (data As Map) As Tag
 	Dim id As Int = data.Get("id")
-	Dim name As String = data.Get("name")
+	Dim first_name As String = data.Get("first_name")
+	Dim last_name As String = data.Get("last_name")
+	Dim email As String = data.Get("email")
 
 	Dim tr1 As Tag = Tr.init
 	tr1.add(Td.cls("align-middle").sty("text-align: right").text(id))
-	tr1.add(Td.cls("align-middle").text(name))
+	tr1.add(Td.cls("align-middle").text(first_name))
+	tr1.add(Td.cls("align-middle").text(last_name))
+	tr1.add(Td.cls("align-middle").text(email))
+	
 	Dim td3 As Tag = Td.cls("align-middle text-center px-1 py-1").up(tr1)
 
 	Dim anchor1 As Tag = Anchor.cls("edit text-primary mx-2").up(td3)
-	anchor1.hxGet($"/hx/topics/edit/${id}"$)
+	anchor1.hxGet($"/hx/users/edit/${id}"$)
 	anchor1.hxTarget("#modal-content")
 	anchor1.hxTrigger("click")
 	anchor1.data("bs-toggle", "modal")
@@ -390,7 +391,7 @@ Private Sub CreateTopicsRow (data As Map) As Tag
 	anchor1.attr("title", "Edit")
 		
 	Dim anchor2 As Tag = Anchor.cls("delete text-danger mx-2").up(td3)
-	anchor2.hxGet($"/hx/topics/delete/${id}"$)
+	anchor2.hxGet($"/hx/users/delete/${id}"$)
 	anchor2.hxTarget("#modal-content")
 	anchor2.hxTrigger("click")
 	anchor2.data("bs-toggle", "modal")
@@ -407,9 +408,9 @@ Private Sub ShowAlert (message As String, status As String)
 End Sub
 
 Private Sub ShowToast (entity As String, action As String, message As String, status As String)
-	Dim div1 As Tag = Div.id("topics-container")
+	Dim div1 As Tag = Div.id("users-container")
 	div1.hxSwapOob("true")
-	div1.add(CreatetopicsTable)
+	div1.add(CreateUserTable)
 
 	Dim script1 As MiniJs
 	script1.Initialize

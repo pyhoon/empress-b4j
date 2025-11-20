@@ -24,7 +24,9 @@ Library7=webapiutils
 Library8=byteconverter
 Module1=Database
 Module10=TopicsHandler
-Module11=Utilities
+Module11=UsersApiHandler
+Module12=UsersHandler
+Module13=Utilities
 Module2=Encryption
 Module3=FindApiHandler
 Module4=HelpHandler
@@ -35,7 +37,7 @@ Module8=PagesHandler
 Module9=TopicsApiHandler
 NumberOfFiles=5
 NumberOfLibraries=8
-NumberOfModules=11
+NumberOfModules=13
 Version=10.3
 @EndOfDesignText@
 #Region Project Attributes
@@ -71,7 +73,7 @@ Sub Process_Globals
 End Sub
 
 ' <link>Open in browser|http://127.0.0.1:8080</link>
-' <link>Donate|https://paypal.me/aeric80/</link> | <link>Forum|https://www.b4x.com/android/forum/threads/project-template-pakai-server-v5.167788/)</link> | <link>GitHub|https://github.com/pyhoon/pakai-server-b4j</link>
+' <link>Donate|https://paypal.me/aeric80/</link> | <link>Forum|https://www.b4x.com/android/forum/threads/project-template-pakai-server-v5.167788/)</link> | <link>GitHub|https://github.com/pyhoon/empress-b4j</link>
 Sub AppStart (Args() As String)
 	App.Initialize
 	App.LoadConfig
@@ -92,14 +94,20 @@ Sub AppStart (Args() As String)
 	App.Post("/api/pages", "PagesApiHandler")
 	App.Get("/api/topics", "TopicsApiHandler")
 	App.Post("/api/topics", "TopicsApiHandler")
+	App.Get("/api/users", "UsersApiHandler")
+	App.Post("/api/users", "UsersApiHandler")
 	App.Rest("/api/pages/*", "PagesApiHandler")
 	App.Rest("/api/topics/*", "TopicsApiHandler")
+	App.Rest("/api/users/*", "UsersApiHandler")
 	#End If
 	App.Get("", "PagesHandler")
 	App.Get("/topics", "TopicsHandler")
 	App.Post("/topics", "TopicsHandler")
+	App.Get("/users", "UsersHandler")
+	App.Post("/users", "UsersHandler")
 	App.Rest("/hx/pages/*", "PagesHandler")
 	App.Rest("/hx/topics/*", "TopicsHandler")
+	App.Rest("/hx/users/*", "UsersHandler")
 	App.Start
 	App.LogStartupMessage
 	App.ctx.Put("VERSION", VERSION)

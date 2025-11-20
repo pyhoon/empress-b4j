@@ -23,6 +23,7 @@ Public Sub Initialize
 	AllMethods.Initialize
 	AllGroups.Initialize
 	Handlers.Initialize
+	Handlers.Add("UsersApiHandler")
 	Handlers.Add("TopicsApiHandler")
 	Handlers.Add("PagesApiHandler")
 	Handlers.Add("FindApiHandler")
@@ -109,6 +110,35 @@ Private Sub RemoveMethodAndReAdd (Method As Map)
 End Sub
 
 Private Sub BuildMethods
+	Dim Method As Map = RetrieveMethod("Users", "GetUsers")
+	Method.Put("Desc", "Read all users")
+	ReplaceMethod(Method)
+	
+	Dim Method As Map = RetrieveMethod("Users", "GetUserById (id As Int)")
+	Method.Put("Desc", "Read one user by id")
+	Method.Put("Elements", $"["{id}"]"$)
+	ReplaceMethod(Method)
+	
+	Dim Method As Map = RetrieveMethod("Users", "CreateNewUser '#POST")
+	Method.Put("Desc", "Add new user")
+	Dim FormatMap As Map = CreateMap("first_name": "first_name", "last_name": "last_name", "email": "email", "password": "password")
+	Method.Put("Format", FormatMap.As(JSON).ToString)
+	Method.Put("Body", FormatMap.As(JSON).ToString)
+	ReplaceMethod(Method)
+
+	Dim Method As Map = RetrieveMethod("Users", "UpdateUserById (id As Int) '#PUT")
+	Method.Put("Desc", "Update user by id")
+	Method.Put("Elements", $"["{id}"]"$)
+	Dim FormatMap As Map = CreateMap("first_name": "first_name", "last_name": "last_name", "email": "email", "password": "password")
+	Method.Put("Format", FormatMap.As(JSON).ToString)
+	Method.Put("Body", FormatMap.As(JSON).ToString)
+	ReplaceMethod(Method)
+	
+	Dim Method As Map = RetrieveMethod("Users", "DeleteUserById (id As Int)")
+	Method.Put("Desc", "Delete user by id")
+	Method.Put("Elements", $"["{id}"]"$)
+	RemoveMethodAndReAdd(Method)
+
 	Dim Method As Map = RetrieveMethod("Topics", "GetTopics")
 	Method.Put("Desc", "Read all topics")
 	ReplaceMethod(Method)
