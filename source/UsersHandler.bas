@@ -147,6 +147,10 @@ Private Sub HandleAddModal
 	Dim group3 As Tag = Div.cls("form-group").up(modalBody)
 	Label.forId("email").text("Email ").up(group3).add(Span.cls("text-danger").text("*"))
 	Input.typeOf("text").cls("form-control").id("email").name("email").valueOf("").attr3("required").up(group3)
+	
+	Dim group4 As Tag = Div.cls("form-group").up(modalBody)
+	Label.forId("password").text("Password ").up(group4).add(Span.cls("text-danger").text("*"))
+	Input.typeOf("text").cls("form-control").id("password").name("password").valueOf("").attr3("required").up(group4)
 
 	Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 	Button.typeOf("submit").cls("btn btn-success px-3").text("Create").up(modalFooter)
@@ -216,7 +220,9 @@ Private Sub HandleDeleteModal
 	DB.WhereParam("id = ?", id)
 	DB.Query
 	If DB.Found Then
-		Dim first_name As String = DB.First.Get("first_name")
+		Dim row As Map = DB.First
+		Dim first_name As String = row.Get("first_name")
+		Dim last_name As String = row.Get("last_name")
 
 		Dim modalHeader As Tag = Div.cls("modal-header").up(form1)
 		H5.cls("modal-title").text("Delete User").up(modalHeader)
@@ -225,7 +231,7 @@ Private Sub HandleDeleteModal
 		Dim modalBody As Tag = Div.cls("modal-body").up(form1)
 		Div.id("modal-messages").up(modalBody)
 		Input.typeOf("hidden").name("id").valueOf(id).up(modalBody)
-		Paragraph.text($"Delete ${first_name}?"$).up(modalBody)
+		Paragraph.text($"Delete ${first_name} ${last_name}?"$).up(modalBody)
 
 		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 		Button.typeOf("submit").cls("btn btn-danger px-3").text("Delete").up(modalFooter)
@@ -241,16 +247,30 @@ Private Sub HandleUser
 	Select Method
 		Case "POST"
 			' Create
-			Dim name As String = Request.GetParameter("name")
-			If name = "" Or name.Trim.Length < 2 Then
-				ShowAlert("User name must be at least 2 characters long.", "warning")
+			Dim first_name As String = Request.GetParameter("first_name")
+			Dim last_name As String = Request.GetParameter("last_name")
+			If first_name = "" Or first_name.Trim.Length < 2 Then
+				ShowAlert("First name must be at least 2 characters long.", "warning")
 				Return
 			End If
+			
+			Dim email As String = Request.GetParameter("email")
+			If email = "" Then
+				ShowAlert("Email must not be empty.", "warning")
+				Return
+			End If
+
+			Dim password As String = Request.GetParameter("password")
+			If password = "" Then
+				ShowAlert("Password must not be empty.", "warning")
+				Return
+			End If
+			
 			Try
 				DB.SQL = Main.DBOpen
 				DB.Table = "users"
-				DB.Where = Array("user_name = ?")
-				DB.Parameters = Array(name)
+				DB.Where = Array("email = ?")
+				DB.Parameters = Array(email)
 				DB.Query
 				If DB.Found Then
 					DB.Close
@@ -264,9 +284,11 @@ Private Sub HandleUser
 
 			' Insert new row
 			Try
+				Dim salt As String = Encryption.RandomHash2
+				Dim hash As String = Encryption.MD5(password & salt)
 				DB.Reset
-				DB.Columns = Array("user_name", "created_date")
-				DB.Parameters = Array(name, Main.CurrentDateTime)
+				DB.Columns = Array("first_name", "last_name", "email", "hash", "salt", "admin", "active")
+				DB.Parameters = Array(first_name, last_name, email, hash, salt, 0, 0)
 				DB.Save
 				DB.Close
 				ShowToast("User", "created", "User created successfully!", "success")
@@ -322,11 +344,11 @@ Private Sub HandleUser
 				Return
 			End If
 			
-			DB.Table = "dbtable2" ' child table
-			DB.WhereParam("user_id = ?", id)
+			DB.Table = "pages"
+			DB.WhereParam("created_by = ?", id)
 			DB.Query
 			If DB.Found Then
-				ShowAlert("Cannot delete user with associated rows!", "warning")
+				ShowAlert("Cannot delete user with associated pages!", "warning")
 				DB.Close
 				Return
 			End If

@@ -264,8 +264,7 @@ Private Sub DeleteUserById (id As Int)
 	' Delete row
 	DB.Reset
 	DB.Id = id
-	'DB.Delete
-	DB.SoftDelete
+	DB.Delete
 	HRM.ResponseCode = 200
 	HRM.ResponseMessage = "User deleted successfully"
 	ReturnApiResponse
