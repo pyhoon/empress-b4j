@@ -46,12 +46,41 @@ Private Sub RenderPage
 	main1.LoadContent(ContentContainer)
 	main1.LoadModal(ModalContainer)
 	main1.LoadToast(ToastContainer)
+	
 	Dim page1 As Tag = main1.Render
+	Dim ulist1 As Tag = FindUListTag(page1)
+	
+	Dim list0 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
+	Dim anchor0 As Tag = Anchor.href("/help").up(list0)
+	anchor0.cls("nav-link")
+	anchor0.add(Icon.cls("bi bi-gear mr-2").title("API"))
+	anchor0.text("API")
+
+	Dim list1 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
+	Dim anchor1 As Tag = Anchor.href("/topics").up(list1)
+	anchor1.cls("nav-link")
+	anchor1.text("Topics")
+
+	Dim list2 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
+	Dim anchor2 As Tag = Anchor.href("#").up(list2)
+	anchor2.cls("nav-link")
+	anchor2.text("Users")
+
 	Dim doc As Document
 	doc.Initialize
 	doc.AppendDocType
 	doc.Append(page1.build)
 	App.WriteHtml2(Response, doc.ToString, App.ctx)
+End Sub
+
+' Retrieve ulist tag from DOM
+Private Sub FindUListTag (dom As Tag) As Tag
+	Dim body1 As Tag = dom.Child(1)
+	Dim nav1 As Tag = body1.Child(1)
+	Dim container1 As Tag = nav1.Child(0)
+	Dim navbar1 As Tag = container1.Child(3)
+	Dim ulist1 As Tag = navbar1.Child(0)
+	Return ulist1
 End Sub
 
 Private Sub ContentContainer As Tag
