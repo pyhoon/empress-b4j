@@ -341,17 +341,11 @@ Private Sub HandleEditModal
 		Dim group5 As Tag = modalBody.add(Div.cls("form-group"))
         Label.forId("status").text("Status ").up(group5).add(Span.cls("text-danger").text("*"))
         Dim select1 As Tag = Dropdown.up(group5).id("status").name("page_status").cls("form-select").attr3("required")
-        If page_status = 0 Then
-            Option.valueOf("0").attr3("selected").text("Draft").up(select1)
-        Else
-            Option.valueOf("0").text("Draft").up(select1)
-        End If
-        If page_status = 1 Then
-            Option.valueOf("1").attr3("selected").text("Published").up(select1)
-        Else
-            Option.valueOf("1").text("Published").up(select1)
-        End If
-		
+        Dim option0 As Tag = Option.valueOf("0").text("Draft").up(select1)
+        Dim option1 As Tag = Option.valueOf("1").text("Published").up(select1)
+		If page_status = 0 Then option0.selected
+        If page_status = 1 Then option1.selected
+				
 		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 		modalFooter.add(Button.cls("btn btn-primary px-3").text("Update"))
 		modalFooter.add(Input.typeOf("button").cls("btn btn-secondary px-3").data("bs-dismiss", "modal").valueOf("Cancel"))
@@ -574,15 +568,14 @@ Private Sub CreatePagesRow (data As Map) As Tag
 	Dim page_slug As String = data.Get("page_slug")
 	Dim page_title As String = data.Get("page_title")
 	Dim page_topic As String = data.Get("topic_name")
-	Dim page_status As Int = data.Get("page_status")
-	Dim status_name As String = IIf(page_status = 1, "Published", "Draft")
+	Dim page_status As String = IIf(1 = data.Get("page_status"), "Published", "Draft")
 
 	Dim tr1 As Tag = Tr.init
 	tr1.add(Td.cls("align-middle").sty("text-align: right").text(id))
 	tr1.add(Td.cls("align-middle").text(page_slug))
 	tr1.add(Td.cls("align-middle").text(page_title))
 	tr1.add(Td.cls("align-middle text-center").text(page_topic))
-	tr1.add(Td.cls("align-middle text-center").sty("text-align: right").text(status_name))
+	tr1.add(Td.cls("align-middle text-center").sty("text-align: right").text(page_status))
 	Dim td6 As Tag = Td.cls("align-middle text-center px-1 py-1").up(tr1)
 
 	Dim anchor1 As Tag = Anchor.cls("edit text-primary mx-2").up(td6)
