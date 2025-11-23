@@ -179,7 +179,7 @@ Private Sub HandleAddModal
 	
 	Dim group4 As Tag = Div.cls("form-group mb-2").up(modalBody)
 	Label.forId("password").text("Password ").up(group4).add(Span.cls("text-danger").text("*"))
-	Input.typeOf("text").cls("form-control").id("password").name("password").valueOf("").attr3("required").up(group4)
+	Input.typeOf("password").cls("form-control").id("password").name("password").valueOf("").attr3("required").up(group4)
 
 	Dim group5 As Tag = Div.cls("form-check form-switch mb-2").up(modalBody)
 	Input.typeOf("checkbox").cls("form-check-input").id("admin").name("admin").attr("role", "switch").up(group5)
@@ -302,6 +302,7 @@ Private Sub HandleUser
 			' Create
 			Dim first_name As String = Request.GetParameter("first_name")
 			Dim last_name As String = Request.GetParameter("last_name")
+			
 			If first_name = "" Or first_name.Trim.Length < 2 Then
 				ShowAlert("First name must be at least 2 characters long.", "warning")
 				Return
@@ -319,6 +320,10 @@ Private Sub HandleUser
 				Return
 			End If
 			
+			Dim admin As String = Request.GetParameter("admin")
+			Dim active As String = Request.GetParameter("active")
+			Dim isAdmin As Int = IIf(admin = "on", 1, 0)
+			Dim isActive As Int = IIf(active = "on", 1, 0)			
 			Try
 				DB.SQL = Main.DBOpen
 				DB.Table = "users"
@@ -337,11 +342,11 @@ Private Sub HandleUser
 
 			' Insert new row
 			Try
-				Dim salt As String = Encryption.RandomHash2
+				Dim salt As String = Encryption.RandomHash
 				Dim hash As String = Encryption.MD5(password & salt)
 				DB.Reset
 				DB.Columns = Array("first_name", "last_name", "email", "hash", "salt", "admin", "active")
-				DB.Parameters = Array(first_name, last_name, email, hash, salt, 0, 0)
+				DB.Parameters = Array(first_name, last_name, email, hash, salt, isAdmin, isActive)
 				DB.Save
 				DB.Close
 				ShowToast("User", "created", "User created successfully!", "success")

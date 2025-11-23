@@ -180,7 +180,7 @@ Public Sub AddUsersTable
 	DB.Columns.Add(DB.CreateColumn2(CreateMap("Name": "active", "Null": False, "Type": DB.INTEGER, "Default": "0")))
 	DB.Create
 	
-	Dim salt As String = Encryption.RandomHash2
+	Dim salt As String = Encryption.RandomHash
 	Dim hash As String = Encryption.MD5("admin" & salt)
 	DB.Columns = Array("first_name", "last_name", "email", "hash", "salt", "admin", "active")
 	DB.Insert2(Array("Admin", "", "admin", hash, salt, 1, 1))
