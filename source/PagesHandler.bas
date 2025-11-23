@@ -404,11 +404,8 @@ Private Sub CreateTopicsDropdown (selected As Int) As Tag
 	For Each row As Map In DB.Results
 		Dim topic_id As Int = row.Get("id")
 		Dim topic_name As String = row.Get("topic_name")
-		If topic_id = selected Then
-			Option.valueOf(topic_id).attr3("selected").text(topic_name).up(select1)
-		Else
-			Option.valueOf(topic_id).text(topic_name).up(select1)
-		End If
+		Dim option1 As Tag = Option.valueOf(topic_id).text(topic_name).up(select1)
+		If topic_id = selected Then option1.selected
 	Next
 	DB.Close
 	Return select1
