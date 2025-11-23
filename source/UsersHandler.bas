@@ -198,13 +198,16 @@ Private Sub HandleEditModal
 		
 	DB.SQL = Main.DBOpen
 	DB.Table = "users"
-	DB.Columns = Array("id", "first_name", "last_name", "email")
+	DB.Columns = Array("id", "first_name", "last_name", "email", "admin", "active")
 	DB.WhereParam("id = ?", id)
 	DB.Query
 	If DB.Found Then
-		Dim first_name As String = DB.First.Get("first_name")
-		Dim last_name As String = DB.First.Get("last_name")
-		Dim email As String = DB.First.Get("email")
+		Dim row As Map = DB.First
+		Dim first_name As String = row.Get("first_name")
+		Dim last_name As String = row.Get("last_name")
+		Dim email As String = row.Get("email")
+		Dim admin As String = IIf(1 = row.Get("admin"), "checked", "")
+		Dim active As String = IIf(1 = row.Get("active"), "checked", "")
 
 		Dim modalHeader As Tag = Div.cls("modal-header").up(form1)
 		H5.cls("modal-title").text("Edit User").up(modalHeader)
@@ -214,17 +217,29 @@ Private Sub HandleEditModal
 		Div.id("modal-messages").up(modalBody)
 		Input.typeOf("hidden").up(modalBody).name("id").valueOf(id)
 		
-		Dim group1 As Tag = Div.cls("form-group").up(modalBody)
+		Dim group1 As Tag = Div.cls("form-group mb-2").up(modalBody)
 		Label.forId("first_name").text("First Name ").up(group1).add(Span.cls("text-danger").text("*"))
 		Input.typeOf("text").cls("form-control").id("first_name").name("first_name").valueOf(first_name).attr3("required").up(group1)
 		
-		Dim group2 As Tag = Div.cls("form-group").up(modalBody)
+		Dim group2 As Tag = Div.cls("form-group mb-2").up(modalBody)
 		Label.forId("last_name").text("Last Name ").up(group2).add(Span.cls("text-danger").text("*"))
 		Input.typeOf("text").cls("form-control").id("last_name").name("last_name").valueOf(last_name).attr3("required").up(group2)
 	
-		Dim group3 As Tag = Div.cls("form-group").up(modalBody)
+		Dim group3 As Tag = Div.cls("form-group mb-2").up(modalBody)
 		Label.forId("email").text("Email ").up(group3).add(Span.cls("text-danger").text("*"))
 		Input.typeOf("text").cls("form-control").id("email").name("email").valueOf(email).attr3("required").up(group3)
+
+		'Dim group4 As Tag = Div.cls("form-group mb-2").up(modalBody)
+		'Label.forId("password").text("Password ").up(group4).add(Span.cls("text-danger").text("*"))
+		'Input.typeOf("text").cls("form-control").id("password").name("password").valueOf("").attr3("required").up(group4)
+
+		Dim group5 As Tag = Div.cls("form-check form-switch mb-2").up(modalBody)
+		Input.typeOf("checkbox").cls("form-check-input").id("admin").name("admin").attr("role", "switch").attr3(admin).up(group5)
+		Label.forId("admin").cls("form-check-label").text("Admin").up(group5)
+		
+		Dim group6 As Tag = Div.cls("form-check form-switch mb-2").up(modalBody)
+		Input.typeOf("checkbox").cls("form-check-input").id("active").name("active").attr("role", "switch").attr3(active).up(group6)
+		Label.forId("active").cls("form-check-label").text("Active").up(group6)
 
 		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 		Button.typeOf("submit").cls("btn btn-primary px-3").text("Update").up(modalFooter)
@@ -252,6 +267,7 @@ Private Sub HandleDeleteModal
 		Dim row As Map = DB.First
 		Dim first_name As String = row.Get("first_name")
 		Dim last_name As String = row.Get("last_name")
+		Dim email As String = row.Get("email")
 
 		Dim modalHeader As Tag = Div.cls("modal-header").up(form1)
 		H5.cls("modal-title").text("Delete User").up(modalHeader)
@@ -260,7 +276,7 @@ Private Sub HandleDeleteModal
 		Dim modalBody As Tag = Div.cls("modal-body").up(form1)
 		Div.id("modal-messages").up(modalBody)
 		Input.typeOf("hidden").name("id").valueOf(id).up(modalBody)
-		Paragraph.text($"Delete ${first_name} ${last_name}?"$).up(modalBody)
+		Paragraph.text($"Delete ${first_name} ${last_name} (${email})?"$).up(modalBody)
 
 		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 		Button.typeOf("submit").cls("btn btn-danger px-3").text("Delete").up(modalFooter)
@@ -327,7 +343,12 @@ Private Sub HandleUser
 		Case "PUT"
 			' Update
 			Dim id As Int = Request.GetParameter("id")
-			Dim name As String = Request.GetParameter("name")
+			Dim first_name As String = Request.GetParameter("first_name")
+			Dim last_name As String = Request.GetParameter("last_name")
+			Dim email As String = Request.GetParameter("email")
+			Dim admin As String = Request.GetParameter("admin")
+			Dim active As String = Request.GetParameter("active")
+			
 			DB.SQL = Main.DBOpen
 			DB.Table = "users"
 			
@@ -339,8 +360,8 @@ Private Sub HandleUser
 			End If
 
 			DB.Reset
-			DB.Where = Array("user_name = ?", "id <> ?")
-			DB.Parameters = Array(name, id)
+			DB.Where = Array("email = ?", "id <> ?")
+			DB.Parameters = Array(email, id)
 			DB.Query
 			If DB.Found Then
 				ShowAlert("User already exists!", "warning")
@@ -348,11 +369,13 @@ Private Sub HandleUser
 				Return
 			End If
 			
+			Dim isAdmin As Int = IIf(admin = "on", 1, 0)
+			Dim isActive As Int = IIf(active = "on", 1, 0)
 			' Update row
 			Try
 				DB.Reset
-				DB.Columns = Array("user_name", "modified_date")
-				DB.Parameters = Array(name, Main.CurrentDateTime)
+				DB.Columns = Array("first_name", "last_name", "email", "admin", "active", "modified_date")
+				DB.Parameters = Array(first_name, last_name, email, isAdmin, isActive, Main.CurrentDateTime)
 				DB.Id = id
 				DB.Save
 				DB.Close
@@ -402,12 +425,14 @@ Private Sub CreateUserTable As Tag
 	thead1.add(Th.text("First Name"))
 	thead1.add(Th.text("Last Name"))
 	thead1.add(Th.text("Email"))
+	thead1.add(Th.text("Admin"))
+	thead1.add(Th.text("Active"))
 	thead1.add(Th.sty("text-align: center; width: 120px").text("Actions"))
 	Dim tbody1 As Tag = Tbody.init.up(table1)
 	
 	DB.SQL = Main.DBOpen
 	DB.Table = "users"
-	DB.Columns = Array("id", "first_name", "last_name", "email")
+	DB.Columns = Array("id", "first_name", "last_name", "email", "admin", "active")
 	DB.OrderBy = CreateMap("id": "")
 	DB.Query
 	For Each row As Map In DB.Results
@@ -423,12 +448,16 @@ Private Sub CreateUserRow (data As Map) As Tag
 	Dim first_name As String = data.Get("first_name")
 	Dim last_name As String = data.Get("last_name")
 	Dim email As String = data.Get("email")
+	Dim admin As String = IIf(1 = data.Get("admin"), "yes", "no")
+	Dim active As String = IIf(1 = data.Get("active"), "yes", "no")
 
 	Dim tr1 As Tag = Tr.init
 	tr1.add(Td.cls("align-middle").sty("text-align: right").text(id))
 	tr1.add(Td.cls("align-middle").text(first_name))
 	tr1.add(Td.cls("align-middle").text(last_name))
 	tr1.add(Td.cls("align-middle").text(email))
+	tr1.add(Td.cls("align-middle").text(admin))
+	tr1.add(Td.cls("align-middle").text(active))
 	
 	Dim td3 As Tag = Td.cls("align-middle text-center px-1 py-1").up(tr1)
 
