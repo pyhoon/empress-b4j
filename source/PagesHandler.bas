@@ -276,10 +276,12 @@ Private Sub HandleAddModal
 	Dim group4 As Tag = Div.cls("form-group").up(modalBody)
 	group4.add(Label.text("Body ")).add(Span.cls("text-danger").text("*"))
 	group4.add(Textarea.rows("3").name("page_body").cls("form-control").attr3("required"))
-	
-	Dim group5 As Tag = Div.cls("form-group").up(modalBody)
-	group5.add(Label.text("Status "))
-	group5.add(Input.typeOf("text").name("status").cls("form-control"))
+
+    Dim group5 As Tag = modalBody.add(Div.cls("form-group"))
+    Label.forId("status").text("Status ").up(group5).add(Span.cls("text-danger").text("*"))
+    Dim select1 As Tag = Dropdown.up(group5).id("status").name("status").cls("form-select").attr3("required")
+    Option.valueOf("0").text("Draft").up(select1)
+    Option.valueOf("1").text("Published").up(select1)
 
 	Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 	modalFooter.add(Button.typeOf("submit").cls("btn btn-success px-3").text("Create"))
@@ -336,9 +338,19 @@ Private Sub HandleEditModal
 		group4.add(Label.text("Body ")).add(Span.cls("text-danger").text("*"))
 		group4.add(Textarea.rows("3").cls("form-control").name("page_body").text(page_body).attr3("required"))
 
-		Dim group5 As Tag = Div.cls("form-group").up(modalBody)
-		group5.add(Label.text("Status "))
-		group5.add(Input.typeOf("text").cls("form-control").name("page_status").valueOf(page_status))
+		Dim group5 As Tag = modalBody.add(Div.cls("form-group"))
+        Label.forId("status").text("Status ").up(group5).add(Span.cls("text-danger").text("*"))
+        Dim select1 As Tag = Dropdown.up(group5).id("status").name("page_status").cls("form-select").attr3("required")
+        If page_status = 0 Then
+            Option.valueOf("0").attr3("selected").text("Draft").up(select1)
+        Else
+            Option.valueOf("0").text("Draft").up(select1)
+        End If
+        If page_status = 1 Then
+            Option.valueOf("1").attr3("selected").text("Published").up(select1)
+        Else
+            Option.valueOf("1").text("Published").up(select1)
+        End If
 		
 		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 		modalFooter.add(Button.cls("btn btn-primary px-3").text("Update"))
@@ -538,8 +550,8 @@ Private Sub CreatePagesTable As Tag
 	thead1.add(Th.sty("text-align: right; width: 50px").text("#"))
 	thead1.add(Th.text("Slug"))
 	thead1.add(Th.text("Title"))
-	thead1.add(Th.text("Topic"))
-	thead1.add(Th.sty("text-align: right").text("Status"))
+	thead1.add(Th.sty("text-align: center").text("Topic"))
+	thead1.add(Th.sty("text-align: center").text("Status"))
 	thead1.add(Th.sty("text-align: center; width: 120px").text("Actions"))
 	Dim tbody1 As Tag = table1.add(Tbody.init)
 
@@ -561,15 +573,16 @@ Private Sub CreatePagesRow (data As Map) As Tag
 	Dim id As Int = data.Get("id")
 	Dim page_slug As String = data.Get("page_slug")
 	Dim page_title As String = data.Get("page_title")
-	Dim page_status As Int = data.Get("page_status")
 	Dim page_topic As String = data.Get("topic_name")
+	Dim page_status As Int = data.Get("page_status")
+	Dim status_name As String = IIf(page_status = 1, "Published", "Draft")
 
 	Dim tr1 As Tag = Tr.init
 	tr1.add(Td.cls("align-middle").sty("text-align: right").text(id))
 	tr1.add(Td.cls("align-middle").text(page_slug))
 	tr1.add(Td.cls("align-middle").text(page_title))
-	tr1.add(Td.cls("align-middle").text(page_topic))
-	tr1.add(Td.cls("align-middle").sty("text-align: right").text(page_status))
+	tr1.add(Td.cls("align-middle text-center").text(page_topic))
+	tr1.add(Td.cls("align-middle text-center").sty("text-align: right").text(status_name))
 	Dim td6 As Tag = Td.cls("align-middle text-center px-1 py-1").up(tr1)
 
 	Dim anchor1 As Tag = Anchor.cls("edit text-primary mx-2").up(td6)
@@ -601,7 +614,7 @@ End Sub
 Private Sub ShowToast (entity As String, action As String, message As String, status As String)
 	Dim div1 As Tag = Div.id("pages-container")
 	div1.hxSwapOob("true")
-	div1.add(CreatepagesTable)
+	div1.add(CreatePagesTable)
 
 	Dim script1 As MiniJs
 	script1.Initialize
