@@ -55,16 +55,21 @@ Private Sub RenderPage
 	anchor0.cls("nav-link")
 	anchor0.add(Icon.cls("bi bi-gear mr-2").title("API"))
 	anchor0.text("API")
-
-	Dim list1 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor1 As Tag = Anchor.href("/topics").up(list1)
-	anchor1.cls("nav-link")
-	anchor1.text("Topics")
-
-	Dim list2 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor2 As Tag = Anchor.href("#").up(list2)
-	anchor2.cls("nav-link")
-	anchor2.text("Users")
+  
+    Dim list1 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
+    Dim anchor1 As Tag = Anchor.href("/pages").up(list1)
+    anchor1.cls("nav-link")
+    anchor1.text("Pages")
+  
+    Dim list2 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
+    Dim anchor2 As Tag = Anchor.href("/topics").up(list2)
+    anchor2.cls("nav-link")
+    anchor2.text("Topics")
+	
+	Dim list3 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
+	Dim anchor3 As Tag = Anchor.href("/users").up(list3)
+	anchor3.cls("nav-link")
+	anchor3.text("Users")
 
 	Dim doc As Document
 	doc.Initialize

@@ -23,21 +23,22 @@ Library6=miniormutils
 Library7=webapiutils
 Library8=byteconverter
 Module1=Database
-Module10=TopicsHandler
-Module11=UsersApiHandler
-Module12=UsersHandler
-Module13=Utilities
+Module10=TopicsApiHandler
+Module11=TopicsHandler
+Module12=UsersApiHandler
+Module13=UsersHandler
+Module14=Utilities
 Module2=Encryption
 Module3=FindApiHandler
 Module4=HelpHandler
 Module5=HttpsFilter
-Module6=MainView
-Module7=PagesApiHandler
-Module8=PagesHandler
-Module9=TopicsApiHandler
+Module6=IndexHandler
+Module7=MainView
+Module8=PagesApiHandler
+Module9=PagesHandler
 NumberOfFiles=5
 NumberOfLibraries=8
-NumberOfModules=13
+NumberOfModules=14
 Version=10.3
 @EndOfDesignText@
 #Region Project Attributes
@@ -100,11 +101,13 @@ Sub AppStart (Args() As String)
 	App.Rest("/api/topics/*", "TopicsApiHandler")
 	App.Rest("/api/users/*", "UsersApiHandler")
 	#End If
-	App.Get("", "PagesHandler")
+	App.Get("", "IndexHandler")
+	App.Get("/pages", "PagesHandler")
+	'App.Post("/pages", "PagesHandler")
 	App.Get("/topics", "TopicsHandler")
-	App.Post("/topics", "TopicsHandler")
+	'App.Post("/topics", "TopicsHandler")
 	App.Get("/users", "UsersHandler")
-	App.Post("/users", "UsersHandler")
+	'App.Post("/users", "UsersHandler")
 	App.Rest("/hx/pages/*", "PagesHandler")
 	App.Rest("/hx/topics/*", "TopicsHandler")
 	App.Rest("/hx/users/*", "UsersHandler")

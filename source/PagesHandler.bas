@@ -25,10 +25,12 @@ Sub Handle (req As ServletRequest, resp As ServletResponse)
 	Method = req.Method
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
 	Dim path As String = req.RequestURI
-	If path = "/" Then
+	If path = "/pages" Then
 		RenderPage
 	Else If path = "/hx/pages/table" Then
 		HandleTable
+	Else If path = "/hx/pages/list" Then
+		HandlePagesList
 	Else If path = "/hx/pages/search" Then
 		HandleSearch
 	Else If path = "/hx/pages/add" Then
@@ -58,16 +60,21 @@ Private Sub RenderPage
 	anchor0.cls("nav-link")
 	anchor0.add(Icon.cls("bi bi-gear mr-2").title("API"))
 	anchor0.text("API")
+  
+    Dim list1 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
+    Dim anchor1 As Tag = Anchor.href("#").up(list1)
+    anchor1.cls("nav-link")
+    anchor1.text("Pages")
+  
+    Dim list2 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
+    Dim anchor2 As Tag = Anchor.href("/topics").up(list2)
+    anchor2.cls("nav-link")
+    anchor2.text("Topics")
 	
-	Dim list1 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor1 As Tag = Anchor.href("/topics").up(list1)
-	anchor1.cls("nav-link")
-	anchor1.text("Topics")
-
-	Dim list2 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor2 As Tag = Anchor.href("/users").up(list2)
-	anchor2.cls("nav-link")
-	anchor2.text("Users")
+	Dim list3 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
+	Dim anchor3 As Tag = Anchor.href("/users").up(list3)
+	anchor3.cls("nav-link")
+	anchor3.text("Users")
 
 	Dim doc As Document
 	doc.Initialize
@@ -181,6 +188,36 @@ End Sub
 ' Return table HTML
 Private Sub HandleTable
 	App.WriteHtml(Response, CreatePagesTable.Build)
+End Sub
+
+Private Sub HandlePagesList
+	DB.SQL = Main.DBOpen
+	DB.Table = "pages p"
+	DB.Columns = Array("p.id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_body", "p.page_status", "Date(p.created_date) AS created_date", "u.first_name AS author")
+	DB.Join = DB.CreateJoin("topics t", "p.topic_id = t.id", "")
+	DB.Join = DB.CreateJoin("users u", "p.created_by = u.id", "")
+	DB.OrderBy = CreateMap("p.id": "")
+	DB.Query
+  
+	Dim div1 As Tag = Div.init
+	For Each row As Map In DB.Results
+		Dim page_slug As String = row.Get("page_slug")
+		Dim page_body As String = row.Get("page_body")
+		Dim page_title As String = row.Get("page_title")
+		Dim page_status As String = row.Get("page_status")
+		Dim topic_name As String = row.Get("topic_name")
+		Dim page_created As String = "created on " & row.Get("created_date")
+		page_created = page_created & " by " & row.Get("author")
+      
+		Dim card1 As Tag = Div.cls("card text-start mb-3")
+		Dim cardbody1 As Tag = Div.cls("card-body").up(card1)
+		H5.cls("card-title").up(cardbody1).text(page_title)
+		H6.cls("card-subtitle mb-2 text-body-secondary").up(cardbody1).text(page_created)
+		Paragraph.cls("card-text").up(cardbody1).text(page_body)
+		card1.up(div1)
+	Next
+	DB.Close
+	App.WriteHtml(Response, div1.Build)
 End Sub
 
 ' Search page using keyword
