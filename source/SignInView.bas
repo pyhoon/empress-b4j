@@ -83,6 +83,7 @@ Private Sub PageBody As Tag
 
 	Dim main1 As Tag = Html.create("main").cls("form-signin w-100 m-auto").up(body1)
 	Dim form1 As Tag = Form.up(main1)
+	form1.action("/pages")
 	
 	Icon.cls("h1 bi bi-infinity text-primary").up(form1)
 	H1.cls("h3 mb-3 fw-normal").text("Please sign in").up(form1)
