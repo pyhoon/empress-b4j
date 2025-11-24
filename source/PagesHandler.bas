@@ -201,11 +201,11 @@ Private Sub HandlePagesList
   
 	Dim div1 As Tag = Div.init
 	For Each row As Map In DB.Results
-		Dim page_slug As String = row.Get("page_slug")
+		'Dim page_slug As String = row.Get("page_slug")
 		Dim page_body As String = row.Get("page_body")
 		Dim page_title As String = row.Get("page_title")
-		Dim page_status As String = row.Get("page_status")
-		Dim topic_name As String = row.Get("topic_name")
+		'Dim page_status As String = row.Get("page_status")
+		'Dim topic_name As String = row.Get("topic_name")
 		Dim page_created As String = "created on " & row.Get("created_date")
 		page_created = page_created & " by " & row.Get("author")
       

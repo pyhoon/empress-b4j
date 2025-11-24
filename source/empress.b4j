@@ -23,11 +23,13 @@ Library6=miniormutils
 Library7=webapiutils
 Library8=byteconverter
 Module1=Database
-Module10=TopicsApiHandler
-Module11=TopicsHandler
-Module12=UsersApiHandler
-Module13=UsersHandler
-Module14=Utilities
+Module10=SignInHandler
+Module11=SignInView
+Module12=TopicsApiHandler
+Module13=TopicsHandler
+Module14=UsersApiHandler
+Module15=UsersHandler
+Module16=Utilities
 Module2=Encryption
 Module3=FindApiHandler
 Module4=HelpHandler
@@ -38,7 +40,7 @@ Module8=PagesApiHandler
 Module9=PagesHandler
 NumberOfFiles=5
 NumberOfLibraries=8
-NumberOfModules=14
+NumberOfModules=16
 Version=10.3
 @EndOfDesignText@
 #Region Project Attributes
@@ -108,6 +110,7 @@ Sub AppStart (Args() As String)
 	'App.Post("/topics", "TopicsHandler")
 	App.Get("/users", "UsersHandler")
 	'App.Post("/users", "UsersHandler")
+	App.Get("/sign-in", "SignInHandler")
 	App.Rest("/hx/pages/*", "PagesHandler")
 	App.Rest("/hx/topics/*", "TopicsHandler")
 	App.Rest("/hx/users/*", "UsersHandler")
