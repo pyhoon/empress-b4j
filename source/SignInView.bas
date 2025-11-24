@@ -50,31 +50,32 @@ Private Sub PageHeader As Tag
 	header1.linkcss("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css")
 	#End If
 	'header1.linkcss("$SERVER_URL$/assets/css/main.css?v=$VERSION$")
-	Html.create("style").text($"html,
-body {
-  height: 100%;
-}
+	Html.create("style").text($"
+		html,
+		body {
+		  height: 100%;
+		}
 
-.form-signin {
-  max-width: 330px;
-  padding: 1rem;
-}
+		.form-signin {
+		  max-width: 330px;
+		  padding: 1rem;
+		}
 
-.form-signin .form-floating:focus-within {
-  z-index: 2;
-}
+		.form-signin .form-floating:focus-within {
+		  z-index: 2;
+		}
 
-.form-signin input[type="email"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
+		.form-signin input[type="email"] {
+		  margin-bottom: -1px;
+		  border-bottom-right-radius: 0;
+		  border-bottom-left-radius: 0;
+		}
 
-.form-signin input[type="password"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}"$).up(header1)
+		.form-signin input[type="password"] {
+		  margin-bottom: 10px;
+		  border-top-left-radius: 0;
+		  border-top-right-radius: 0;
+		}"$).up(header1)
 	Return header1
 End Sub
 
