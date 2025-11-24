@@ -304,19 +304,19 @@ Private Sub HandleAddModal
 
 	'Dim group2 As Tag = Div.cls("form-group").up(modalBody)
 	'group2.add(Label.text("Slug ")).add(Span.cls("text-danger").text("*"))
-	'group2.add(Input.typeOf("text").name("page_slug").cls("form-control").attr3("required"))
+	'group2.add(Input.typeOf("text").name("page_slug").cls("form-control").required)
 
 	Dim group3 As Tag = Div.cls("form-group").up(modalBody)
 	group3.add(Label.text("Title ")).add(Span.cls("text-danger").text("*"))
-	group3.add(Input.typeOf("text").name("page_title").cls("form-control").attr3("required"))
+	group3.add(Input.typeOf("text").name("page_title").cls("form-control").required)
 
 	Dim group4 As Tag = Div.cls("form-group").up(modalBody)
 	group4.add(Label.text("Body ")).add(Span.cls("text-danger").text("*"))
-	group4.add(Textarea.rows("3").name("page_body").cls("form-control").attr3("required"))
+	group4.add(Textarea.rows("3").name("page_body").cls("form-control").required)
 
     Dim group5 As Tag = modalBody.add(Div.cls("form-group"))
     Label.forId("status").text("Status ").up(group5).add(Span.cls("text-danger").text("*"))
-    Dim select1 As Tag = Dropdown.up(group5).id("status").name("status").cls("form-select").attr3("required")
+    Dim select1 As Tag = Dropdown.up(group5).id("status").name("status").cls("form-select").required
     Option.valueOf("0").text("Draft").up(select1)
     Option.valueOf("1").text("Published").up(select1)
 
@@ -369,15 +369,15 @@ Private Sub HandleEditModal
 
 		Dim group3 As Tag = Div.cls("form-group").up(modalBody)
 		group3.add(Label.text("Title ")).add(Span.cls("text-danger").text("*"))
-		group3.add(Input.typeOf("text").cls("form-control").name("page_title").valueOf(page_title).attr3("required"))
+		group3.add(Input.typeOf("text").cls("form-control").name("page_title").valueOf(page_title).required)
 
 		Dim group4 As Tag = Div.cls("form-group").up(modalBody)
 		group4.add(Label.text("Body ")).add(Span.cls("text-danger").text("*"))
-		group4.add(Textarea.rows("3").cls("form-control").name("page_body").text(page_body).attr3("required"))
+		group4.add(Textarea.rows("3").cls("form-control").name("page_body").text(page_body).required)
 
 		Dim group5 As Tag = modalBody.add(Div.cls("form-group"))
         Label.forId("status").text("Status ").up(group5).add(Span.cls("text-danger").text("*"))
-        Dim select1 As Tag = Dropdown.up(group5).id("status").name("page_status").cls("form-select").attr3("required")
+        Dim select1 As Tag = Dropdown.up(group5).id("status").name("page_status").cls("form-select").required
         Dim option0 As Tag = Option.valueOf("0").text("Draft").up(select1)
         Dim option1 As Tag = Option.valueOf("1").text("Published").up(select1)
 		If page_status = 0 Then option0.selected
@@ -393,9 +393,10 @@ End Sub
 
 Private Sub CreateTopicsDropdown (selected As Int) As Tag
 	Dim select1 As Tag = Dropdown.cls("form-select")
-	select1.attr3("required")
+	select1.required
 	select1.hxGet("/hx/topics/list")
-	Option.valueOf("").text("Select topic").attr3(IIf(selected < 1, "selected", "")).attr3("disabled").up(select1)
+	Dim option0 As Tag = Option.valueOf("").text("Select topic").disabled.up(select1)
+	If selected < 1 Then option0.selected
 
 	DB.SQL = Main.DBOpen
 	DB.Table = "topics"

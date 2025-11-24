@@ -170,7 +170,7 @@ Private Sub HandleAddModal
 	
 	Dim group1 As Tag = modalBody.add(Div.cls("form-group"))
 	Label.forId("name").text("Name ").up(group1).add(Span.cls("text-danger").text("*"))
-	Input.typeOf("text").up(group1).id("name").name("name").cls("form-control").attr3("required")
+	Input.typeOf("text").up(group1).id("name").name("name").cls("form-control").required
 
 	Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 	Button.typeOf("submit").cls("btn btn-success px-3").text("Create").up(modalFooter)
@@ -204,7 +204,7 @@ Private Sub HandleEditModal
 		
 		Dim group1 As Tag = Div.cls("form-group").up(modalBody)
 		Label.forId("name").text("Name ").up(group1).add(Span.cls("text-danger").text("*"))
-		Input.typeOf("text").cls("form-control").id("name").name("name").valueOf(name).attr3("required").up(group1)
+		Input.typeOf("text").cls("form-control").id("name").name("name").valueOf(name).required.up(group1)
 
 		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
 		Button.typeOf("submit").cls("btn btn-primary px-3").text("Update").up(modalFooter)

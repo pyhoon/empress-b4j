@@ -1,6 +1,18 @@
 {
-    "Version": "6.00beta",
+    "Version": "0.20",
     "Libraries": [
+        {
+            "Name": "Encryption.jar",
+            "Platform": "B4J",
+            "Version": 1.10,
+            "Link": "https://github.com/pyhoon/Encryption-B4X/releases/download/1.10/Encryption.jar"
+        },
+        {
+            "Name": "Encryption.xml",
+            "Platform": "B4J",
+            "Version": 1.10,
+            "Link": "https://github.com/pyhoon/Encryption-B4X/releases/download/1.10/Encryption.xml"
+        },
         {
             "Name": "EndsMeet.b4xlib",
             "Platform": "B4J",
@@ -10,8 +22,8 @@
         {
             "Name": "MiniHtml.b4xlib",
             "Platform": "B4X",
-            "Version": 0.50,
-            "Link": "https://github.com/pyhoon/MiniHtml-B4X/releases/download/v0.50/MiniHtml.b4xlib"
+            "Version": 0.70,
+            "Link": "https://github.com/pyhoon/MiniHtml-B4X/releases/download/v0.70/MiniHtml.b4xlib"
         },
         {
             "Name": "MiniJS.b4xlib",
@@ -24,6 +36,12 @@
             "Platform": "B4X",
             "Version": 3.90,
             "Link": "https://github.com/pyhoon/MiniORMUtils-B4X/releases/download/v3.90/MiniORMUtils.b4xlib"
+        },
+        {
+            "Name": "WebApiUtils.b4xlib",
+            "Platform": "B4J",
+            "Version": 5.50,
+            "Link": "https://github.com/pyhoon/WebApiUtils-B4J/releases/download/v5.50/WebApiUtils.b4xlib"
         },
         {
             "Name": "mysql-connector-j-9.3.0.jar",

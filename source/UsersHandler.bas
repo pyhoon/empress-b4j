@@ -172,26 +172,26 @@ Private Sub HandleAddModal
 	
 	Dim group1 As Tag = Div.cls("form-group mb-2").up(modalBody)
 	Label.forId("first_name").text("First Name ").up(group1).add(Span.cls("text-danger").text("*"))
-	Input.typeOf("text").cls("form-control").id("first_name").name("first_name").valueOf("").attr3("required").up(group1)
+	Input.typeOf("text").cls("form-control").id("first_name").name("first_name").valueOf("").required.up(group1)
 		
 	Dim group2 As Tag = Div.cls("form-group mb-2").up(modalBody)
 	Label.forId("last_name").text("Last Name ").up(group2).add(Span.cls("text-danger").text("*"))
-	Input.typeOf("text").cls("form-control").id("last_name").name("last_name").valueOf("").attr3("required").up(group2)
+	Input.typeOf("text").cls("form-control").id("last_name").name("last_name").valueOf("").required.up(group2)
 	
 	Dim group3 As Tag = Div.cls("form-group mb-2").up(modalBody)
 	Label.forId("email").text("Email ").up(group3).add(Span.cls("text-danger").text("*"))
-	Input.typeOf("text").cls("form-control").id("email").name("email").valueOf("").attr3("required").up(group3)
+	Input.typeOf("text").cls("form-control").id("email").name("email").valueOf("").required.up(group3)
 	
 	Dim group4 As Tag = Div.cls("form-group mb-2").up(modalBody)
 	Label.forId("password").text("Password ").up(group4).add(Span.cls("text-danger").text("*"))
-	Input.typeOf("password").cls("form-control").id("password").name("password").valueOf("").attr3("required").up(group4)
+	Input.typeOf("password").cls("form-control").id("password").name("password").valueOf("").required.up(group4)
 
 	Dim group5 As Tag = Div.cls("form-check form-switch mb-2").up(modalBody)
 	Input.typeOf("checkbox").cls("form-check-input").id("admin").name("admin").attr("role", "switch").up(group5)
 	Label.forId("admin").cls("form-check-label").text("Admin").up(group5)
 		
 	Dim group6 As Tag = Div.cls("form-check form-switch mb-2").up(modalBody)
-	Input.typeOf("checkbox").cls("form-check-input").id("active").name("active").attr("role", "switch").attr3("checked").up(group6)
+	Input.typeOf("checkbox").cls("form-check-input").id("active").name("active").attr("role", "switch").checked.up(group6)
 	Label.forId("active").cls("form-check-label").text("Active").up(group6)
 
 	Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
@@ -232,19 +232,19 @@ Private Sub HandleEditModal
 		
 		Dim group1 As Tag = Div.cls("form-group mb-2").up(modalBody)
 		Label.forId("first_name").text("First Name ").up(group1).add(Span.cls("text-danger").text("*"))
-		Input.typeOf("text").cls("form-control").id("first_name").name("first_name").valueOf(first_name).attr3("required").up(group1)
+		Input.typeOf("text").cls("form-control").id("first_name").name("first_name").valueOf(first_name).required.up(group1)
 		
 		Dim group2 As Tag = Div.cls("form-group mb-2").up(modalBody)
 		Label.forId("last_name").text("Last Name ").up(group2).add(Span.cls("text-danger").text("*"))
-		Input.typeOf("text").cls("form-control").id("last_name").name("last_name").valueOf(last_name).attr3("required").up(group2)
+		Input.typeOf("text").cls("form-control").id("last_name").name("last_name").valueOf(last_name).required.up(group2)
 	
 		Dim group3 As Tag = Div.cls("form-group mb-2").up(modalBody)
 		Label.forId("email").text("Email ").up(group3).add(Span.cls("text-danger").text("*"))
-		Input.typeOf("text").cls("form-control").id("email").name("email").valueOf(email).attr3("required").up(group3)
+		Input.typeOf("text").cls("form-control").id("email").name("email").valueOf(email).required.up(group3)
 
 		'Dim group4 As Tag = Div.cls("form-group mb-2").up(modalBody)
 		'Label.forId("password").text("Password ").up(group4).add(Span.cls("text-danger").text("*"))
-		'Input.typeOf("text").cls("form-control").id("password").name("password").valueOf("").attr3("required").up(group4)
+		'Input.typeOf("text").cls("form-control").id("password").name("password").valueOf("").required.up(group4)
 
 		Dim group5 As Tag = Div.cls("form-check form-switch mb-2").up(modalBody)
 		Input.typeOf("checkbox").cls("form-check-input").id("admin").name("admin").attr("role", "switch").attr3(admin).up(group5)
