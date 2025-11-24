@@ -70,7 +70,7 @@ Sub Process_Globals
 	Public Api 					As ApiSettings
 	Public Const COLOR_RED 		As Int = -65536
 	Public Const COLOR_BLUE 	As Int = -16776961
-	Public Const VERSION 		As String = "0.10"
+	Public Const VERSION 		As String = "0.20"
 End Sub
 
 ' <link>Open in browser|http://127.0.0.1:8080</link>
