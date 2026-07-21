@@ -21,6 +21,7 @@ Library5=minihtml
 Library6=minijs
 Library7=miniormutils
 Library8=webapiutils
+Library9=minicss
 Module1=Encryption
 Module10=PagesApiHandler
 Module11=PagesHandler
@@ -41,7 +42,7 @@ Module7=MC
 Module8=MH
 Module9=ORM
 NumberOfFiles=5
-NumberOfLibraries=8
+NumberOfLibraries=9
 NumberOfModules=19
 Version=10.5
 @EndOfDesignText@
@@ -139,19 +140,9 @@ Sub AppStart (Args() As String)
 	Log($"App version: ${VERSION}"$)
 	Log($"Open the following URL from your web browser"$)
 	Log(App.ServerUrl)
-	'DB.Initialize
-	'DB.ConnectDatabase
 	ORM.InitDatabase
 	StartMessageLoop
 End Sub
-
-' Set global ApiSettings from Main to HttpResponseMessage
-'Public Sub SetApiMessage (Message As HttpResponseMessage)
-'	Message.VerboseMode = Api.VerboseMode
-'	Message.OrderedKeys = Api.OrderedKeys
-'	Message.ContentType = Api.ContentType
-'	Message.PayloadType = Api.PayloadType
-'End Sub
 
 Public Sub HRM As HttpResponseMessage
 	Dim HRM1 As HttpResponseMessage

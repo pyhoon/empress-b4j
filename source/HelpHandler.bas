@@ -2,77 +2,290 @@
 Group=Handlers
 ModulesStructureVersion=1
 Type=Class
-Version=10.3
+Version=10.5
 @EndOfDesignText@
-'Help Handler class
-'Version 6.30
+' Help Handler class
+' Version 6.99 rev1
 Sub Class_Globals
-	Private Request As ServletRequest 'ignore
-	Private Response As ServletResponse
-	Private App As EndsMeet
-	Private Api As ApiSettings
-	Private Handlers As List
-	Private AllMethods As List
-	Private AllGroups As Map
+	Private AllGroups 	As Map
+	Private AllMethods 	As List
+	Private Handlers 	As List
+	Private CustomTheme As Boolean
+	Private Verbose 	As Boolean
+	Private ContentType As String 'ignore
+	Private Request 	As ServletRequest 'ignore
+	Private Response 	As ServletResponse
+	' Override default key names
+	Private Const RESPONSE_ELEMENT_MESSAGE 	As String = "m" 'ignore
+	Private Const RESPONSE_ELEMENT_CODE 	As String = "a" 'ignore
+	Private Const RESPONSE_ELEMENT_STATUS 	As String = "s" 'ignore
+	Private Const RESPONSE_ELEMENT_TYPE 	As String = "t" 'ignore
+	Private Const RESPONSE_ELEMENT_ERROR 	As String = "e" 'ignore
+	Private Const RESPONSE_ELEMENT_RESULT 	As String = "r"	'ignore
 	Type VerbSection (Verb As String, Color As String, ElementId As String, Link As String, FileUpload As String, Authenticate As String, Description As String, Params As String, Format As String, Body As String, Expected As String, InputDisabled As Boolean, DisabledBackground As String, Raw As Boolean, Noapi As Boolean)
 End Sub
 
 Public Sub Initialize
-	App = Main.App
-	Api = App.api
-	AllMethods.Initialize
-	AllGroups.Initialize
 	Handlers.Initialize
+	AllGroups.Initialize
+	AllMethods.Initialize
 	Handlers.Add("UsersApiHandler")
 	Handlers.Add("TopicsApiHandler")
 	Handlers.Add("PagesApiHandler")
 	Handlers.Add("FindApiHandler")
+	Verbose = Main.Api.VerboseMode
+	ContentType = Main.Api.ContentType	
 End Sub
 
 Sub Handle (req As ServletRequest, resp As ServletResponse)
 	Request = req
 	Response = resp
+	
+	Dim FormatParam As String = req.GetParameter("format")
+	If FormatParam.ToLowerCase = "openapi" Then
+		' Intercept to serve raw OpenAPI JSON spec
+		ServeOpenApiJson
+		Return
+	Else If FormatParam.ToLowerCase = "snippets" Then
+		' Generate the code blocks for all endpoints
+		Dim AllCode As StringBuilder
+		AllCode.Initialize
+    	
+		'Build all methods first
+		BuildMethods
+		
+		' Loops directly over the native collection built by WebApiUtils!
+		For Each SingleMethod As Map In AllMethods
+			AllCode.Append(GenerateAppSnippet(SingleMethod)).Append(CRLF).Append(CRLF)
+		Next
+    
+		' Print clean text lines straight to the browser
+		resp.ContentType = "text/plain;charset=UTF-8"
+		resp.Write(AllCode.ToString)
+		Return
+	End If
+
 	ShowHelpPage
 End Sub
 
 Private Sub ShowHelpPage
+	If Request.Method.EqualsIgnoreCase("GET") = False Then Return
 	#If Debug
 	'ReadHandlers ' Read from source (optional) - comment hashtags are required
-	#End If
 	BuildMethods ' Build page programatically
-	Dim Contents As String = GenerateHtml
-	Dim strMain As String = WebApiUtils.ReadTextFile("help.html")
-	strMain = WebApiUtils.BuildDocView(strMain, Contents)
+	Dim strMain As String = GenerateHelpPage
 	strMain = WebApiUtils.BuildTag(strMain, "HELP", "") ' Hide API icon
-	strMain = WebApiUtils.BuildHtml(strMain, App.ctx)
-	strMain = WebApiUtils.BuildScript(strMain, $"<script src="${App.ServerUrl}/assets/scripts/help.js"></script>"$)
+	strMain = WebApiUtils.BuildHtml(strMain, Main.App.ctx)
+	File.WriteString(File.DirApp, "help.html", strMain)
+	#Else
+	If File.Exists(File.DirApp, "help.html") Then
+		Dim strMain As String = File.ReadString(File.DirApp, "help.html")
+	Else
+		BuildMethods ' Build page programatically
+		Dim strMain As String = GenerateHelpPage
+		strMain = WebApiUtils.BuildTag(strMain, "HELP", "") ' Hide API icon
+		strMain = WebApiUtils.BuildHtml(strMain, Main.App.ctx)
+		File.WriteString(File.DirApp, "help.html", strMain)
+	End If
+	#End If
 	WebApiUtils.ReturnHtml(strMain, Response)
 End Sub
 
-Private Sub GenerateHtml As String
+Private Sub GenerateHelpPage As String 'ignore
+	Dim html1 As MiniHtml = MH.Html
+	Dim head1 As MiniHtml = MH.Head.up(html1)
+	head1.multiline
+	Dim meta1 As MiniHtml = MH.Meta.up(head1)
+	meta1.attr("http-equiv", "content-type")
+	meta1.attr("content", "text/html; charset=utf-8")
+	Dim meta2 As MiniHtml = MH.Meta.up(head1)
+	meta2.attr("name", "viewport")
+	meta2.attr("content", "width=device-width, initial-scale=1")
+	Dim meta3 As MiniHtml = MH.Meta.up(head1)
+	meta3.attr("name", "csrf-token")
+	Dim meta4 As MiniHtml = MH.Meta.up(head1)
+	meta4.attr("name", "description")
+	Dim meta5 As MiniHtml = MH.Meta.up(head1)
+	meta5.attr("name", "author")
+	Dim title1 As MiniHtml = MH.Title.up(head1)
+	title1.text("API Documentation")
+	Dim link1 As MiniHtml = MH.Link.up(head1)
+	link1.attr("rel", "icon")
+	link1.attr("type", "image/png")
+	link1.attr("href", "/assets/img/favicon.png")
+	'Local assets
+	'head1.cdn("style", "/assets/css/bootstrap.min.css")
+	'head1.cdn("style", "/assets/css/bootstrap-icons.min.css")
+	head1.cdn2("style", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css", _
+	"sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB", "anonymous")
+	head1.cdn("style", "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css")
+	Dim sty1 As MiniHtml = MH.Style.up(head1)
+	Dim cssFolder As String = File.Combine(File.Combine(Main.App.staticfiles.Folder, "assets"), "css")
+	If File.Exists(cssFolder, "help.css") Then
+		sty1.text(File.ReadString(cssFolder, "help.css"))
+		CustomTheme = True
+	Else
+		sty1.text(GetStyles)
+	End If
+	
+	Dim body1 As MiniHtml = MH.Body.up(html1)
+	body1.sty("background: #393939")
+	body1.attr("x-data", "apiApp")
+	body1.multiline
+	
+	Dim nav1 As MiniHtml = MH.Nav.up(body1)
+	nav1.cls("navbar navbar-light navbar-expand-lg sticky-top py-1")
+	nav1.sty("background-color: yellow")
+	nav1.multiline
+	
+	Dim div1 As MiniHtml = MH.Div.up(nav1)
+	div1.cls("container-fluid")
+	
+	Dim a1 As MiniHtml = MH.Anchor.up(div1)
+	a1.cls("navbar-brand me-0 me-lg-2")
+	a1.attr("href", "#")
+	Dim i1 As MiniHtml = MH.Icon.up(a1)
+	i1.cls("bi bi-gear h3")
+	Dim a2 As MiniHtml = MH.Anchor.up(div1)
+	a2.cls("navbar-brand font-weight-bold")
+	a2.attr("href", "#")
+	a2.text("API Documentation")
+	
+	Dim toggler1 As MiniHtml = MH.Button.up(div1)
+	toggler1.cls("navbar-toggler d-md-block d-lg-none collapsed")
+	toggler1.attr("type", "button")
+	toggler1.attr("data-bs-toggle", "collapse")
+	toggler1.attr("data-bs-target", "#navbarCollapse")
+	toggler1.sty("border: none")
+	Dim span1 As MiniHtml = MH.Span.up(toggler1)
+	span1.cls("navbar-toggler-icon")
+	
+	Dim div2 As MiniHtml = MH.Div.up(div1)
+	div2.cls("collapse navbar-collapse")
+	div2.attr("id", "navbarCollapse")
+	div2.multiline
+	Dim ul1 As MiniHtml = MH.Ul.up(div2)
+	ul1.cls("navbar-nav navbar-brand ms-auto mb-md-0")
+	ul1.multiline
+	
+	Dim li1 As MiniHtml = MH.Li.up(ul1)
+	li1.cls("nav-item d-none d-sm-none d-md-block")
+	li1.multiline
+	Dim a3 As MiniHtml = MH.Anchor.up(li1)
+	a3.attr("href", "https://paypal.me/aeric80/")
+	a3.attr("target", "_blank")
+	Dim img1 As MiniHtml = MH.Img.up(a3)
+	img1.attr("src", "/assets/img/coffee.png")
+	img1.cls("my-1")
+	If CustomTheme Then img1.cls("dark-mode-ready")
+	img1.sty("height: 36px")
+	
+	Dim li2 As MiniHtml = MH.Li.up(ul1)
+	li2.cls("nav-item d-block d-lg-block")
+	Dim a5 As MiniHtml = MH.Anchor.up(li2)
+	a5.text("Home")
+	a5.attr("href", "/")
+	a5.cls("nav-link text-dark float-end")
+	Dim i2 As MiniHtml = MH.Icon.up(a5)
+	i2.cls("bi bi-house me-2")
+	i2.attr("title", "Home")
+	
+	Dim div2 As MiniHtml = MH.Div.up(body1)
+	div2.cls("text-center font-weight-bold d-block d-sm-block d-md-none")
+	div2.sty("background-color: whitesmoke")
+	div2.multiline
+	Dim a4 As MiniHtml = MH.Anchor.up(div2)
+	a4.attr("href", "https://paypal.me/aeric80/")
+	a4.attr("target", "_blank")
+	Dim img2 As MiniHtml = MH.Img.up(a4)
+	img2.attr("src", "/assets/img/sponsor.png")
+	img2.cls("mx-2")
+	If CustomTheme Then img2.cls("dark-mode-ready")
+	img2.sty("width: 174px")
+	
+	Dim div3 As MiniHtml = MH.Div.up(body1)
+	div3.cls("content m-3")
+	div3.multiline
+	Dim script3 As String = SaveToken
+	div3.attr("x-data", script3.SubString2(0, script3.LastIndexOf(CRLF)))
+	div3.attr("@token-updated.window", "accessToken = localStorage.getItem('access_token')")
+	
+	Dim div4 As MiniHtml = MH.Div.up(div3)
+	div4.cls("p-2")
+	div4.multiline
+	
+	Dim div5 As MiniHtml = MH.Div.up(div4)
+	div5.cls("row text-center text-light align-items-center justify-content-center")
+	
+	Dim h31 As MiniHtml = MH.H3.up(div5)
+	h31.cls("mb-0")
+	h31.sty("font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;")
+	h31.text("$HOME_TITLE$")
+	Dim span2 As MiniHtml = MH.Span.up(div5)
+	span2.cls("small")
+	span2.text("Version: $VERSION$")
+	
 	For Each method As Map In AllMethods ' Avoid duplicate groups
 		AllGroups.Put(method.Get("Group"), "unused")
 	Next
-	Dim SB As StringBuilder
-	SB.Initialize
+
 	For Each GroupName As String In AllGroups.Keys
-		SB.Append(GenerateHeaderByGroup(GroupName))
+		Dim AcordionGroup As MiniHtml = GenerateHeaderByGroup(GroupName)
+		AcordionGroup.up(div4)
+		Dim div1 As MiniHtml = MH.Div.up(AcordionGroup)
+		div1.cls("accordion")
+		div1.multiline
 		For Each method As Map In AllMethods
 			If method.Get("Group") = GroupName Then
 				If method.ContainsKey("Hide") = False Then ' Skip Hidden sub
-					SB.Append(GenerateDocItem(method))
+					Dim section As VerbSection = GenerateVerbSection(method)
+					GenerateAccordion(section).up(div1)
 				End If
 			End If
 		Next
 	Next
-	Return SB.ToString
+	
+	Dim div6 As MiniHtml = MH.Div.up(body1)
+	div6.cls("bottom")
+	Dim footer1 As MiniHtml = MH.Footer.up(body1)
+	footer1.cls("footer pl-4 pt-2 pb-2")
+	footer1.multiline
+	Dim div7 As MiniHtml = MH.Div.up(footer1)
+	div7.cls("footer small text-light text-center d-md-block")
+	div7.sty("font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;")
+	div7.multiline
+	Dim caption1 As MiniHtml = MH.Caption.up(div7)
+	caption1.multiline
+	caption1.text("$APP_COPYRIGHT$")
+	MH.Br.up(caption1)
+	caption1.text("Made with")
+	Dim span3 As MiniHtml = MH.Span.up(caption1)
+	span3.sty("color: red")
+	span3.text("?")
+	caption1.text(" using Pakai")
+	'Local assets
+	'body1.cdn("script", "/assets/js/bootstrap.min.js")
+	'body1.cdn("script", "/assets/js/htmx.min.js")
+	'body1.cdn3("script", "/assets/js/cdn.min.js", CreateMap("defer": ""))
+	body1.cdn2("script", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js", _
+	"sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y", "anonymous")
+	body1.cdn2("script", "https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js", _
+	"sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz", "anonymous")
+	body1.cdn3("script", "https://cdn.jsdelivr.net/npm/alpinejs@3.15.8/dist/cdn.min.js", CreateMap("defer": ""))	
+
+	Dim script2 As String = AlpineHtmx
+	MH.Script.up(body1).text(script2.SubString2(0, script2.LastIndexOf(CRLF))).multiline
+	
+	Dim doc As MiniHtml
+	doc.Initialize("doctype")
+	doc.Append(html1.build)
+	Return doc.ToString
 End Sub
 
 Private Sub FindMethod (MethodName As String) As Int
 	For i = 0 To AllMethods.Size - 1
 		Dim Method As Map = AllMethods.Get(i)
 		If Method.Get("Method") = MethodName Then
-			'Log(Method.Get("Method"))
 			Return i
 		End If
 	Next
@@ -109,8 +322,8 @@ Private Sub RemoveMethodAndReAdd (Method As Map)
 	AllMethods.Add(Method) ' Add at the end of list
 End Sub
 
-Private Sub BuildMethods
-	Dim Method As Map = RetrieveMethod("Users", "GetUsers")
+Private Sub BuildMethods 'ignore
+Dim Method As Map = RetrieveMethod("Users", "GetUsers")
 	Method.Put("Desc", "Read all users")
 	ReplaceMethod(Method)
 	
@@ -246,21 +459,103 @@ Private Sub BuildMethods
 	Expected.Append("<br/>422 Error execute query")
 	Method.Put("Expected", Expected.ToString)
 	ReplaceMethod(Method)
+		
+'	Dim Method As Map = RetrieveMethod("Find", "GetAllProducts")
+'	Method.Put("Desc", "Get all Products (with Category name)")
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = RetrieveMethod("Find", "GetProductsByCategoryId")
+'	Method.Put("Desc", "Filter Products (with Category Id)")
+'	Method.Put("Params", "id [Int]")
+'	Method.Put("Elements", $"["products-by-category_id", "{id}"]"$)
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = RetrieveMethod("Find", "SearchByKeywords ' #post")
+'	Dim FormatMap As Map = CreateMap("keyword": "text")
+'	Dim BodyMap As Map = CreateMap("keyword": "")
+'	Method.Put("Format", FormatMap.As(JSON).ToString)
+'	Method.Put("Body", BodyMap.As(JSON).ToString)
+'	Method.Put("Desc", "Filter Products (with Category name)")
+'	'Method.Put("Expected", GetExpectedResponse(Method.Get("Verb"))) ' POST
+'	Method.Put("Expected", GetExpectedResponse(""))
+'	ReplaceMethod(Method)
+'		
+'	Dim Method As Map = RetrieveMethod("Products", "GetProducts")
+'	Method.Put("Desc", "Read all Products")
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = RetrieveMethod("Products", "GetProductById (id As Int)")
+'	Method.Put("Desc", "Read one Product by id")
+'	Method.Put("Elements", $"["{id}"]"$)
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = CreateMethodProperties("Products", "PostProduct")
+'	Method.Put("Desc", "Add new Product")
+'	Dim FormatMap As Map = CreateMap("category_id": 1, "product_code": "CODE", "product_name": "ProductName", "product_price": 0)
+'	Dim BodyMap As Map = CreateMap("category_id": 1, "product_code": "", "product_name": "", "product_price": 0)
+'	Method.Put("Format", FormatMap.As(JSON).ToString)
+'	Method.Put("Body", BodyMap.As(JSON).ToString)
+'	Method.Put("Authenticate", "token") '<-- Tells Pakai this route is protected (test)
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = RetrieveMethod("Products", "PutProductById (id As Int)")
+'	Method.Put("Desc", "Update Product by id")
+'	Dim FormatMap As Map = CreateMap("category_id": 1, "product_code": "CODE", "product_name": "ProductName", "product_price": 10)
+'	Dim BodyMap As Map = CreateMap("category_id": 1, "product_code": "", "product_name": "", "product_price": 0)
+'	Method.Put("Format", FormatMap.As(JSON).ToString)
+'	Method.Put("Body", BodyMap.As(JSON).ToString)
+'	Method.Put("Elements", $"["{id}"]"$)
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = RetrieveMethod("Products", "DeleteProductById (id As Int)")
+'	Method.Put("Desc", "Delete Product by id")
+'	Method.Put("Elements", $"["{id}"]"$)
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = RetrieveMethod("Categories", "GetCategories")
+'	Method.Put("Desc", "List All Categories")
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = RetrieveMethod("Categories", "GetCategoryById (id As Int)")
+'	Method.Put("Desc", "Read one Category by id")
+'	Method.Put("Elements", $"["{id}"]"$)
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = RetrieveMethod("Categories", "CreateNewCategory '#POST")
+'	Method.Put("Desc", "Add new Category")
+'	Dim FormatMap As Map = CreateMap("category_name": "category_name")
+'	Method.Put("Format", FormatMap.As(JSON).ToString)
+'	FormatMap.Put("category_name", "Testing")
+'	Method.Put("Body", FormatMap.As(JSON).ToString)
+'	ReplaceMethod(Method)
+'
+'	Dim Method As Map = RetrieveMethod("Categories", "UpdateCategoryById (id As Int) '#PUT")
+'	Method.Put("Desc", "Update Category by id")
+'	Method.Put("Elements", $"["{id}"]"$)	
+'	Dim FormatMap As Map = CreateMap("category_name": "category_name")
+'	Method.Put("Format", FormatMap.As(JSON).ToString)
+'	Method.Put("Body", FormatMap.As(JSON).ToString)
+'	ReplaceMethod(Method)
+'	
+'	Dim Method As Map = RetrieveMethod("Categories", "DeleteCategoryById (id As Int)")
+'	Method.Put("Desc", "Delete Category by id")
+'	Method.Put("Elements", $"["{id}"]"$)
+'	RemoveMethodAndReAdd(Method)
 End Sub
 
 Private Sub ReadHandlers 'ignore
-	Dim verbs() As String = Array As String("GET", "POST", "PUT", "DELETE")
+	Dim Verbs() As String = Array As String("GET", "POST", "PUT", "DELETE")
 	For Each Handler As String In Handlers
 		Dim Methods As List
 		Methods.Initialize
-		Dim Group As String = Handler.Replace("Handler", "").Replace("Api", "").Replace("Web", "")
-		Dim lines As List = File.ReadList(File.DirApp.Replace("\Objects", ""), Handler & ".bas")
-		For Each line As String In lines
-			If line.StartsWith("'") Or line.StartsWith("#") Then Continue
-			Dim index As Int = line.toLowerCase.IndexOf("sub ")
+		Dim Group As String = Handler.Replace("Handler", "").Replace("Api", "").Replace("Web", "").Replace("Auth", "")
+		Dim Lines As List = File.ReadList(File.DirApp.Replace("\Objects", ""), Handler & ".bas")
+		For Each Line As String In Lines
+			If Line.StartsWith("'") Or Line.StartsWith("#") Then Continue
+			Dim index As Int = Line.toLowerCase.IndexOf("sub ")
 			If index > -1 Then
-				Dim MethodLine As String = line.SubString(index).Replace("Sub ", "").Trim
-				For Each verb As String In verbs
+				Dim MethodLine As String = Line.SubString(index).Replace("Sub ", "").Trim
+				For Each verb As String In Verbs
 					If MethodLine.ToUpperCase.StartsWith(verb) Or MethodLine.ToUpperCase.Contains("#" & verb) Then
 						'RemoveComment(MethodLine)
 						Dim Method As Map = CreateMethodProperties(Group, MethodLine)
@@ -269,9 +564,9 @@ Private Sub ReadHandlers 'ignore
 					End If
 				Next
 			Else
-				If line.Contains("'") And line.Contains("#") Then
+				If Line.Contains("'") And Line.Contains("#") Then
 					' Detect commented hashtags inside Handler
-					ParseHashtags(line, Methods)
+					ParseHashtags(Line, Methods)
 				End If
 			End If
 		Next
@@ -281,6 +576,9 @@ Private Sub ReadHandlers 'ignore
 		'	Log(" ")
 		'	Log("[" & m.Get("Verb") & "]")
 		'	Log("Method: " & m.Get("Method"))
+		'	'Dim MM(2) As String
+		'	'MM = Regex.Split(" As ", m.Get("Method")) ' Ignore return type
+		'	'Log("Sub Name: " & MM(0).Trim)
 		'	Log("Params: " & m.Get("Params"))
 		'	Log("Hide: " & m.Get("Hide"))
 		'	Log("Plural: " & m.Get("Plural"))
@@ -293,6 +591,7 @@ Private Sub ReadHandlers 'ignore
 	Next
 End Sub
 
+' (Deprecated) Please use BuildMethods instead of ReadHandlers
 Private Sub ParseHashtags (lineContent As String, methodList As List)
 	' =====================================================================
 	' Detect commented hashtags inside Handler
@@ -301,32 +600,32 @@ Private Sub ParseHashtags (lineContent As String, methodList As List)
 	' =====================================================================
 	' Supported hashtag keywords: (case-insensitive)
 	' #name (formerly #plural)
-	' #version
 	' #desc
-	' #body
+	' #version
 	' #elements
+	' #body
 	' #format  (formerly #defaultformat)
-	' #upload
-	' #authenticate
+	' #fileupload (image, pdf)
+	' #authenticate (basic, token, apikey)
 	'
 	' Single keywords:
 	' #hide
 	' #noapi
 	Dim HashTags1() As String = Array As String("Hide", "Noapi")
-	Dim HashTags2() As String = Array As String("Version", "Desc", "Elements", "Body", "Group", "Upload", "Authenticate", "Format")
+	Dim HashTags2() As String = Array As String("Version", "Desc", "Elements", "Body", "Group", "FileUpload", "Authenticate", "Format")
 	
-	For Each Tag As String In HashTags1
-		If lineContent.ToLowerCase.IndexOf("#" & Tag.ToLowerCase) > -1 Then
+	For Each HashTag As String In HashTags1
+		If lineContent.ToLowerCase.IndexOf("#" & HashTag.ToLowerCase) > -1 Then
 			Dim lastMethod As Map = methodList.Get(methodList.Size - 1)
-			lastMethod.Put(Tag, True)
+			lastMethod.Put(HashTag, True)
 		End If
 	Next
-	For Each Tag As String In HashTags2
-		If lineContent.ToLowerCase.IndexOf("#" & Tag.ToLowerCase) > -1 Then
+	For Each HashTag As String In HashTags2
+		If lineContent.ToLowerCase.IndexOf("#" & HashTag.ToLowerCase) > -1 Then
 			Dim str() As String = Regex.Split("=", lineContent)
-			If str.Length > 1 Then ' fixed bug Desc contains equal sign
+			If str.Length > 1 Then ' bug Desc contains equal sign
 				Dim lastMethod As Map = methodList.Get(methodList.Size - 1)
-				lastMethod.Put(Tag, lineContent.SubString(lineContent.IndexOf("=") + 1).Trim)
+				lastMethod.Put(HashTag, lineContent.SubString(lineContent.IndexOf("=") + 1).Trim)
 			End If
 		End If
 	Next
@@ -352,7 +651,8 @@ End Sub
 Private Sub CreateMethodProperties (groupName As String, methodLine As String) As Map
 	Dim methodProps As Map
 	methodProps.Initialize
-	methodProps.Put("Group", groupName)
+	methodProps.Put("Group", groupName) ' for heading text
+	methodProps.Put("Name", groupName) ' readded for overriding custom URL /api, default same as group
 	methodProps.Put("Method", ExtractMethod(methodLine))
 	methodProps.Put("Desc", methodProps.Get("Method"))
 	methodProps.Put("Verb", ExtractVerb(methodLine))
@@ -360,7 +660,6 @@ Private Sub CreateMethodProperties (groupName As String, methodLine As String) A
 	methodProps.Put("Format", "&nbsp;")
 	methodProps.Put("Body", "")
 	methodProps.Put("Noapi", False)
-	methodProps.Put("Format", "")
 	Return methodProps
 End Sub
 
@@ -405,7 +704,6 @@ End Sub
 Private Sub ExtractParams (methodLine As String) As String
 	' Extract method parameters if any
 	Dim indexBegin As Int = methodLine.IndexOf("(")
-	'Dim indexEnd As Int = methodLine.LastIndexOf(")") ' comment can contains close parentheses
 	Dim indexEnd As Int = methodLine.IndexOf(")")
 	Dim params As StringBuilder
 	params.Initialize
@@ -424,10 +722,10 @@ Private Sub ExtractParams (methodLine As String) As String
 End Sub
 
 Private Sub GenerateLink (ApiVersion As String, Handler As String, Elements As List) As String
-	Dim Link As String = "$SERVER_URL$/" & Api.Name
+	Dim Link As String = "$SERVER_URL$/" & Main.Api.Name
 	If Link.EndsWith("/") = False Then Link = Link & "/"
 	If ApiVersion.EqualsIgnoreCase("null") = False Then
-		If Api.Versioning Then Link = Link & ApiVersion
+		If Main.Api.Versioning Then Link = Link & ApiVersion
 		If Link.EndsWith("/") = False Then Link = Link & "/"
 	End If
 	Link = Link & Handler.ToLowerCase
@@ -449,55 +747,7 @@ Private Sub GenerateNoApiLink (Handler As String, Elements As List) As String
 	Return Link
 End Sub
 
-Private Sub GenerateVerbSection (section As VerbSection) As String
-	Select section.FileUpload
-		Case "Image", "PDF"
-			Dim strBodyInput As String = $"<p><strong>File:</strong> <label for="file1${section.ElementId}">Choose a file:</label><input type="file" id="file1${section.ElementId}" class="pb-3" name="file1"></p>"$
-		Case Else
-			Dim strBodySample As String = $"<p><strong>Format:</strong> <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">${section.Format}</span></p>"$
-			Dim strBodyInput As String = $"<p><strong>Body:</strong> <textarea id="body${section.ElementId}" rows="6" class="form-control data-body" style="background-color: #363636; color: white; field-sizing: content; font-size: small">${section.Body}</textarea></p>"$
-	End Select
-	Return $"
-        <button class="collapsible collapsible-background-${section.Color}"><span style="width: 60px" class="badge badge-${section.Color} text-dark py-1 mr-1">${section.Verb}</span>
-		${IIf(section.Authenticate.EqualsIgnoreCase("Basic") Or section.Authenticate.EqualsIgnoreCase("Token"), _
-			$"<span style="width: 50px" class="badge rounded-pill pill-yellow pill-yellow-text px-2 py-1">${WebApiUtils.ProperCase(section.Authenticate)}</span>"$, "")}<span class="ml-1">${section.Description}</span>
-		</button>
-        <div class="details mb-1">
-            <div class="row">
-                <div class="col-md-3 p-3">
-                    <p><strong>Parameters</strong><br/>
-                    <label class="border rounded w-100" style="padding: 5px; font-size: small; white-space: pre-wrap;">${section.Params}</label></p>
-                    ${IIf(section.Verb.EqualsIgnoreCase("POST") Or section.Verb.EqualsIgnoreCase("PUT"), strBodySample, "")}
-                    <div class="mt-3"><strong>Status Code</strong><br/>
-                    ${section.Expected}</div>
-                </div>
-	            <div class="col-md-3 p-3">
-					<form method="${section.Verb}">
-					<p><strong>Path</strong><br/>
-	                <input${IIf(section.InputDisabled, " disabled", "")} id="path${section.ElementId}" class="form-control data-path text-light" style="background-color: ${section.DisabledBackground}; font-size: small" value="${section.Link & IIf(section.Raw, "?format=json", "")}"></p>
-					${IIf(section.Verb.EqualsIgnoreCase("POST") Or section.Verb.EqualsIgnoreCase("PUT"), strBodyInput, $""$)}
-					<button id="btn${section.ElementId}" class="${IIf(section.FileUpload.EqualsIgnoreCase("Image") Or section.FileUpload.EqualsIgnoreCase("PDF"), $"file"$, $"${section.Verb.ToLowerCase}"$)}${IIf(section.Authenticate.ToUpperCase = "BASIC" Or section.Authenticate.ToUpperCase = "TOKEN", " " & section.Authenticate.ToLowerCase, "")} button submit-button-${section.Color} text-white col-md-6 col-lg-4 p-2 float-right" style="cursor: pointer; padding-bottom: 60px"><strong>Submit</strong></button>
-	            	</form>
-				</div>
-                <div class="col-md-6 p-3">
-                    <p><strong>Response</strong><br/>
-                    <textarea rows="10" id="response${section.ElementId}" class="form-control" style="background-color: #363636; color: white; font-size: small"></textarea></p>
-                    <div id="alert${section.ElementId}" class="alert text-light" role="alert" style="display: block"></div>
-                </div>
-            </div>
-        </div>"$
-End Sub
-
-Private Sub GenerateHeaderByGroup (Group As String) As String
-	Return $"
-		<div class="row mt-3">
-            <div class="col-md-12">
-                <h6 class="text-uppercase text-primary"><strong>${Group}</strong></h6>
-            </div>
-		</div>"$
-End Sub
-
-Private Sub GenerateDocItem (Props As Map) As String
+Private Sub GenerateVerbSection (Props As Map) As VerbSection
 	Dim section As VerbSection
 	section.Initialize
 	section.Verb = Props.Get("Verb")
@@ -508,12 +758,14 @@ Private Sub GenerateDocItem (Props As Map) As String
 	If Props.ContainsKey("Elements") Then
 		Elements = Props.Get("Elements").As(JSON).ToList
 	End If
+	' Override default name (came from Group or Handler name)
 	If section.Noapi Then
-		section.Link = GenerateNoApiLink(Props.Get("Group"), Elements)
+		section.Link = GenerateNoApiLink(Props.Get("Name"), Elements)
 	Else
-		section.Link = GenerateLink(Props.Get("Version"), Props.Get("Group"), Elements)
+		section.Link = GenerateLink(Props.Get("Version"), Props.Get("Name"), Elements)
 	End If
 	section.Authenticate = Props.Get("Authenticate")
+	section.FileUpload = Props.Get("FileUpload")
 	section.Description = Props.Get("Desc")
 	section.Params = Props.Get("Params")
 	section.Format = Props.Get("Format")
@@ -529,7 +781,204 @@ Private Sub GenerateDocItem (Props As Map) As String
 	Else
 		section.DisabledBackground = "#363636"
 	End If
-	Return GenerateVerbSection(section)
+	Return section
+End Sub
+
+Private Sub UseAuthenticate (Name As String) As Boolean
+	Dim DbArray() As String = Array As String("Basic", "ApiKey", "Token")
+	Return DbArray.As(List).IndexOf(Name) > -1
+End Sub
+
+Private Sub GenerateAccordion (section As VerbSection) As MiniHtml
+	Dim div1 As MiniHtml = MH.Div
+	div1.cls("accordion-item")
+	div1.multiline
+	GenerateAccordionHead(section).up(div1)
+	GenerateAccordionBody(section).up(div1)
+	Return div1
+End Sub
+
+Private Sub GenerateAccordionHead (section As VerbSection) As MiniHtml
+	Dim h21 As MiniHtml = MH.H2
+	h21.cls("accordion-header")
+	h21.attr("id", $"${section.ElementId}-heading"$)
+	h21.multiline
+	Dim button1 As MiniHtml = MH.Button.up(h21)
+	button1.cls("accordion-button accordion-button-" & section.Color & " bg-opacity-75 py-2 collapsed")
+	button1.attr("type", "button")
+	button1.attr("data-bs-toggle", "collapse")
+	button1.attr("data-bs-target", $"#${section.ElementId}-collapse"$)
+	button1.attr("aria-controls", $"${section.ElementId}-collapse"$)
+	button1.FormatAttributes = True
+	button1.multiline
+	Dim span1 As MiniHtml = MH.Span.up(button1)
+	span1.sty("width: 60px")
+	span1.cls($"badge badge-${section.Color} text-secondary py-1 me-2"$)
+	span1.text(section.Verb)
+	Dim strAuthenticate As String = WebApiUtils.ProperCase(section.Authenticate)
+	If UseAuthenticate(strAuthenticate) Then
+		Dim span2 As MiniHtml = MH.Span.up(button1)
+		span2.sty("width: 50px")
+		span2.cls("badge rounded-pill pill-yellow pill-yellow-text px-2 py-1 me-1")
+		span2.text(strAuthenticate)
+	End If
+	button1.text(section.Description)
+	Return h21
+End Sub
+
+Private Sub GenerateAccordionBody (section As VerbSection) As MiniHtml
+	Dim div1 As MiniHtml = MH.Div
+	div1.attr("id", $"${section.ElementId}-collapse"$)
+	div1.cls("accordion-collapse collapse")
+	div1.attr("aria-labelledby", $"${section.ElementId}-heading"$)
+	div1.multiline
+	Dim div2 As MiniHtml = MH.Div.up(div1)
+	div2.cls("accordion-body")
+	div2.attr("x-data", $"{ apiId: '${section.ElementId}' }"$)
+	div2.multiline
+	Dim div3 As MiniHtml = MH.Div.up(div2)
+	div3.cls("row")
+	div3.multiline
+	Dim div4 As MiniHtml = MH.Div.up(div3)
+	div4.cls("col-md-3 p-2")
+	div4.multiline
+	Dim p1 As MiniHtml = MH.P.up(div4)
+	p1.multiline
+	Dim strong1 As MiniHtml = MH.Strong.up(p1)
+	strong1.text("Parameters")
+	MH.Br.up(p1)
+	Dim span1 As MiniHtml = MH.Span.up(p1)
+	span1.cls("form-control")
+	span1.sty("background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small")
+	span1.text(section.Params)
+
+	If section.Verb = "POST" Or section.Verb = "PUT" Then
+		Dim p2 As MiniHtml = MH.P.up(div4)
+		p2.multiline
+		Dim strong2 As MiniHtml = MH.Strong.up(p2)
+		strong2.text("Format")
+		Dim span2 As MiniHtml = MH.Span.up(p2)
+		span2.cls("form-control")
+		span2.sty("background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small")
+		span2.multiline
+		span2.text(section.Format)
+	End If
+
+	Dim div5 As MiniHtml = MH.Div.up(div4)
+	div5.cls("mt-3")
+	div5.multiline
+	Dim strong3 As MiniHtml = MH.Strong.up(div5)
+	strong3.text("Status Code")
+	div5.text(section.Expected)
+	
+	Dim div6 As MiniHtml = MH.Div.up(div3)
+	div6.cls("col-md-3 p-2")
+	div6.multiline
+	
+	Dim p3 As MiniHtml = MH.P.up(div6)
+	p3.multiline
+	Dim strong4 As MiniHtml = MH.Strong.up(p3)
+	strong4.text("Path")
+	MH.Br.up(p3)
+	Dim input1 As MiniHtml = MH.Input.up(p3)
+	input1.attr(":id", "'path-' + apiId")
+	input1.attr("type", "text")
+	input1.cls("form-control data-path text-light")
+	input1.sty("background-color: " & section.DisabledBackground)
+	input1.sty("font-size: small")
+	input1.attr("value", IIf(section.Raw, section.Link & "?format=json", section.Link))
+	If section.InputDisabled Then input1.disabled
+	input1.FormatAttributes = True
+	input1.multiline
+	
+	If section.Verb = "POST" Or section.Verb = "PUT" Then
+		Dim p4 As MiniHtml = MH.P.up(div6)
+		p4.multiline
+		Dim strong5 As MiniHtml = MH.Strong.up(p4)
+		Select section.FileUpload.ToLowerCase
+			Case "image", "pdf"
+				strong5.text("Choose a File")
+				MH.Br.up(p4)
+				'Dim label1 As MiniHtml = MH.Label.up(p4)
+				'label1.attr("for", "file-" & section.ElementId)
+				'label1.text("Choose a file:")
+				Dim input2 As MiniHtml = MH.Input.up(p4)
+				input2.attr("type", "file")
+				input2.attr(":id", "'file-' + apiId")
+				input2.attr("id", "file-" & section.ElementId)
+				input2.attr("name", "file1")
+				input2.cls("pb-3")
+			Case Else
+				strong5.text("Body")
+				Dim textarea1 As MiniHtml = MH.Textarea.up(p4)
+				textarea1.attr(":id", "'body-' + apiId")
+				textarea1.attr("rows", "6")
+				textarea1.cls("form-control data-body")
+				textarea1.sty("background-color: #363636")
+				textarea1.sty("color: white; font-size: small")
+				textarea1.FormatAttributes = True
+				textarea1.text(section.Body)
+		End Select
+	End If
+	
+	Dim button1 As MiniHtml = MH.Button.up(div6)
+	button1.cls("btn submit-button-" & section.Color & " text-white col-md-6 col-lg-4 p-2 float-end")
+	If section.Authenticate <> "" Then button1.cls(section.Authenticate.ToLowerCase) ' add class
+	button1.sty("cursor: pointer; padding-bottom: 60px")
+	button1.attr(":data-api-id", "apiId")
+	button1.attr("hx-" & section.Verb.ToLowerCase, "dynamic")
+	If section.Verb = "POST" Or section.Verb = "PUT" Then button1.attr("hx-ext", "raw-body")
+	button1.attr("hx-target", "this")
+	button1.attr("hx-swap", "none")
+	button1.attr("@click", "resetUI(apiId)")
+	button1.attr("@htmx:after-request", $"handleResponse($event, apiId)"$)
+	button1.FormatAttributes = True
+	button1.multiline
+	Dim span3 As MiniHtml = MH.Span.up(button1)
+	span3.cls("htmx-indicator spinner-border spinner-border-sm me-2")
+	Dim strong6 As MiniHtml = MH.Strong.up(button1)
+	strong6.text("Submit")
+	
+	Dim div7 As MiniHtml = MH.Div.up(div3)
+	div7.cls("col-md-6 p-2")
+	div7.multiline
+	Dim p5 As MiniHtml = MH.P.up(div7)
+	p5.multiline
+	Dim strong7 As MiniHtml = MH.Strong.up(p5)
+	strong7.text("Response")
+	MH.Br.up(p5)
+	Dim textarea2 As MiniHtml = MH.Textarea.up(p5)
+	textarea2.attr("rows", "10")
+	textarea2.attr(":id", "'response-' + apiId")
+	textarea2.cls("form-control response-area")
+	textarea2.sty("background-color: #363636")
+	textarea2.sty("color: #68d391; font-size: small") ' text-green-400
+	textarea2.FormatAttributes = True
+
+	Dim div8 As MiniHtml = MH.Div.up(div7)
+	div8.attr("x-show", "alerts[apiId]?.show")
+	div8.attr(":class", "alerts[apiId]?.type")
+	div8.cls("alert")
+	div8.attr("x-text", "alerts[apiId]?.message")
+	div8.attr3("x-transition")
+	div8.FormatAttributes = True
+	div8.multiline
+
+	Return div1
+End Sub
+
+Private Sub GenerateHeaderByGroup (Group As String) As MiniHtml
+	Dim div1 As MiniHtml = MH.Div
+	div1.cls("row mt-3")
+	div1.multiline
+	Dim div2 As MiniHtml = MH.Div.up(div1)
+	div2.cls("col-md-12")
+	div2.multiline
+	Dim h61 As MiniHtml = MH.H6.up(div2)
+	h61.cls("text-uppercase text-primary")
+	Dim strong1 As MiniHtml = MH.Strong.up(h61)
+	strong1.text(Group)
+	Return div1
 End Sub
 
 Private Sub GetColorForVerb (verb As String) As String
@@ -553,9 +1002,9 @@ Private Sub GetExpectedResponse (verb As String) As String
 	Expected.Initialize
 	Select verb
 		Case "POST"
-			Expected.Append("201 Created")
+			Expected.Append("<br/>201 Created")
 		Case Else
-			Expected.Append("200 Success")
+			Expected.Append("<br/>200 Success")
 	End Select
 	Expected.Append("<br/>400 Bad Request")
 	Expected.Append("<br/>404 Not found")
@@ -564,26 +1013,648 @@ Private Sub GetExpectedResponse (verb As String) As String
 	Return Expected.ToString
 End Sub
 
-' Reference: https://www.b4x.com/android/forum/threads/escapexml-code-snippet.35720/
-Public Sub EscapeXml (Raw As String) As String
-	Dim sb As StringBuilder
-	sb.Initialize
-	For i = 0 To Raw.Length - 1
-		Dim c As Char = Raw.CharAt(i)
-		Select c
-			Case QUOTE
-				sb.Append("&quot;")
-			Case "'"
-				sb.Append("&apos;")
-			Case "<"
-				sb.Append("&lt;")
-			Case ">"
-				sb.Append("&gt;")
-			Case "&"
-				sb.Append("&amp;")
-			Case Else
-				sb.Append(c)
-		End Select
+Private Sub GetStyles As String
+	Dim css1 As MiniCss
+	css1.Initialize(Me)
+	css1.SetStartIndent("    ")
+	
+	Dim cb1 As MiniCssBuilder
+	cb1.Initialize(css1)
+	' Using builder pattern (fluent syntax)
+	
+	'cb1.Rule(".body")
+	'cb1.Property("font-family", "Arial, Helvetica, Tahoma, Times New Roman")
+	'cb1.Property("font-size", "0.8em")
+	
+	cb1.Rule(".btn")
+	cb1.Property("border-radius", "3px")
+	'cb1.Property("font-family", "Arial, Helvetica, Tahoma, Times New Roman")
+	cb1.Property("font-size", "1em")
+	
+    cb1.Rule(".accordion")
+	cb1.Property("--bs-accordion-border-width", "none")
+    
+	cb1.Rule(".accordion-button:focus")
+	cb1.Property("box-shadow", "none")
+	
+	cb1.Rule(".accordion-body")
+	cb1.Property("color", "white")
+	cb1.Property("background", "#636363")
+	cb1.Property("font-family", "Arial, Helvetica, Tahoma, Times New Roman")
+	cb1.Property("font-size", "0.8em")
+	
+	cb1.Rule(".accordion-button-green")
+	cb1.ParseRaw("color: #fff;background: #16a34a;box-shadow: none;")
+	
+	cb1.ParseRawWithRules(".accordion-button-green:not(.collapsed)", _
+	"color: #fff;background: #16a34a;")
+	
+	cb1.Rule(".accordion-button-purple")
+	cb1.ParseRaw("color: #fff;background: #9333ea;box-shadow: none;")
+	
+	cb1.ParseRawWithRules(".accordion-button-purple:not(.collapsed)", _
+	"color: #fff;background: #9333ea;")
+	
+	cb1.Rule(".accordion-button-blue")
+	cb1.ParseRaw("color: #fff;background: #2563eb;box-shadow: none;")
+	
+	cb1.ParseRawWithRules(".accordion-button-blue:not(.collapsed)", _
+	"color: #fff;background: #2563eb;")
+	
+	cb1.Rule(".accordion-button-red")
+	cb1.ParseRaw("color: #fff;background: #dc2626;box-shadow: none;")
+	
+	cb1.ParseRawWithRules(".accordion-button-red:not(.collapsed)", _
+	"color: #fff;background: #dc2626;")
+	
+	cb1.ParseRawWithRules(".accordion-button::after", _
+	$"background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-plus' viewBox='0 0 16 16'%3E%3Cpath d='M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z'/%3E%3C/svg%3E");
+    transition: all 0.5s;"$)
+	
+	cb1.ParseRawWithRules(".accordion-button:not(.collapsed)::after", _
+	$"background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-dash' viewBox='0 0 16 16'%3E%3Cpath d='M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z'/%3E%3C/svg%3E");"$)
+	
+	cb1.Rule(".collapsing")
+	cb1.Property("transition", "height 0.3s ease-in-out; /* Custom duration and timing */")
+
+	cb1.Rule(".submit-button")
+	cb1.Property("background-color", "#ccc")
+	
+	cb1.Rule(".submit-button-green")
+	cb1.Property("background-color", "#16a34a")
+	cb1.Property("border-color", "#14532d")
+
+	cb1.Rule(".submit-button-green:hover")
+	cb1.Property("background-color", "#166534")
+	'cb1.Property("border-color", "#166534")
+
+	cb1.Rule(".submit-button-purple")
+	cb1.Property("background-color", "#9333ea")
+	cb1.Property("border-color", "#581c87")
+
+	cb1.Rule(".submit-button-purple:hover")
+	cb1.Property("background-color", "#6b21a8")
+	'cb1.Property("border-color", "#6b21a8")
+
+	cb1.Rule(".submit-button-blue")
+	cb1.Property("background-color", "#2563eb")
+	cb1.Property("border-color", "#1e3a8a")
+
+	cb1.Rule(".submit-button-blue:hover")
+	cb1.Property("background-color", "#1e40af")
+	'cb1.Property("border-color", "#1e40af")
+
+	cb1.Rule(".submit-button-red")
+	cb1.Property("background-color", "#dc2626")
+	cb1.Property("border-color", "#991b1b")
+
+	cb1.Rule(".submit-button-red:hover")
+	cb1.Property("background-color", "#b91c1c")
+	'cb1.Property("border-color", "#b91c1c")
+
+	cb1.Rule(".badge-green")
+	cb1.Property("background-color", "#bbf7d0")
+
+	cb1.Rule(".badge-purple")
+	cb1.Property("background-color", "#e9d5ff")
+
+	cb1.Rule(".badge-blue")
+	cb1.Property("background-color", "#bfdbfe")
+
+	cb1.Rule(".badge-red")
+	cb1.Property("background-color", "#fecaca")
+	
+	cb1.Rule(".yellow")
+	cb1.Property("background-color", "#f7d600 !important")
+	
+	cb1.Rule(".pill-yellow")
+	cb1.Property("background-color", "#fde047")
+	
+	cb1.Rule(".pill-yellow-text")
+	cb1.Property("color", "#854d0e")
+	
+	cb1.Rule(".htmx-indicator")
+	cb1.Property("display", "none")
+	
+	cb1.Rule(".htmx-request .htmx-indicator")
+	cb1.Property("display", "inline-block")
+	
+	cb1.Rule(".htmx-request.htmx-indicator")
+	cb1.Property("display", "inline-block")
+	
+	cb1.Rule("img.dark-mode-ready")
+	cb1.Property("filter", "invert(1)")
+	
+	Return css1.GenerateCSS
+End Sub
+
+Private Sub AlpineHtmx As String
+	Dim script1 As MiniJs
+	script1.Initialize
+	script1.IncreaseIndent
+	script1.AddComment("1. THE EXTENSION: This tells HTMX how to get the body content")
+	script1.AddComment("This runs INSTEAD of HTMX's default form-encoding logic.")
+	script1.AddLine("htmx.defineExtension('raw-body', {")
+	script1.IncreaseIndent
+	script1.AddLine("encodeParameters: function (xhr, parameters, elt) {")
+	script1.IncreaseIndent
+	script1.DeclareVariable("apiId", "elt.getAttribute('data-api-id')", True)
+	script1.DeclareVariable("bodyValue", $"document.getElementById('body-' + apiId)?.value || """$, True)
+	script1.AddLine("")
+	script1.AddComment("Return the raw string. HTMX will call xhr.send(bodyValue) for you.")
+	script1.AddLine("return bodyValue;")
+	script1.DecreaseIndent
+	script1.AddLine("}")
+	script1.DecreaseIndent
+	script1.AddLine("});")
+	script1.AddLine("")
+	script1.AddEventListener("alpine:init", "")
+	script1.IncreaseIndent
+	script1.AddLine("Alpine.data('apiApp', () => ({")
+	script1.IncreaseIndent
+	script1.AddLine("resetUI(apiId) {")
+	script1.IncreaseIndent
+	script1.AddComment("1. Clear the textarea")
+	script1.DeclareVariable("respEl", "document.getElementById(`response-${apiId}`)", True)
+	script1.AddConditionalCall("respEl", "respEl.value = '';")
+	script1.AddLine("")
+	script1.AddComment("2. Hide the alert")
+	script1.StartIf("this.alerts[apiId]")
+	script1.AddLine("this.alerts[apiId].show = false;")
+	script1.EndIf
+	script1.DecreaseIndent
+	script1.AddLine("},")
+	script1.AddLine("")
+	script1.AddComment("Start with an empty object")
+	script1.AddLine("alerts: {},")
+	script1.AddLine("")
+	script1.AddLine("handleResponse(evt, apiId) {")
+	script1.IncreaseIndent
+	script1.DeclareVariable("xhr", "evt.detail.xhr", True)
+	script1.DeclareVariable("contentType", $"xhr.getResponseHeader("Content-Type") || """$, True)
+	'script1.ConsoleLog("contentType")
+	script1.DeclareVariable("contentToShow", "xhr.responseText", False)
+	'script1.ConsoleLog("contentToShow")
+	script1.DeclareVariable("m", "", False)
+	script1.DeclareVariable("a", "", False)
+	script1.DeclareVariable("s", "", False)
+	script1.DeclareVariable("t", "", False)
+	script1.DeclareVariable("e", "", False)
+	script1.DeclareVariable("r", "", False)	
+	script1.DeclareVariable("isSuccess", "xhr.status >= 200 && xhr.status < 300", False)
+	script1.AddLine("")
+	script1.StartIf($"contentType.includes("xml")"$)
+	script1.AddComment("1. Parse the string into an XML Document")
+	script1.DeclareVariable("parser", "new DOMParser()", True)
+	script1.DeclareVariable("xmlDoc", $"parser.parseFromString(xhr.responseText, "text/xml")"$, True)
+	script1.AddLine("")
+	script1.AddComment("2. Extract values using tags")
+	script1.AddLine($"m = xmlDoc.getElementsByTagName("${RESPONSE_ELEMENT_MESSAGE}")[0]?.textContent;"$)
+	script1.AddLine($"a = xmlDoc.getElementsByTagName("${RESPONSE_ELEMENT_CODE}")[0]?.textContent;"$)
+	script1.AddLine($"s = xmlDoc.getElementsByTagName("${RESPONSE_ELEMENT_STATUS}")[0]?.textContent;"$)
+	script1.AddLine($"t = contentType;"$)
+	script1.AddLine($"e = xmlDoc.getElementsByTagName("${RESPONSE_ELEMENT_ERROR}")[0]?.textContent;"$)
+	script1.AddLine($"r = xmlDoc.getElementsByTagName("${RESPONSE_ELEMENT_RESULT}")[0];"$)
+	script1.AddCode(" ") ' leave a space
+	script1.AppendComment("The data node")
+	'script1.ConsoleLog("m, a, s, t, e, r")
+	script1.AddLine("")
+	script1.AddComment("3. Logic check")
+	script1.AddConditionalCall("s && s !== 'ok' && s !== 'success'", "isSuccess = false;")
+	script1.AddLine("")
+	script1.AddComment("4. Extract token if present in r")
+	script1.StartIf("r")
+	script1.AddComment("We use r.querySelector instead of xmlDoc to be specific")
+	script1.DeclareVariable("token", $"r.getElementsByTagName("access_token")[0]?.textContent;"$, True)
+	script1.StartIf("token")
+	script1.AddConditionalCall("token", $"localStorage.setItem("access_token", token);"$)
+	script1.EndIf
+	script1.EndIf
+	script1.AddElse
+	script1.StartTry
+	script1.AddComment("1. Standard JSON Parsing")
+	script1.DeclareVariable("parsed", "JSON.parse(xhr.responseText)", True)
+	script1.AddComment("2. Extract values using keys")
+	script1.AddLine($"m = parsed.${RESPONSE_ELEMENT_MESSAGE};"$)
+	script1.AddLine($"a = parsed.${RESPONSE_ELEMENT_CODE};"$)
+	script1.AddLine($"s = parsed.${RESPONSE_ELEMENT_STATUS};"$)
+	script1.AddLine($"t = contentType;"$)
+	script1.AddLine($"e = parsed.${RESPONSE_ELEMENT_ERROR};"$)
+	script1.AddLine($"r = parsed.${RESPONSE_ELEMENT_RESULT};"$)
+	script1.AddLine("contentToShow = JSON.stringify(parsed, null, 2);")
+	script1.AddLine("")
+	script1.AddComment("3. Logic check")
+	script1.AddConditionalCall("s && s !== 'ok' && s !== 'success'", "isSuccess = false;")
+	script1.AddLine("")
+	script1.AddComment("4. Extract token if present in r")
+	' Verbose
+	'script1.DeclareVariable("token", "parsed.r?.[0]?.access_token", True)
+	script1.DeclareVariable("token", "parsed.r?.access_token", True)
+	script1.AddConditionalCall("token", $"localStorage.setItem("access_token", token);"$)
+	script1.AddCatch("err")
+	script1.AddComment("Not JSON, leave as raw")
+	script1.EndTry
+	script1.EndIf
+	script1.AddLine("")
+	script1.AddComment("Dynamic Alert Assignment")
+	script1.AddLine("this.alerts[apiId] = {")
+	script1.IncreaseIndent
+	script1.AddLine("show: true,")
+	If Verbose Then
+		script1.AddLine("status: a,")
+		script1.AddLine("message: a + ' ' + (e && e != 'null' ? e : m),")
+	Else
+		script1.AddLine("status: a,")
+		script1.AddTernary("message: isSuccess", "`${a} Success`", "`${a} Error`,")
+	End If
+	script1.AddTernary("type: isSuccess", "'bg-success'", "'bg-danger'")
+	script1.DecreaseIndent
+	script1.AddLine("};")
+	script1.AddLine("")
+	script1.AddComment("Use .value for Textareas (textContent is for <div> or <pre>)")
+	script1.DeclareVariable("responseEl", "document.getElementById(`response-${apiId}`)", True)
+	script1.StartIf("responseEl")
+	script1.AddLine("responseEl.value = contentToShow;")
+	script1.EndIf
+	script1.DecreaseIndent
+	script1.AddLine("}")
+	script1.DecreaseIndent
+	script1.AddLine("}));")
+	script1.DecreaseIndent
+	script1.AddLine("});")
+	script1.AddLine("")
+	script1.AddComment("2. THE BRAIN: Handles Headers and URL")
+	script1.AddEventListener("htmx:configRequest", "evt")
+	script1.IncreaseIndent
+	script1.DeclareVariable("el", "evt.detail.elt", True)
+	script1.DeclareVariable("apiId", "el.getAttribute('data-api-id')", True)
+	script1.AddConditionalCall("!apiId", "return;")
+	script1.AddLine("")
+	script1.AddComment("Update URL")
+	script1.DeclareVariable("pathVal", "document.getElementById(`path-${apiId}`)?.value", True)
+	'script1.ConsoleLog("'pathVal='+pathVal")
+	script1.AddConditionalCall("pathVal", "evt.detail.path = pathVal;")
+	script1.AddLine("")
+	script1.AddLine("evt.detail.headers['Accept'] = 'application/json, application/xml';")
+	script1.AddLine("")
+	script1.AddComment("Auth Logic")
+	script1.StartIf("el.classList.contains('basic')")
+	script1.DeclareVariable("creds", "btoa(`${localStorage.getItem('client_id')}:${localStorage.getItem('client_secret')}`)", True)
+	script1.AddLine("evt.detail.headers['Authorization'] = `Basic ${creds}`;")
+	script1.ElseIf("el.classList.contains('token')")
+	'script1.ConsoleLog("'access_token', localStorage.getItem('access_token')")
+	script1.AddLine("evt.detail.headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;")
+	script1.ElseIf("el.classList.contains('apikey')")
+	'script1.ConsoleLog("'api-key', localStorage.getItem('api-key')")
+	script1.AddLine("evt.detail.headers['X-API-KEY'] = `${localStorage.getItem('api-key')}`;")
+	script1.EndIf
+	script1.DecreaseIndent
+	script1.AddLine("});")
+	script1.DecreaseIndent
+	script1.AddLine("});")
+	Return script1.Generate2
+End Sub
+
+Private Sub SaveToken As String
+	Dim script1 As MiniJs
+	script1.Initialize
+	script1.IncreaseIndent
+	script1.IncreaseIndent
+	script1.IncreaseIndent
+	script1.AddLine("{")
+	script1.IncreaseIndent
+	script1.AddLine("accessToken: localStorage.getItem('access_token'),")
+	script1.AddLine("saveToken(xhr) {")
+	script1.IncreaseIndent
+	script1.StartTry
+	script1.DeclareVariable("contentType", $"xhr.getResponseHeader('Content-Type') || ''"$, True)
+	'script1.ConsoleLog("contentType")
+	script1.StartIf($"contentType.includes('xml')"$)
+	script1.DeclareVariable("parser", "new DOMParser()", True)
+	script1.DeclareVariable("xmlDoc", $"parser.parseFromString(xhr.responseText, 'text/xml')"$, True)
+	'script1.DeclareVariable("resp", $"xmlDoc.getElementsByTagName('r')[0]"$, True)
+	script1.DeclareVariable("token", $"xmlDoc.getElementsByTagName('r')[0].access_token"$, True)
+	script1.AddElse
+	script1.DeclareVariable("resp", "JSON.parse(xhr.responseText)", True)
+	script1.DeclareVariable("token", "resp.r?.[0]?.access_token", True)
+	script1.EndIf
+	script1.StartIf("token")
+	script1.AddLine("localStorage.setItem('access_token', token);")
+	script1.AddLine("this.accessToken = token;")
+	script1.AddLine("console.log('Access token stored!');")
+	script1.EndIf
+	script1.DecreaseIndent
+	script1.AddLine("} catch(err) { console.log(err) }")
+	script1.EndFunction
+	script1.DecreaseIndent
+	script1.AddLine("}")
+	script1.IncreaseIndent
+	script1.AddLine("}")
+	Return script1.Generate2
+End Sub
+
+Private Sub ServeOpenApiJson '(resp As ServletResponse)
+	' 1. Define OpenAPI Metadata
+	Dim InfoMap As Map = CreateMap( _
+        "title": "Pakai Server v6 API", _
+        "version": "6.99", _
+        "description": "Auto-compiled specification generated directly by HelpHandler" _
+    )
+    
+	Dim OpenApiRoot As Map = CreateMap( _
+        "openapi": "3.0.0", _
+        "info": InfoMap _
+    )
+    
+	Dim PathsMap As Map
+	PathsMap.Initialize
+    
+	' 2. Parse Pakai v6 Endpoints (Modify 'APIList' to match your internal routes variable)
+	BuildMethods
+	For Each Method As Map In AllMethods
+		Dim section As VerbSection = GenerateVerbSection(Method)
+		Dim verb As String = section.Verb.ToLowerCase
+		Dim path As String = section.Link.Replace("$SERVER_URL$", "")
+		Dim desc As String = section.Description
+		Dim tag As String = Method.Get("Group")
+		Dim tags As List
+		tags.Initialize
+		tags.Add(tag)
+		
+		' Build Operation Object
+		Dim OperationMap As Map = CreateMap( _
+            "summary": desc, _
+            "tags": tags, _
+			"responses": CreateMap( _
+                "200": CreateMap("description": "Success response processed by Pakai Engine") _
+            ) _
+        )
+
+		' --- DYNAMIC PATH PARAMETER PARSER ---
+		' Check if the route string includes URL variables like {id} or {category}
+		If path.Contains("{") And path.Contains("}") Then
+			Dim ParametersList As List
+			ParametersList.Initialize
+        
+			' -----------------------------------------------------------------
+			' STEP A: PATH PARAMETER ENGINE
+			' -----------------------------------------------------------------
+			If path.Contains("{") And path.Contains("}") Then
+				' Parse out the exact string trapped inside the brackets
+				Dim StartIdx As Int = path.IndexOf("{") + 1
+				Dim EndIdx As Int = path.IndexOf("}")
+				Dim ParamName As String = path.SubString2(StartIdx, EndIdx)
+        
+				' Define default schemas based on standard B4X conventions
+				Dim ParamSchema As Map = CreateMap("type": "string", "example": "1")
+				Dim ParamDesc As String = "The unique route modifier variable"
+			
+				' Contextualize details based on what path folder it belongs to
+				If ParamName.ToLowerCase = "id" Then
+					If path.Contains("find") Then
+						ParamSchema = CreateMap("type": "integer", "example": "1")
+						ParamDesc = "The sequential database numeric Category Id"
+					Else If path.Contains("product") Then
+						ParamSchema = CreateMap("type": "integer", "example": 1)
+						ParamDesc = "The sequential database numeric Product Id"
+					Else If path.Contains("categories") Then
+						ParamSchema = CreateMap("type": "integer", "example": 1)
+						ParamDesc = "The sequential database numeric Category Id"
+					End If
+				End If
+        
+				' Map the parameter according to OpenAPI path parameter specifications
+				Dim ParamObject As Map = CreateMap( _
+		            "name": ParamName, _
+		            "in": "path", _
+		            "required": True, _
+		            "description": ParamDesc, _
+		            "schema": ParamSchema _
+        		)
+        
+				ParametersList.Add(ParamObject)
+			End If
+			
+			' -----------------------------------------------------------------
+			' STEP B: DYNAMIC QUERY PARAMETER ENGINE
+			' -----------------------------------------------------------------
+			' Query parameters are most commonly used on list/GET actions without specific IDs
+			'If verb = "GET" And Not(path.Contains("{id}")) Then
+			'    ' 1. Define 'limit' query parameter
+			'    Dim LimitParam As Map = CreateMap( _
+			'        "name": "limit", _
+			'        "in": "query", _
+			'        "required": False, _
+			'        "description": "Max number of records to return", _
+			'        "schema": CreateMap("type": "integer", "default": 10, "example": 20) _
+			'    )
+			'    ParametersList.Add(LimitParam)
+			'
+			'    ' 2. Define 'page' query parameter
+			'    Dim PageParam As Map = CreateMap( _
+			'        "name": "page", _
+			'        "in": "query", _
+			'        "required": False, _
+			'        "description": "The current page offset indicator", _
+			'        "schema": CreateMap("type": "integer", "default": 1, "example": 2) _
+			'    )
+			'    ParametersList.Add(PageParam)
+			'
+			'    ' 3. Optional: Add specialized search query filters depending on the route target
+			'    If path.Contains("products") Or path.Contains("inventory") Then
+			'        Dim SearchParam As Map = CreateMap( _
+			'            "name": "search", _
+			'            "in": "query", _
+			'            "required": False, _
+			'            "description": "Filter products by name or code pattern match", _
+			'            "schema": CreateMap("type": "string", "example": "Wireless") _
+			'        )
+			'        ParametersList.Add(SearchParam)
+			'    End If
+			'End If
+			
+			' -----------------------------------------------------------------
+			' STEP C: ATTACH PARAMETERS LIST IF NOT EMPTY
+			' -----------------------------------------------------------------
+			If ParametersList.Size > 0 Then
+				OperationMap.Put("parameters", ParametersList)
+			End If
+		End If
+		' -------------------------------------
+
+		' Handle payload structure for data-modifying requests
+		If verb = "post" Or verb = "put" Then
+			' 1. Define the properties (fields) for the JSON body
+			Dim PropertiesMap As Map
+			PropertiesMap.Initialize
+    
+			' 2. Define which fields are strictly required
+			Dim RequiredFields As List
+			RequiredFields.Initialize
+    
+			' --- DYNAMIC FIELD DEFINITION ENGINE ---
+			' Customize this logic based on your route definitions
+			If path.StartsWith("/api/products") Then
+				PropertiesMap.Put("category_id", CreateMap("type": "integer", "example": 3))
+				PropertiesMap.Put("product_code", CreateMap("type": "string", "example": "E001"))
+				PropertiesMap.Put("product_name", CreateMap("type": "string", "example": "Wireless Mouse"))
+				PropertiesMap.Put("product_price", CreateMap("type": "number", "example": 29.99))
+        
+				RequiredFields.Add("product_code")
+				RequiredFields.Add("product_name")
+				RequiredFields.Add("category_id")
+			Else If path.StartsWith("/api/categories") Then
+				PropertiesMap.Put("category_name", CreateMap("type": "string", "example": "Electronics"))
+				
+				RequiredFields.Add("category_name")
+			Else if path.StartsWith("/api/find") Then
+				PropertiesMap.Put("keyword", CreateMap("type": "string", "example": "mouse"))
+				
+				RequiredFields.Add("keyword")
+			Else
+				' Fallback generic body placeholder if no route match is found
+				PropertiesMap.Put("payload", CreateMap("type": "string", "example": "value"))
+			End If
+			' ---------------------------------------
+			' 3. Assemble the complete schema definition
+			Dim SchemaMap As Map = CreateMap("type": "object", "properties": PropertiesMap)
+		    
+			' Only attach the required constraint list if it contains items
+			If RequiredFields.Size > 0 Then
+				SchemaMap.Put("required", RequiredFields)
+			End If
+			
+			' 4. Wrap everything into the standard OpenAPI requestBody hierarchy
+			Dim ContentMap As Map = CreateMap( _
+		        "application/json": CreateMap( _
+		            "schema": SchemaMap _
+		        ) _
+		    )
+			
+			OperationMap.Put("requestBody", CreateMap("required": True, "content": ContentMap))
+		End If
+		
+		If verb = "post" Then
+			Dim newResponses As Map = OperationMap.Get("responses")
+			newResponses.Put("201", CreateMap("description": "Success resource creation by Pakai Engine"))
+		End If
+			
+		' Safely push to the global Paths Map framework
+		Dim PathMethods As Map
+		If PathsMap.ContainsKey(path) Then
+			PathMethods = PathsMap.Get(path)
+		Else
+			PathMethods.Initialize
+			PathsMap.Put(path, PathMethods)
+		End If
+        
+		PathMethods.Put(verb, OperationMap)
 	Next
-	Return sb.ToString
+    
+	OpenApiRoot.Put("paths", PathsMap)
+    
+	' 3. Serialize and stream JSON response
+	Dim Generator As JSONGenerator
+	Generator.Initialize(OpenApiRoot)
+    
+	Response.ContentType = "application/json;charset=UTF-8"
+	Response.Write(Generator.ToString)
+End Sub
+
+' Add this at the bottom of HelpHandler.bas
+Private Sub GenerateAppSnippet (MethodMap As Map) As String
+	' Extract properties already configured by you in BuildMethods
+	Dim Group As String = MethodMap.GetDefault("Group", "Core")
+	Dim SubName As String = MethodMap.GetDefault("Method", "ApiCall")
+	Dim Summary As String = MethodMap.GetDefault("Desc", "API Endpoint Call")
+	Dim Verb As String = MethodMap.GetDefault("Verb", "GET").As(String).ToUpperCase
+	Dim ElementsJson As String = MethodMap.GetDefault("Elements", "[]")
+	Dim AuthType As String = MethodMap.GetDefault("Authenticate", "")
+	Dim BasePathName As String = MethodMap.GetDefault("Name", Group).As(String).ToLowerCase
+	
+	' Build a clean name for your client app subroutine
+	Dim CleanSubName As String = SubName
+	CleanSubName = CleanSubName.Replace(" ", "_").Replace("(", "").Replace(")", "")
+
+	Dim Sb As StringBuilder
+	Sb.Initialize
+    
+	Sb.Append($"' --- SNIPPET FOR: [${Verb}] /api/${BasePathName} ---"$).Append(CRLF)
+	Sb.Append($"' Description: ${Summary}"$).Append(CRLF)
+
+	' Read URL elements natively stored by WebApiUtils (e.g. ["{id}"])
+	Dim JSON As JSONParser
+	JSON.Initialize(ElementsJson)
+	Dim PathElements As List = JSON.NextArray
+    
+	' Track parameter inputs and URL structures
+	Dim ParamSignature As String = ""
+	Dim UrlBuilder As String = $"BaseURL & "/api/${BasePathName}""$
+    
+	For Each Element As String In PathElements
+		If Element.StartsWith("{") And Element.EndsWith("}") Then
+			Dim VarName As String = Element.Replace("{", "").Replace("}", "")
+			ParamSignature = ParamSignature & VarName & " As String, "
+			UrlBuilder = UrlBuilder & " & ""/"" & " & VarName
+		Else
+			UrlBuilder = UrlBuilder & " & ""/" & Element & """"
+		End If
+	Next
+	
+	' Inject authentication field if required by WebApiUtils configuration
+	If AuthType = "token" Then
+		ParamSignature = ParamSignature & "AuthToken As String, "
+	End If
+	
+	' Trim trailing space and comma from your parameter signature if it exists
+	ParamSignature = ParamSignature.Trim
+	If ParamSignature.EndsWith(",") Then
+		ParamSignature = ParamSignature.SubString2(0, ParamSignature.Length - 1)
+	End If
+	
+	' Output exact B4X client code based on the Request type
+	Select Verb
+		Case "POST", "PUT"
+			' If there are existing path or auth parameters, add a trailing comma before JsonBody
+			Dim FormattedParams As String = ""
+			If ParamSignature <> "" Then FormattedParams = ParamSignature & ", "
+			
+			Sb.Append($"Public Sub ${CleanSubName} (${FormattedParams}JsonBody As String)"$).Append(CRLF)
+			Sb.Append($"    Dim j As HttpJob"$).Append(CRLF)
+			Sb.Append($"    j.Initialize("", Me)"$).Append(CRLF)
+			If Verb = "PUT" Then
+				Sb.Append($"    j.PutString(${UrlBuilder}, JsonBody)"$).Append(CRLF)
+			Else
+				Sb.Append($"    j.PostString(${UrlBuilder}, JsonBody)"$).Append(CRLF)
+			End If
+			Sb.Append($"    j.GetRequest.SetContentType("application/json")"$).Append(CRLF)
+		Case Else ' "GET", "DELETE"
+			' For GET requests, if there are no parameters, output directly without empty spaces inside parens
+			If ParamSignature = "" Then
+				Sb.Append($"Public Sub ${CleanSubName}"$).Append(CRLF)
+			Else
+				Sb.Append($"Public Sub ${CleanSubName} (${ParamSignature})"$).Append(CRLF)
+			End If
+			
+			Sb.Append($"    Dim j As HttpJob"$).Append(CRLF)
+			Sb.Append($"    j.Initialize("", Me)"$).Append(CRLF)
+			If Verb = "DELETE" Then
+				Sb.Append($"    j.Delete(${UrlBuilder})"$).Append(CRLF)
+			Else
+				Sb.Append($"    j.Download(${UrlBuilder})"$).Append(CRLF)
+			End If
+	End Select
+	    
+	' Inject the HTTP header for your JWT bearer authentication token automatically
+	If AuthType = "token" Then
+		Sb.Append($"    j.GetRequest.SetHeader("Authorization", "Bearer " & AuthToken)"$).Append(CRLF)
+	End If
+    
+	Sb.Append($"    Wait For (j) JobDone(j As HttpJob)"$).Append(CRLF)
+	Sb.Append($"    If j.Success Then"$).Append(CRLF)
+	Sb.Append($"        Log(j.GetString)"$).Append(CRLF).Append(CRLF)
+	Sb.Append($"    End If"$).Append(CRLF)
+	Sb.Append($"    j.Release"$).Append(CRLF)
+	Sb.Append($"End Sub"$).Append(CRLF)
+	Return Sb.ToString
 End Sub

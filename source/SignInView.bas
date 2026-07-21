@@ -5,7 +5,7 @@ Type=Class
 Version=10.3
 @EndOfDesignText@
 ' Sign-In View
-' Version 0.20
+' Version 0.30
 Sub Class_Globals
 
 End Sub
