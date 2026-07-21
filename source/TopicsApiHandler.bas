@@ -19,9 +19,8 @@ End Sub
 
 Public Sub Initialize
 	App = Main.App
-	HRM.Initialize
-	Main.SetApiMessage(HRM)
-	DB.Initialize(Main.DBType, Null)
+	HRM = Main.HRM
+	DB = Main.DB
 End Sub
 
 Sub Handle (req As ServletRequest, resp As ServletResponse)
@@ -94,23 +93,23 @@ End Sub
 
 Private Sub Gettopics
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "topics"
 	DB.Query
 	HRM.ResponseCode = 200
-	HRM.ResponseData = DB.Results2
+	HRM.ResponseData = DB.Results
 	ReturnApiResponse
 	DB.Close
 End Sub
 
 Private Sub GettopicById (id As Int)
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "topics"
 	DB.Find(id)
 	If DB.Found Then
 		HRM.ResponseCode = 200
-		HRM.ResponseObject = DB.First2
+		HRM.ResponseObject = DB.First
 	Else
 		HRM.ResponseCode = 404
 		HRM.ResponseError = "Topic not found"
@@ -144,9 +143,9 @@ Private Sub CreateNewtopic
 		End If
 	Next
 	' Check conflict topic name
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "topics"
-	DB.Where = Array("topic_name = ?")
+	DB.Conditions = Array("topic_name = ?")
 	DB.Parameters = Array(data.Get("topic_name"))
 	DB.Query
 	If DB.Found Then
@@ -165,7 +164,7 @@ Private Sub CreateNewtopic
 	DB.Save
 	' Retrieve new row
 	HRM.ResponseCode = 201
-	HRM.ResponseObject = DB.First2
+	HRM.ResponseObject = DB.First
 	HRM.ResponseMessage = "Topic created successfully"
 	ReturnApiResponse
 	DB.Close
@@ -193,9 +192,9 @@ Private Sub UpdatetopicById (id As Int)
 		Return
 	End If
 	' Check conflict topic name
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "topics"
-	DB.Where = Array("topic_name = ?", "id <> ?")
+	DB.Conditions = Array("topic_name = ?", "id <> ?")
 	DB.Parameters = Array(data.Get("topic_name"), id)
 	DB.Query
 	If DB.Found Then
@@ -225,14 +224,14 @@ Private Sub UpdatetopicById (id As Int)
 	' Return updated row
 	HRM.ResponseCode = 200
 	HRM.ResponseMessage = "Topic updated successfully"
-	HRM.ResponseObject = DB.First2
+	HRM.ResponseObject = DB.First
 	ReturnApiResponse
 	DB.Close
 End Sub
 
 Private Sub DeletetopicById (id As Int)
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "topics"
 	' Find row by id
 	DB.Find(id)

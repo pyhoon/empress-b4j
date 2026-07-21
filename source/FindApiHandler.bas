@@ -20,9 +20,8 @@ End Sub
 
 Public Sub Initialize
 	App = Main.App
-	HRM.Initialize
-	Main.SetApiMessage(HRM)
-	DB.Initialize(Main.DBType, Null)
+	HRM = Main.HRM
+	DB = Main.DB
 	'HRM.ResponseKeys = Array("m", "a", "r")
 	'HRM.ResponseKeysAlias = Array("message", "code", "data")
 End Sub
@@ -99,31 +98,31 @@ End Sub
 
 Public Sub GetAllPages
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "pages p"
 	' Construct results with new column name alias
-	DB.Select = Array("p.id id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_body", "p.page_status")
-	DB.Join = DB.CreateJoin("topics t", "p.topic_id = t.id", "")
+	DB.Columns = Array("p.id id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_body", "p.page_status")
+	DB.Join("", "topics t", Array("p.topic_id = t.id"))
 	DB.OrderBy = CreateMap("p.id": "")
 	DB.Query
 	HRM.ResponseCode = 200
-	HRM.ResponseData = DB.Results2
+	HRM.ResponseData = DB.Results
 	DB.Close
 	ReturnApiResponse
 End Sub
 
 Public Sub GetPagesByTopicId (id As Int)
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "pages p"
 	' Construct results with new column name alias
-	DB.Select = Array("p.id id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_body", "p.page_status")
-	DB.Join = DB.CreateJoin("topics t", "p.topic_id = t.id", "")
+	DB.Columns = Array("p.id id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_body", "p.page_status")
+	DB.Join("", "topics t", Array("p.topic_id = t.id"))
 	DB.WhereParam("t.id = ?", id)
 	DB.OrderBy = CreateMap("p.id": "")
 	DB.Query
 	HRM.ResponseCode = 200
-	HRM.ResponseData = DB.Results2
+	HRM.ResponseData = DB.Results
 	DB.Close
 	ReturnApiResponse
 End Sub
@@ -151,19 +150,19 @@ Public Sub SearchByKeywords
 		Return
 	End If
 	Dim SearchForText As String = data.Get("keyword")
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "pages p"
 	' Construct results with new column name alias
-	DB.Select = Array("p.id id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_body", "p.page_status")
-	DB.Join = DB.CreateJoin("topics t", "p.topic_id = t.id", "")
+	DB.Columns = Array("p.id id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_body", "p.page_status")
+	DB.Join("", "topics t", Array("p.topic_id = t.id"))
 	If SearchForText <> "" Then
-		DB.Where = Array("p.page_title LIKE ? Or UPPER(p.page_body) LIKE ? Or UPPER(t.topic_name) LIKE ?")
+		DB.Conditions = Array("p.page_title LIKE ? Or UPPER(p.page_body) LIKE ? Or UPPER(t.topic_name) LIKE ?")
 		DB.Parameters = Array("%" & SearchForText & "%", "%" & SearchForText.ToUpperCase & "%", "%" & SearchForText.ToUpperCase & "%")
 	End If
 	DB.OrderBy = CreateMap("p.id": "")
 	DB.Query
 	HRM.ResponseCode = 200
-	HRM.ResponseData = DB.Results2
+	HRM.ResponseData = DB.Results
 	DB.Close
 	ReturnApiResponse
 End Sub

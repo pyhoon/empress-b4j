@@ -16,7 +16,7 @@ End Sub
 
 Public Sub Initialize
 	App = Main.App
-	DB.Initialize(Main.DBType, Null)
+	DB = Main.DB
 End Sub
 
 Sub Handle (req As ServletRequest, resp As ServletResponse)
@@ -52,136 +52,135 @@ Private Sub RenderPage
 	main1.LoadModal(ModalContainer)
 	main1.LoadToast(ToastContainer)
 
-	Dim page1 As Tag = main1.Render
-	Dim ulist1 As Tag = FindUListTag(page1)
+	Dim page1 As MiniHtml = main1.Render
+	Dim ulist1 As MiniHtml = FindUListTag(page1)
 	
-	Dim list0 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor0 As Tag = Anchor.href("/help").up(list0)
+	Dim list0 As MiniHtml = MH.Li.cls("nav-item d-block d-lg-block").up(ulist1)
+	Dim anchor0 As MiniHtml = MH.Anchor.attr("href", "/help").up(list0)
 	anchor0.cls("nav-link")
-	anchor0.add(Icon.cls("bi bi-gear mr-2").title("API"))
+	anchor0.add(MH.Icon.cls("bi bi-gear mr-2").attr("title", "API"))
 	anchor0.text("API")
   
-    Dim list1 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-    Dim anchor1 As Tag = Anchor.href("#").up(list1)
+    Dim list1 As MiniHtml = MH.Li.cls("nav-item d-block d-lg-block").up(ulist1)
+    Dim anchor1 As MiniHtml = MH.Anchor.attr("href", "#").up(list1)
     anchor1.cls("nav-link")
     anchor1.text("Pages")
   
-    Dim list2 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-    Dim anchor2 As Tag = Anchor.href("/topics").up(list2)
+    Dim list2 As MiniHtml = MH.Li.cls("nav-item d-block d-lg-block").up(ulist1)
+    Dim anchor2 As MiniHtml = MH.Anchor.attr("href", "/topics").up(list2)
     anchor2.cls("nav-link")
     anchor2.text("Topics")
 	
-	Dim list3 As Tag = Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor3 As Tag = Anchor.href("/users").up(list3)
+	Dim list3 As MiniHtml = MH.Li.cls("nav-item d-block d-lg-block").up(ulist1)
+	Dim anchor3 As MiniHtml = MH.Anchor.attr("href", "/users").up(list3)
 	anchor3.cls("nav-link")
 	anchor3.text("Users")
 
-	Dim doc As Document
-	doc.Initialize
-	doc.AppendDocType
+	Dim doc As MiniHtml
+	doc.Initialize("doctype")
 	doc.Append(page1.build)
 	App.WriteHtml2(Response, doc.ToString, App.ctx)
 End Sub
 
 ' Retrieve ulist tag from DOM
-Private Sub FindUListTag (dom As Tag) As Tag
-	Dim body1 As Tag = dom.Child(1)
-	Dim nav1 As Tag = body1.Child(1)
-	Dim container1 As Tag = nav1.Child(0)
-	Dim navbar1 As Tag = container1.Child(3)
-	Dim ulist1 As Tag = navbar1.Child(0)
+Private Sub FindUListTag (dom As MiniHtml) As MiniHtml
+	Dim body1 As MiniHtml = dom.ChildByIndex(1)
+	Dim nav1 As MiniHtml = body1.ChildByIndex(1)
+	Dim container1 As MiniHtml = nav1.ChildByIndex(0)
+	Dim navbar1 As MiniHtml = container1.ChildByIndex(3)
+	Dim ulist1 As MiniHtml = navbar1.ChildByIndex(0)
 	Return ulist1
 End Sub
 
-Private Sub ContentContainer As Tag
-	Dim content1 As Tag = Div.cls("row mt-3")
-	Dim col12 As Tag = Div.cls("col-md-12").up(content1)
-	Dim form1 As Tag = Form.cls("form mb-3").up(col12)
-	Dim row1 As Tag = Div.cls("row").up(form1)
-	Dim col1 As Tag = Div.cls("col-md-6 col-lg-6").up(row1)
+Private Sub ContentContainer As MiniHtml
+	Dim content1 As MiniHtml = MH.Div.cls("row mt-3")
+	Dim col12 As MiniHtml = MH.Div.cls("col-md-12").up(content1)
+	Dim form1 As MiniHtml = MH.Form.cls("form mb-3").up(col12)
+	Dim row1 As MiniHtml = MH.Div.cls("row").up(form1)
+	Dim col1 As MiniHtml = MH.Div.cls("col-md-6 col-lg-6").up(row1)
 
-	Dim input_group1 As Tag = col1.add(Div.cls("input-group mb-3"))
-	input_group1.add(Label.forId("keyword").cls("input-group-text mt-2").text("Search"))
-	input_group1.add(Input.typeOf("text").cls("form-control col-md-6 mt-2").id("keyword").name("keyword"))
+	Dim input_group1 As MiniHtml = col1.add(MH.Div.cls("input-group mb-3"))
+	input_group1.add(MH.Label.attr("for", "keyword").cls("input-group-text mt-2").text("Search"))
+	input_group1.add(MH.Input.attr("type", "text").cls("form-control col-md-6 mt-2").attr("name", "keyword").attr("id", "keyword"))
 
-	Dim searchBtn As Tag = input_group1.add(Button.cls("btn btn-danger btn-md pl-3 pr-3 ml-3 mt-2").text("Submit"))
-	searchBtn.hxPost("/hx/pages/search")
-	searchBtn.hxTarget("#pages-container")
-	searchBtn.hxSwap("innerHTML")
+	Dim searchBtn As MiniHtml = input_group1.add(MH.Button.cls("btn btn-danger btn-md pl-3 pr-3 ml-3 mt-2").text("Submit"))
+	searchBtn.attr("hx-post", "/hx/pages/search")
+	searchBtn.attr("hx-target", "#pages-container")
+	searchBtn.attr("hx-swap", "innerHTML")
 
-	Dim col2 As Tag = Div.cls("col-md-6 col-lg-6").up(row1)
-	Dim div2 As Tag = Div.cls("float-end mt-2").up(col2)
+	Dim col2 As MiniHtml = MH.Div.cls("col-md-6 col-lg-6").up(row1)
+	Dim div2 As MiniHtml = MH.Div.cls("float-end mt-2").up(col2)
 
-	'Dim anchor1 As Tag = Anchor.up(div2)
-	'anchor1.hrefOf("$SERVER_URL$/topics")
+	'Dim anchor1 As MiniHtml = MH.Anchor.up(div2)
+	'anchor1.attr("href", "$SERVER_URL$/topics")
 	'anchor1.cls("btn btn-primary me-2")
 	'anchor1.add(Icon.cls("bi bi-list me-2"))
 	'anchor1.text("Show topic")
 
-	Dim button2 As Tag = Button.up(div2)
+	Dim button2 As MiniHtml = MH.Button.up(div2)
 	button2.cls("btn btn-success ml-2")
-	button2.hxGet("/hx/pages/add")
-	button2.hxTarget("#modal-content")
-	button2.hxTrigger("click")
-	button2.data("bs-toggle", "modal")
-	button2.data("bs-target", "#modal-container")
-	button2.add(Icon.cls("bi bi-plus-lg me-2"))
+	button2.attr("hx-get", "/hx/pages/add")
+	button2.attr("hx-target", "#modal-content")
+	button2.attr("hx-trigger", "click")
+	button2.attr("data-bs-toggle", "modal")
+	button2.attr("data-bs-target", "#modal-container")
+	button2.add(MH.Icon.cls("bi bi-plus-lg me-2"))
 	button2.text("Add Page")
 
-	Dim container1 As Tag = Div.up(col12)
-	container1.id("pages-container")
-	container1.hxGet("/hx/pages/table")
-	container1.hxTrigger("load")
+	Dim container1 As MiniHtml = MH.Div.up(col12)
+	container1.id = "pages-container"
+	container1.attr("hx-get", "/hx/pages/table")
+	container1.attr("hx-trigger", "load")
 	container1.text("Loading...")
 	
 	Return content1
 End Sub
 
-Private Sub GitHubLink As Tag
-	Dim div1 As Tag = Div.cls("text-center mb-3")
-	Dim anchor1 As Tag = Anchor.up(div1)
-	anchor1.hrefOf("https://github.com/pyhoon/empress-b4j")
+Private Sub GitHubLink As MiniHtml
+	Dim div1 As MiniHtml = MH.Div.cls("text-center mb-3")
+	Dim anchor1 As MiniHtml = MH.Anchor.up(div1)
+	anchor1.attr("href", "https://github.com/pyhoon/empress-b4j")
 	anchor1.cls("text-primary mr-1")
-	anchor1.aria("label", "github").attr("title", "GitHub").targetOf("_blank")
-	Dim svg1 As Tag = Svg.up(anchor1)
-	svg1.aria("hidden", "true")
-	svg1.width("24").height("24")
+	anchor1.attr("aria-label", "github").attr("title", "GitHub").attr("target", "_blank")
+	Dim svg1 As MiniHtml = MH.Svg.up(anchor1)
+	svg1.attr("aria-hidden", "true")
+	svg1.attr("width", "24").attr("height", "24")
 	svg1.attr("version", "1.1")
 	svg1.attr("viewBox", "0 0 16 16")
-	Dim path1 As Tag = Html.create("path").up(svg1)
+	Dim path1 As MiniHtml = MH.Path.up(svg1)
 	path1.attr("fill-rule", "evenodd")
 	path1.attr("d", "M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z")
-	Dim anchor2 As Tag = Anchor.up(div1)
-	anchor2.hrefOf("https://github.com/pyhoon/empress-b4j")
+	Dim anchor2 As MiniHtml = MH.Anchor.up(div1)
+	anchor2.attr("href", "https://github.com/pyhoon/empress-b4j")
 	anchor2.sty("text-decoration: none")
-	anchor2.targetOf("_blank")
-	Span.sty("vertical-align: middle").text("GitHub").up(anchor2)
+	anchor2.attr("target", "_blank")
+	MH.Span.sty("vertical-align: middle").text("GitHub").up(anchor2)
 	Return div1
 End Sub
 
-Private Sub ModalContainer As Tag
-	Dim modal1 As Tag = Div.id("modal-container")
+Private Sub ModalContainer As MiniHtml
+	Dim modal1 As MiniHtml = MH.Div.attr("id", "modal-container")
 	modal1.cls("modal fade")
 	modal1.attr("tabindex", "-1")
-	modal1.aria("hidden", "true")
-	Dim modalDialog As Tag = Div.up(modal1).cls("modal-dialog modal-dialog-centered")
-	Div.cls("modal-content").id("modal-content").up(modalDialog)
+	modal1.attr("aria-hidden", "true")
+	Dim modalDialog As MiniHtml = MH.Div.up(modal1).cls("modal-dialog modal-dialog-centered")
+	MH.Div.cls("modal-content").attr("id", "modal-content").up(modalDialog)
 	Return modal1
 End Sub
 
-Private Sub ToastContainer As Tag
-	Dim div1 As Tag = Div.cls("position-fixed end-0 p-3")
+Private Sub ToastContainer As MiniHtml
+	Dim div1 As MiniHtml = MH.Div.cls("position-fixed end-0 p-3")
 	div1.sty("z-index: 2000")
 	div1.sty("bottom: 0%")
-	Dim toast1 As Tag = Div.id("toast-container").up(div1)
+	Dim toast1 As MiniHtml = MH.Div.attr("id", "toast-container").up(div1)
 	toast1.cls("toast align-items-center text-bg-success border-0")
 	toast1.attr("role", "alert")
-	Dim div2 As Tag = Div.cls("d-flex").up(toast1)
-	Dim div3 As Tag = Div.cls("toast-body").id("toast-body").up(div2)
+	Dim div2 As MiniHtml = MH.Div.cls("d-flex").up(toast1)
+	Dim div3 As MiniHtml = MH.Div.cls("toast-body").attr("id", "toast-body").up(div2)
 	div3.text("Operation successful!")
-	Dim button1 As Tag = Button.typeOf("button").up(div2)
+	Dim button1 As MiniHtml = MH.Button.attr("type", "button").up(div2)
 	button1.cls("btn-close btn-close-white me-2 m-auto")
-	button1.data("bs-dismiss", "toast")
+	button1.attr("data-bs-dismiss", "toast")
 	Return div1
 End Sub
 
@@ -191,15 +190,15 @@ Private Sub HandleTable
 End Sub
 
 Private Sub HandlePagesList
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "pages p"
 	DB.Columns = Array("p.id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_body", "p.page_status", "Date(p.created_date) AS created_date", "u.first_name AS author")
-	DB.Join = DB.CreateJoin("topics t", "p.topic_id = t.id", "")
-	DB.Join = DB.CreateJoin("users u", "p.created_by = u.id", "")
+	DB.Join("", "topics t", Array("p.topic_id = t.id"))
+	DB.Join("", "users u", Array("p.created_by = u.id"))
 	DB.OrderBy = CreateMap("p.id": "")
 	DB.Query
   
-	Dim div1 As Tag = Div.init
+	Dim div1 As MiniHtml = MH.Div
 	For Each row As Map In DB.Results
 		'Dim page_slug As String = row.Get("page_slug")
 		Dim page_body As String = row.Get("page_body")
@@ -209,11 +208,11 @@ Private Sub HandlePagesList
 		Dim page_created As String = "created on " & row.Get("created_date")
 		page_created = page_created & " by " & row.Get("author")
       
-		Dim card1 As Tag = Div.cls("card text-start mb-3")
-		Dim cardbody1 As Tag = Div.cls("card-body").up(card1)
-		H5.cls("card-title").up(cardbody1).text(page_title)
-		H6.cls("card-subtitle mb-2 text-body-secondary").up(cardbody1).text(page_created)
-		Paragraph.cls("card-text").up(cardbody1).text(page_body)
+		Dim card1 As MiniHtml = MH.Div.cls("card text-start mb-3")
+		Dim cardbody1 As MiniHtml = MH.Div.cls("card-body").up(card1)
+		MH.H5.cls("card-title").up(cardbody1).text(page_title)
+		MH.H6.cls("card-subtitle mb-2 text-body-secondary").up(cardbody1).text(page_created)
+		MH.P.cls("card-text").up(cardbody1).text(page_body)
 		card1.up(div1)
 	Next
 	DB.Close
@@ -222,23 +221,23 @@ End Sub
 
 ' Search page using keyword
 Private Sub HandleSearch
-	Dim table1 As Tag = HtmlTable.cls("table table-bordered table-hover rounded small")
-	Dim thead1 As Tag = table1.add(Thead.cls("table-light"))
-	thead1.add(Th.sty("text-align: right; width: 50px").text("#"))
-	thead1.add(Th.text("Slug"))
-	thead1.add(Th.text("Title"))
-	thead1.add(Th.text("Topic"))
-	thead1.add(Th.sty("text-align: right").text("Status"))
-	thead1.add(Th.sty("text-align: center; width: 120px").text("Actions"))
-	Dim tbody1 As Tag = table1.add(Tbody.init)
+	Dim table1 As MiniHtml = MH.Table.cls("table table-bordered table-hover rounded small")
+	Dim thead1 As MiniHtml = table1.add(MH.Thead.cls("table-light"))
+	thead1.add(MH.Th.sty("text-align: right; width: 50px").text("#"))
+	thead1.add(MH.Th.text("Slug"))
+	thead1.add(MH.Th.text("Title"))
+	thead1.add(MH.Th.text("Topic"))
+	thead1.add(MH.Th.sty("text-align: right").text("Status"))
+	thead1.add(MH.Th.sty("text-align: center; width: 120px").text("Actions"))
+	Dim tbody1 As MiniHtml = table1.add(MH.Tbody)
 
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "pages p"
 	DB.Columns = Array("p.id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_status")
-	DB.Join = DB.CreateJoin("topics t", "p.topic_id = t.id", "")
+	DB.Join("", "topics t", Array("p.topic_id = t.id"))
 	Dim keyword As String = Request.GetParameter("keyword")
 	If keyword <> "" Then
-		DB.Where = Array("p.page_slug LIKE ? Or UPPER(p.page_title) LIKE ? Or UPPER(t.topic_name) LIKE ?")
+		DB.Conditions = Array("p.page_slug LIKE ? Or UPPER(p.page_title) LIKE ? Or UPPER(t.topic_name) LIKE ?")
 		DB.Parameters = Array("%" & keyword & "%", "%" & keyword.ToUpperCase & "%", "%" & keyword.ToUpperCase & "%")
 	End If
 	DB.OrderBy = CreateMap("p.id": "")
@@ -250,30 +249,30 @@ Private Sub HandleSearch
 		Dim page_status As Int = row.Get("page_status")
 		Dim topic_name As String = row.Get("topic_name")
 
-		Dim tr1 As Tag = Tr.init.up(tbody1)
-		tr1.add(Td.cls("align-middle").sty("text-align: right").text(id))
-		tr1.add(Td.cls("align-middle").text(page_slug))
-		tr1.add(Td.cls("align-middle").text(page_title))
-		tr1.add(Td.cls("align-middle").text(topic_name))
-		tr1.add(Td.cls("align-middle").sty("text-align: right").text(page_status))
-		Dim td1 As Tag = tr1.add(Td.cls("align-middle text-center px-1 py-1"))
+		Dim tr1 As MiniHtml = MH.Tr.up(tbody1)
+		tr1.add(MH.Td.cls("align-middle").sty("text-align: right").text(id))
+		tr1.add(MH.Td.cls("align-middle").text(page_slug))
+		tr1.add(MH.Td.cls("align-middle").text(page_title))
+		tr1.add(MH.Td.cls("align-middle").text(topic_name))
+		tr1.add(MH.Td.cls("align-middle").sty("text-align: right").text(page_status))
+		Dim td1 As MiniHtml = tr1.add(MH.Td.cls("align-middle text-center px-1 py-1"))
 
-		Dim anchor1 As Tag = Anchor.cls("edit text-primary mx-2").up(td1)
-		anchor1.hxGet($"/hx/pages/edit/${id}"$)
-		anchor1.hxTarget("#modal-content")
-		anchor1.hxTrigger("click")
-		anchor1.data("bs-toggle", "modal")
-		anchor1.data("bs-target", "#modal-container")
-		anchor1.add(Icon.cls("bi bi-pencil"))
+		Dim anchor1 As MiniHtml = MH.Anchor.cls("edit text-primary mx-2").up(td1)
+		anchor1.attr("hx-get", $"/hx/pages/edit/${id}"$)
+		anchor1.attr("hx-target", "#modal-content")
+		anchor1.attr("hx-trigger", "click")
+		anchor1.attr("data-bs-toggle", "modal")
+		anchor1.attr("data-bs-target", "#modal-container")
+		anchor1.add(MH.Icon.cls("bi bi-pencil"))
 		anchor1.attr("title", "Edit")
 		
-		Dim anchor2 As Tag = Anchor.cls("delete text-danger mx-2").up(td1)
-		anchor2.hxGet($"/hx/pages/delete/${id}"$)
-		anchor2.hxTarget("#modal-content")
-		anchor2.hxTrigger("click")
-		anchor2.data("bs-toggle", "modal")
-		anchor2.data("bs-target", "#modal-container")
-		anchor2.add(Icon.cls("bi bi-trash3"))
+		Dim anchor2 As MiniHtml = MH.Anchor.cls("delete text-danger mx-2").up(td1)
+		anchor2.attr("hx-get", $"/hx/pages/delete/${id}"$)
+		anchor2.attr("hx-target", "#modal-content")
+		anchor2.attr("hx-trigger", "click")
+		anchor2.attr("data-bs-toggle", "modal")
+		anchor2.attr("data-bs-target", "#modal-container")
+		anchor2.add(MH.Icon.cls("bi bi-trash3"))
 		anchor2.attr("title", "Delete")
 	Next
 	DB.Close
@@ -282,59 +281,59 @@ End Sub
 
 ' Add modal
 Private Sub HandleAddModal
-	Dim form1 As Tag = Form.init
-	form1.hxPost("/hx/pages")
-	form1.hxTarget("#modal-messages")
-	form1.hxSwap("innerHTML")
+	Dim form1 As MiniHtml = MH.Form
+	form1.attr("hx-post", "/hx/pages")
+	form1.attr("hx-target", "#modal-messages")
+	form1.attr("hx-swap", "innerHTML")
 
-	Dim modalHeader As Tag = Div.cls("modal-header").up(form1)
-	modalHeader.add(H5.cls("modal-title").text("Add Page"))
-	modalHeader.add(Button.typeOf("button").cls("btn-close").data("bs-dismiss", "modal"))
+	Dim modalHeader As MiniHtml = MH.Div.cls("modal-header").up(form1)
+	modalHeader.add(MH.H5.cls("modal-title").text("Add Page"))
+	modalHeader.add(MH.Button.attr("type", "button").cls("btn-close").attr("data-bs-dismiss", "modal"))
 	
-	Dim modalBody As Tag = Div.cls("modal-body").up(form1)
-	Div.id("modal-messages").up(modalBody)
+	Dim modalBody As MiniHtml = MH.Div.cls("modal-body").up(form1)
+	MH.Div.up(modalBody).id = "modal-messages"
 	
-	Dim group1 As Tag = Div.cls("form-group").up(modalBody)
-	Label.forId("topic1").text("Topic ").up(group1).add(Span.cls("text-danger").text("*"))
+	Dim group1 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
+	MH.Label.attr("for", "topic1").text("Topic ").up(group1).add(MH.Span.cls("text-danger").text("*"))
 	
-	Dim select1 As Tag = CreateTopicsDropdown(-1)
-	select1.id("topic1")
-	select1.name("topic_id")
+	Dim select1 As MiniHtml = CreateTopicsDropdown(-1)
+	select1.id = "topic1"
+	select1.attr("name", "topic_id")
 	select1.up(group1)
 
-	'Dim group2 As Tag = Div.cls("form-group").up(modalBody)
+	'Dim group2 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
 	'group2.add(Label.text("Slug ")).add(Span.cls("text-danger").text("*"))
-	'group2.add(Input.typeOf("text").name("page_slug").cls("form-control").required)
+	'group2.add(Input.attr("type", "text").attr("name", "page_slug").cls("form-control").required)
 
-	Dim group3 As Tag = Div.cls("form-group").up(modalBody)
-	group3.add(Label.text("Title ")).add(Span.cls("text-danger").text("*"))
-	group3.add(Input.typeOf("text").name("page_title").cls("form-control").required)
+	Dim group3 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
+	group3.add(MH.Label.text("Title ")).add(MH.Span.cls("text-danger").text("*"))
+	group3.add(MH.Input.attr("type", "text").attr("name", "page_title").cls("form-control").required)
 
-	Dim group4 As Tag = Div.cls("form-group").up(modalBody)
-	group4.add(Label.text("Body ")).add(Span.cls("text-danger").text("*"))
-	group4.add(Textarea.rows("3").name("page_body").cls("form-control").required)
+	Dim group4 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
+	group4.add(MH.Label.text("Body ")).add(MH.Span.cls("text-danger").text("*"))
+	group4.add(MH.Textarea.attr("rows", "3").attr("name", "page_body").cls("form-control").required)
 
-    Dim group5 As Tag = modalBody.add(Div.cls("form-group"))
-    Label.forId("status").text("Status ").up(group5).add(Span.cls("text-danger").text("*"))
-    Dim select1 As Tag = Dropdown.up(group5).id("status").name("status").cls("form-select").required
-    Option.valueOf("0").text("Draft").up(select1)
-    Option.valueOf("1").text("Published").up(select1)
+    Dim group5 As MiniHtml = modalBody.add(MH.Div.cls("form-group"))
+    MH.Label.attr("for", "status").text("Status ").up(group5).add(MH.Span.cls("text-danger").text("*"))
+    Dim select1 As MiniHtml = MH.SelectTag.up(group5).attr("id", "status").attr("name", "status").cls("form-select").required
+    MH.Option.attr("value", "0").text("Draft").up(select1)
+    MH.Option.attr("value", "1").text("Published").up(select1)
 
-	Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
-	modalFooter.add(Button.typeOf("submit").cls("btn btn-success px-3").text("Create"))
-	modalFooter.add(Input.typeOf("button").cls("btn btn-secondary px-3").data("bs-dismiss", "modal").attr("value", "Cancel"))
+	Dim modalFooter As MiniHtml = MH.Div.cls("modal-footer").up(form1)
+	modalFooter.add(MH.Button.attr("type", "submit").cls("btn btn-success px-3").text("Create"))
+	modalFooter.add(MH.Input.attr("type", "button").cls("btn btn-secondary px-3").attr("data-bs-dismiss", "modal").attr("value", "Cancel"))
 	App.WriteHtml(Response, form1.Build)
 End Sub
 
 ' Edit modal
 Private Sub HandleEditModal
 	Dim id As String = Request.RequestURI.SubString("/hx/pages/edit/".Length)
-	Dim form1 As Tag = Form.init
-	form1.hxPut($"/hx/pages"$)
-	form1.hxTarget("#modal-messages")
-	form1.hxSwap("innerHTML")
-		
-	DB.SQL = Main.DBOpen
+	Dim form1 As MiniHtml = MH.Form
+	form1.attr("hx-put", $"/hx/pages"$)
+	form1.attr("hx-target", "#modal-messages")
+	form1.attr("hx-swap", "innerHTML")
+	
+	DB.Open
 	DB.Table = "pages"
 	DB.Columns = Array("topic_id", "page_slug", "page_title", "page_body", "page_status")
 	DB.WhereParam("id = ?", id)
@@ -347,65 +346,65 @@ Private Sub HandleEditModal
 		Dim page_status As Int = row.Get("page_status")
 		Dim topic_id As Int = row.Get("topic_id")
 
-		Dim modalHeader As Tag = Div.cls("modal-header").up(form1)
-		H5.cls("modal-title").text("Edit Page").up(modalHeader)
-		Button.typeOf("button").cls("btn-close").data("bs-dismiss", "modal").up(modalHeader)
+		Dim modalHeader As MiniHtml = MH.Div.cls("modal-header").up(form1)
+		MH.H5.cls("modal-title").text("Edit Page").up(modalHeader)
+		MH.Button.attr("type", "button").cls("btn-close").attr("data-bs-dismiss", "modal").up(modalHeader)
 		
-		Dim modalBody As Tag = Div.cls("modal-body").up(form1)
-		Div.id("modal-messages").up(modalBody)
-		Input.typeOf("hidden").up(modalBody).name("id").valueOf(id)
+		Dim modalBody As MiniHtml = MH.Div.cls("modal-body").up(form1)
+		MH.Div.attr("id", "modal-messages").up(modalBody)
+		MH.Input.attr("type", "hidden").up(modalBody).attr("name", "id").attr("value", id)
 		
-		Dim group1 As Tag = Div.cls("form-group").up(modalBody)
-		Label.forId("topic2").text("Topic ").up(group1).add(Span.cls("text-danger")).text("*")
+		Dim group1 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
+		MH.Label.attr("for", "topic2").text("Topic ").up(group1).add(MH.Span.cls("text-danger")).text("*")
 		
-		Dim select1 As Tag = CreateTopicsDropdown(topic_id)
-		select1.id("topic2")
-		select1.name("topic_id")
+		Dim select1 As MiniHtml = CreateTopicsDropdown(topic_id)
+		select1.id = "topic2"
+		select1.attr("name", "topic_id")
 		select1.up(group1)
 		
-		Dim group2 As Tag = Div.cls("form-group").up(modalBody)
-		group2.add(Label.text("Slug ")).add(Span.cls("text-danger").text("*"))
-		group2.add(Input.typeOf("text").cls("form-control").name("page_slug").valueOf(page_slug))
+		Dim group2 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
+		group2.add(MH.Label.text("Slug ")).add(MH.Span.cls("text-danger").text("*"))
+		group2.add(MH.Input.attr("type", "text").cls("form-control").attr("name", "page_slug").attr("value", page_slug))
 
-		Dim group3 As Tag = Div.cls("form-group").up(modalBody)
-		group3.add(Label.text("Title ")).add(Span.cls("text-danger").text("*"))
-		group3.add(Input.typeOf("text").cls("form-control").name("page_title").valueOf(page_title).required)
+		Dim group3 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
+		group3.add(MH.Label.text("Title ")).add(MH.Span.cls("text-danger").text("*"))
+		group3.add(MH.Input.attr("type", "text").cls("form-control").attr("name", "page_title").attr("value", page_title).required)
 
-		Dim group4 As Tag = Div.cls("form-group").up(modalBody)
-		group4.add(Label.text("Body ")).add(Span.cls("text-danger").text("*"))
-		group4.add(Textarea.rows("3").cls("form-control").name("page_body").text(page_body).required)
+		Dim group4 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
+		group4.add(MH.Label.text("Body ")).add(MH.Span.cls("text-danger").text("*"))
+		group4.add(MH.Textarea.attr("rows", "3").cls("form-control").attr("name", "page_body").text(page_body).required)
 
-		Dim group5 As Tag = modalBody.add(Div.cls("form-group"))
-        Label.forId("status").text("Status ").up(group5).add(Span.cls("text-danger").text("*"))
-        Dim select1 As Tag = Dropdown.up(group5).id("status").name("page_status").cls("form-select").required
-        Dim option0 As Tag = Option.valueOf("0").text("Draft").up(select1)
-        Dim option1 As Tag = Option.valueOf("1").text("Published").up(select1)
+		Dim group5 As MiniHtml = modalBody.add(MH.Div.cls("form-group"))
+        MH.Label.attr("for", "status").text("Status ").up(group5).add(MH.Span.cls("text-danger").text("*"))
+        Dim select1 As MiniHtml = MH.SelectTag.up(group5).attr("id", "status").attr("name", "page_status").cls("form-select").required
+        Dim option0 As MiniHtml = MH.Option.attr("value", "0").text("Draft").up(select1)
+        Dim option1 As MiniHtml = MH.Option.attr("value", "1").text("Published").up(select1)
 		If page_status = 0 Then option0.selected
         If page_status = 1 Then option1.selected
 				
-		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
-		modalFooter.add(Button.cls("btn btn-primary px-3").text("Update"))
-		modalFooter.add(Input.typeOf("button").cls("btn btn-secondary px-3").data("bs-dismiss", "modal").valueOf("Cancel"))
+		Dim modalFooter As MiniHtml = MH.Div.cls("modal-footer").up(form1)
+		modalFooter.add(MH.Button.cls("btn btn-primary px-3").text("Update"))
+		modalFooter.add(MH.Input.attr("type", "button").cls("btn btn-secondary px-3").attr("data-bs-dismiss", "modal").attr("value", "Cancel"))
 	End If
 	DB.Close
 	App.WriteHtml(Response, form1.Build)
 End Sub
 
-Private Sub CreateTopicsDropdown (selected As Int) As Tag
-	Dim select1 As Tag = Dropdown.cls("form-select")
+Private Sub CreateTopicsDropdown (selected As Int) As MiniHtml
+	Dim select1 As MiniHtml = MH.SelectTag.cls("form-select")
 	select1.required
-	select1.hxGet("/hx/topics/list")
-	Dim option0 As Tag = Option.valueOf("").text("Select topic").disabled.up(select1)
+	select1.attr("hx-get", "/hx/topics/list")
+	Dim option0 As MiniHtml = MH.Option.up(select1).attr("value", "").text("Select topic").disabled
 	If selected < 1 Then option0.selected
 
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "topics"
 	DB.Columns = Array("id", "topic_name")
 	DB.Query
 	For Each row As Map In DB.Results
 		Dim topic_id As Int = row.Get("id")
 		Dim topic_name As String = row.Get("topic_name")
-		Dim option1 As Tag = Option.valueOf(topic_id).text(topic_name).up(select1)
+		Dim option1 As MiniHtml = MH.Option.up(select1).attr("value", topic_id).text(topic_name)
 		If topic_id = selected Then option1.selected
 	Next
 	DB.Close
@@ -415,12 +414,12 @@ End Sub
 ' Delete modal
 Private Sub HandleDeleteModal
 	Dim id As String = Request.RequestURI.SubString("/hx/pages/delete/".Length)
-	Dim form1 As Tag = Form.init
-	form1.hxDelete($"/hx/pages"$)
-	form1.hxTarget("#modal-messages")
-	form1.hxSwap("innerHTML")
+	Dim form1 As MiniHtml = MH.Form
+	form1.attr("hx-delete", $"/hx/pages"$)
+	form1.attr("hx-target", "#modal-messages")
+	form1.attr("hx-swap", "innerHTML")
 		
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "pages"
 	DB.Columns = Array("id", "page_slug", "page_title")
 	DB.WhereParam("id = ?", id)
@@ -430,18 +429,18 @@ Private Sub HandleDeleteModal
 		'Dim page_slug As String = row.Get("page_slug")
 		Dim page_title As String = row.Get("page_title")
 
-		Dim modalHeader As Tag = Div.cls("modal-header").up(form1)
-		H5.cls("modal-title").text("Delete Page").up(modalHeader)
-		Button.typeOf("button").cls("btn-close").data("bs-dismiss", "modal").up(modalHeader)
+		Dim modalHeader As MiniHtml = MH.Div.cls("modal-header").up(form1)
+		MH.H5.cls("modal-title").text("Delete Page").up(modalHeader)
+		MH.Button.attr("type", "button").cls("btn-close").attr("data-bs-dismiss", "modal").up(modalHeader)
 		
-		Dim modalBody As Tag = Div.cls("modal-body").up(form1)
-		Div.id("modal-messages").up(modalBody)
-		Input.typeOf("hidden").name("id").valueOf(id).up(modalBody)
-		Paragraph.text($"Delete ${page_title}?"$).up(modalBody)
+		Dim modalBody As MiniHtml = MH.Div.cls("modal-body").up(form1)
+		MH.Div.attr("id", "modal-messages").up(modalBody)
+		MH.Input.attr("type", "hidden").attr("name", "id").attr("value", id).up(modalBody)
+		MH.P.text($"Delete ${page_title}?"$).up(modalBody)
 		
-		Dim modalFooter As Tag = Div.cls("modal-footer").up(form1)
-		Button.cls("btn btn-danger px-3").text("Delete").up(modalFooter)
-		Input.typeOf("button").cls("btn btn-secondary px-3").data("bs-dismiss", "modal").valueOf("Cancel").up(modalFooter)
+		Dim modalFooter As MiniHtml = MH.Div.cls("modal-footer").up(form1)
+		MH.Button.cls("btn btn-danger px-3").text("Delete").up(modalFooter)
+		MH.Input.attr("type", "button").cls("btn btn-secondary px-3").attr("data-bs-dismiss", "modal").attr("value", "Cancel").up(modalFooter)
 	End If
 	DB.Close
 	App.WriteHtml(Response, form1.Build)
@@ -477,9 +476,9 @@ Private Sub HandlePages
 			
 			' Check conflict
 			Try
-				DB.SQL = Main.DBOpen
+				DB.Open
 				DB.Table = "pages"
-				DB.Where = Array("page_slug = ?")
+				DB.Conditions = Array("page_slug = ?")
 				DB.Parameters = Array(page_slug)
 				DB.Query
 				If DB.Found Then
@@ -516,7 +515,7 @@ Private Sub HandlePages
 				Return
 			End If
 			
-			DB.SQL = Main.DBOpen
+			DB.Open
 			DB.Table = "pages"
 			DB.Find(id)
 			If DB.Found = False Then
@@ -526,7 +525,7 @@ Private Sub HandlePages
 			End If
 
 			DB.Reset
-			DB.Where = Array("page_slug = ?", "id <> ?")
+			DB.Conditions = Array("page_slug = ?", "id <> ?")
 			DB.Parameters = Array(page_slug, id)
 			DB.Query
 			If DB.Found Then
@@ -551,7 +550,7 @@ Private Sub HandlePages
 			' Delete
 			Dim id As Int = Request.GetParameter("id")
 			
-			DB.SQL = Main.DBOpen
+			DB.Open
 			DB.Table = "pages"
 			DB.Find(id)
 			If DB.Found = False Then
@@ -573,75 +572,75 @@ Private Sub HandlePages
 	End Select
 End Sub
 
-Private Sub CreatePagesTable As Tag
-	Dim table1 As Tag = HtmlTable.cls("table table-bordered table-hover rounded small")
-	Dim thead1 As Tag = table1.add(Thead.cls("table-light"))
-	thead1.add(Th.sty("text-align: right; width: 50px").text("#"))
-	thead1.add(Th.text("Slug"))
-	thead1.add(Th.text("Title"))
-	thead1.add(Th.sty("text-align: center").text("Topic"))
-	thead1.add(Th.sty("text-align: center").text("Status"))
-	thead1.add(Th.sty("text-align: center; width: 120px").text("Actions"))
-	Dim tbody1 As Tag = table1.add(Tbody.init)
+Private Sub CreatePagesTable As MiniHtml
+	Dim table1 As MiniHtml = MH.Table.cls("table table-bordered table-hover rounded small")
+	Dim thead1 As MiniHtml = table1.add(MH.Thead.cls("table-light"))
+	thead1.add(MH.Th.sty("text-align: right; width: 50px").text("#"))
+	thead1.add(MH.Th.text("Slug"))
+	thead1.add(MH.Th.text("Title"))
+	thead1.add(MH.Th.sty("text-align: center").text("Topic"))
+	thead1.add(MH.Th.sty("text-align: center").text("Status"))
+	thead1.add(MH.Th.sty("text-align: center; width: 120px").text("Actions"))
+	Dim tbody1 As MiniHtml = table1.add(MH.Tbody)
 
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "pages p"
 	DB.Columns = Array("p.id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_status")
-	DB.Join = DB.CreateJoin("topics t", "p.topic_id = t.id", "")
+	DB.Join("", "topics t", Array("p.topic_id = t.id"))
 	DB.OrderBy = CreateMap("p.id": "")
 	DB.Query
 	For Each row As Map In DB.Results
-		Dim tr1 As Tag = CreatePagesRow(row)
+		Dim tr1 As MiniHtml = CreatePagesRow(row)
 		tr1.up(tbody1)
 	Next
 	DB.Close
 	Return table1
 End Sub
 
-Private Sub CreatePagesRow (data As Map) As Tag
+Private Sub CreatePagesRow (data As Map) As MiniHtml
 	Dim id As Int = data.Get("id")
 	Dim page_slug As String = data.Get("page_slug")
 	Dim page_title As String = data.Get("page_title")
 	Dim page_topic As String = data.Get("topic_name")
 	Dim page_status As String = IIf(1 = data.Get("page_status"), "Published", "Draft")
 
-	Dim tr1 As Tag = Tr.init
-	tr1.add(Td.cls("align-middle").sty("text-align: right").text(id))
-	tr1.add(Td.cls("align-middle").text(page_slug))
-	tr1.add(Td.cls("align-middle").text(page_title))
-	tr1.add(Td.cls("align-middle text-center").text(page_topic))
-	tr1.add(Td.cls("align-middle text-center").sty("text-align: right").text(page_status))
-	Dim td6 As Tag = Td.cls("align-middle text-center px-1 py-1").up(tr1)
+	Dim tr1 As MiniHtml = MH.Tr
+	tr1.add(MH.Td.cls("align-middle").sty("text-align: right").text(id))
+	tr1.add(MH.Td.cls("align-middle").text(page_slug))
+	tr1.add(MH.Td.cls("align-middle").text(page_title))
+	tr1.add(MH.Td.cls("align-middle text-center").text(page_topic))
+	tr1.add(MH.Td.cls("align-middle text-center").sty("text-align: right").text(page_status))
+	Dim td6 As MiniHtml = MH.Td.cls("align-middle text-center px-1 py-1").up(tr1)
 
-	Dim anchor1 As Tag = Anchor.cls("edit text-primary mx-2").up(td6)
-	anchor1.hxGet($"/hx/pages/edit/${id}"$)
-	anchor1.hxTarget("#modal-content")
-	anchor1.hxTrigger("click")
-	anchor1.data("bs-toggle", "modal")
-	anchor1.data("bs-target", "#modal-container")
-	anchor1.add(Icon.cls("bi bi-pencil"))
+	Dim anchor1 As MiniHtml = MH.Anchor.cls("edit text-primary mx-2").up(td6)
+	anchor1.attr("hx-get", $"/hx/pages/edit/${id}"$)
+	anchor1.attr("hx-target", "#modal-content")
+	anchor1.attr("hx-trigger", "click")
+	anchor1.attr("data-bs-toggle", "modal")
+	anchor1.attr("data-bs-target", "#modal-container")
+	anchor1.add(MH.Icon.cls("bi bi-pencil"))
 	anchor1.attr("title", "Edit")
 
-	Dim anchor2 As Tag = Anchor.cls("delete text-danger mx-2").up(td6)
-	anchor2.hxGet($"/hx/pages/delete/${id}"$)
-	anchor2.hxTarget("#modal-content")
-	anchor2.hxTrigger("click")
-	anchor2.data("bs-toggle", "modal")
-	anchor2.data("bs-target", "#modal-container")
-	anchor2.add(Icon.cls("bi bi-trash3"))
+	Dim anchor2 As MiniHtml = MH.Anchor.cls("delete text-danger mx-2").up(td6)
+	anchor2.attr("hx-get", $"/hx/pages/delete/${id}"$)
+	anchor2.attr("hx-target", "#modal-content")
+	anchor2.attr("hx-trigger", "click")
+	anchor2.attr("data-bs-toggle", "modal")
+	anchor2.attr("data-bs-target", "#modal-container")
+	anchor2.add(MH.Icon.cls("bi bi-trash3"))
 	anchor2.attr("title", "Delete")
 
 	Return tr1
 End Sub
 
 Private Sub ShowAlert (message As String, status As String)
-	Dim div1 As Tag = Div.cls("alert alert-" & status).text(message)
+	Dim div1 As MiniHtml = MH.Div.cls("alert alert-" & status).text(message)
 	App.WriteHtml(Response, div1.Build)
 End Sub
 
 Private Sub ShowToast (entity As String, action As String, message As String, status As String)
-	Dim div1 As Tag = Div.id("pages-container")
-	div1.hxSwapOob("true")
+	Dim div1 As MiniHtml = MH.Div.attr("id", "pages-container")
+	div1.attr("hx-swap-oob", "true")
 	div1.add(CreatePagesTable)
 
 	Dim script1 As MiniJs

@@ -1,8 +1,7 @@
 ﻿AppType=StandardJava
-Build1=Bundle,b4j.pakai,SQLite,hu2_acceptall,Bundle
-Build2=Default,b4j.pakai,SQLite,hu2_acceptall
-Build3=MariaDB,b4j.pakai,MariaDB,hu2_acceptall
-Build4=MySQL,b4j.pakai,MySQL,hu2_acceptall
+Build1=Default,b4j.empress,SQLite,hu2_acceptall
+Build2=MariaDB,b4j.empress,MariaDB,hu2_acceptall
+Build3=MySQL,b4j.empress,MySQL,hu2_acceptall
 File1=config.example
 File2=help.html
 File3=mariadb.example
@@ -22,43 +21,60 @@ Library5=minihtml
 Library6=minijs
 Library7=miniormutils
 Library8=webapiutils
-Module1=Database
-Module10=SignInHandler
-Module11=SignInView
-Module12=TopicsApiHandler
-Module13=TopicsHandler
-Module14=UsersApiHandler
-Module15=UsersHandler
-Module16=Utilities
-Module2=Encryption
-Module3=FindApiHandler
-Module4=HelpHandler
-Module5=HttpsFilter
-Module6=IndexHandler
-Module7=MainView
-Module8=PagesApiHandler
-Module9=PagesHandler
+Module1=Encryption
+Module10=PagesApiHandler
+Module11=PagesHandler
+Module12=SignInHandler
+Module13=SignInView
+Module14=TopicsApiHandler
+Module15=TopicsHandler
+Module16=UsersApiHandler
+Module17=UsersHandler
+Module18=UsersModel
+Module19=Utilities
+Module2=FindApiHandler
+Module3=HelpHandler
+Module4=HttpsFilter
+Module5=IndexHandler
+Module6=MainView
+Module7=MC
+Module8=MH
+Module9=ORM
 NumberOfFiles=5
 NumberOfLibraries=8
-NumberOfModules=16
-Version=10.3
+NumberOfModules=19
+Version=10.5
 @EndOfDesignText@
 #Region Project Attributes
-' Product: Empress CMS Server
-' Version: 6.30
-' License: MIT License
-' Developer: Poon Yip Hoon (Aeric)
+'================================================
+'Template:  Pakai Server (Full-Stack)
+'Version:   6.99 rev1
+'License:   MIT License
+'Developer: Poon Yip Hoon (Aeric)
+'================================================
+'================================================
+'Product:   Empress CMS Server
+'Version:   0.30
+'License:   MIT License
+'Copyright: Poon Yip Hoon (Aeric)
+'================================================
+'Product:   Your Web Server
+'Version:   1.00
+'License:   Your License
+'Copyright: Your Company 2026
+'================================================
 #CommandLineArgs:
 #MergeLibraries: True
 #End Region
 #If MariaDB
-#AdditionalJar: mariadb-java-client-3.5.6
+#AdditionalJar: mariadb-java-client-3.5.9
 #Else If MySQL
-#AdditionalJar: mysql-connector-j-9.3.0
+#AdditionalJar: mysql-connector-j-9.7.0
 #Else
-#AdditionalJar: sqlite-jdbc-3.7.2
+#AdditionalJar: sqlite-jdbc-3.53.2.0
 #End If
 #Region Macros
+#Macro: Title, ModelGenerator, ide://run?File=%ADDITIONAL%\modgen.jar&Args=%STATE1%&codesync=True
 '#Macro: Title, GetLibraries, ide://run?file=%JAVABIN%\java.exe&args=-jar&args=%ADDITIONAL%\..\B4X\libget.jar&args=%PROJECT%&args=false
 '#Macro: Title, GetResources, ide://run?file=%JAVABIN%\java.exe&args=-jar&args=%ADDITIONAL%\..\B4X\resget.jar&args=%PROJECT%&args=true
 #Macro: Title, Backup, ide://run?file=%JAVABIN%\jar.exe&WorkingDirectory=..&Args=-cMf&Args=%PROJECT_NAME%_2025-11-19_2306.zip&args=Files&args=Objects\www&args=Objects\config.*&args=Objects\LICENSE&args=*.bas&args=*.b4j&args=*.b4j.meta&args=*.json
@@ -67,12 +83,12 @@ Version=10.3
 '#Macro: Title, Distribute, ide://run?file=%JAVABIN%\jar.exe&WorkingDirectory=../Objects&args=-cMf&args=Dist.zip&args=www&args=*.jar&args=*.ini
 #End Region
 Sub Process_Globals
-	Public DB 					As Database
-	Public App 					As EndsMeet
-	Public Api 					As ApiSettings
-	Public Const COLOR_RED 		As Int = -65536
-	Public Const COLOR_BLUE 	As Int = -16776961
-	Public Const VERSION 		As String = "0.20"
+	Public DB  As MiniORM
+	Public App As EndsMeet
+	Public Api As ApiSettings
+	Public Const VERSION 	As String = "0.30"
+	Public Const COLOR_RED  As Int = 0xFFFF0000
+	Public Const COLOR_BLUE As Int = 0xFF0000FF	
 End Sub
 
 ' <link>Open in browser|http://127.0.0.1:8080</link>
@@ -81,10 +97,13 @@ Sub AppStart (Args() As String)
 	App.Initialize
 	App.LoadConfig
 	App.LogEnabled = True
+	App.staticfiles.Folder = File.Combine(File.DirApp, "www")
+	
 	#If Release
 	App.ssl.Enabled = True
 	App.RedirectToHttps = True
 	#End If
+	
 	' *** Api Settings ***
 	Api = App.api
 	#If Debug
@@ -120,29 +139,28 @@ Sub AppStart (Args() As String)
 	Log($"App version: ${VERSION}"$)
 	Log($"Open the following URL from your web browser"$)
 	Log(App.ServerUrl)
-	DB.Initialize
-	DB.ConnectDatabase
+	'DB.Initialize
+	'DB.ConnectDatabase
+	ORM.InitDatabase
 	StartMessageLoop
 End Sub
 
 ' Set global ApiSettings from Main to HttpResponseMessage
-Public Sub SetApiMessage (Message As HttpResponseMessage)
-	Message.VerboseMode = Api.VerboseMode
-	Message.OrderedKeys = Api.OrderedKeys
-	Message.ContentType = Api.ContentType
-	Message.PayloadType = Api.PayloadType
-End Sub
+'Public Sub SetApiMessage (Message As HttpResponseMessage)
+'	Message.VerboseMode = Api.VerboseMode
+'	Message.OrderedKeys = Api.OrderedKeys
+'	Message.ContentType = Api.ContentType
+'	Message.PayloadType = Api.PayloadType
+'End Sub
 
-Public Sub DBType As String
-	Return DB.Engine
-End Sub
-
-Public Sub DBOpen As SQL
-	Return DB.Open
-End Sub
-
-Public Sub DBClose
-	DB.Close
+Public Sub HRM As HttpResponseMessage
+	Dim HRM1 As HttpResponseMessage
+	HRM1.Initialize
+	HRM1.VerboseMode = Api.VerboseMode
+	HRM1.OrderedKeys = Api.OrderedKeys
+	HRM1.ContentType = Api.ContentType
+	HRM1.PayloadType = Api.PayloadType
+	Return HRM1
 End Sub
 
 Public Sub CurrentDateTime As String
@@ -153,3 +171,25 @@ Public Sub CurrentDateTime As String
 	DateTime.DateFormat = CurrentDateFormat
 	Return Current
 End Sub
+
+'Public Sub CurrentTimeStamp As String
+'	Select DB.DbType
+'		Case "SQLite"
+'			Return "datetime('Now')"
+'		Case "MariaDB", "MySQL"
+'			Return "NOW()"
+'		Case Else
+'			Return ""
+'	End Select
+'End Sub
+'
+'Public Sub CurrentTimeStampAddMinute (Value As Int) As String
+'	Select DB.DbType
+'		Case "SQLite"
+'			Return $"datetime('Now', '+${Value} minute')"$
+'		Case "MariaDB", "MySQL"
+'			Return $"DATE_ADD(NOW(), INTERVAL ${Value} MINUTE)"$
+'		Case Else
+'			Return ""
+'	End Select
+'End Sub

@@ -5,7 +5,7 @@ Type=StaticCode
 Version=9.8
 @EndOfDesignText@
 ' Encryption Code module
-' Version 2.00
+' Version 2.01
 ' Additional Libraries: Encryption
 Sub Process_Globals
 	
@@ -43,17 +43,17 @@ End Sub
 
 Public Sub HMACSHA256 (str As String, key As String) As String
 	Dim data() As Byte
-	Dim MC As Mac
+	Dim MAC As Mac
 	Dim KG As KeyGenerator
 	Dim BC As ByteConverter
 	
 	KG.Initialize("HMACSHA256")
 	KG.KeyFromBytes(key.GetBytes("UTF8"))
 	
-	MC.Initialise("HMACSHA256", KG.Key)
-	MC.Update(str.GetBytes("UTF8"))
+	MAC.Initialise("HMACSHA256", KG.Key)
+	MAC.Update(str.GetBytes("UTF8"))
 	
-	data = MC.Sign
+	data = MAC.Sign
 	Return BC.HexFromBytes(data).ToLowerCase
 End Sub
 

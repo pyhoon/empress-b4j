@@ -19,9 +19,8 @@ End Sub
 
 Public Sub Initialize
 	App = Main.App
-	HRM.Initialize
-	Main.SetApiMessage(HRM)
-	DB.Initialize(Main.DBType, Null)
+	HRM = Main.HRM
+	DB = Main.DB
 End Sub
 
 Sub Handle (req As ServletRequest, resp As ServletResponse)
@@ -94,23 +93,23 @@ End Sub
 
 Private Sub GetUsers
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "users"
 	DB.Query
 	HRM.ResponseCode = 200
-	HRM.ResponseData = DB.Results2
+	HRM.ResponseData = DB.Results
 	ReturnApiResponse
 	DB.Close
 End Sub
 
 Private Sub GetUserById (id As Int)
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "users"
 	DB.Find(id)
 	If DB.Found Then
 		HRM.ResponseCode = 200
-		HRM.ResponseObject = DB.First2
+		HRM.ResponseObject = DB.First
 	Else
 		HRM.ResponseCode = 404
 		HRM.ResponseError = "User not found"
@@ -145,9 +144,9 @@ Private Sub PostUser
 		End If
 	Next
 	' Check conflict user code
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "users"
-	DB.Where = Array("user_slug = ?")
+	DB.Conditions = Array("user_slug = ?")
 	DB.Parameters = Array(Utilities.Slugify(data.Get("user_title")))
 	DB.Query
 	If DB.Found Then
@@ -174,7 +173,7 @@ Private Sub PostUser
 	DB.Save
 	' Retrieve new row
 	HRM.ResponseCode = 201
-	HRM.ResponseObject = DB.First2
+	HRM.ResponseObject = DB.First
 	HRM.ResponseMessage = "User created successfully"
 	ReturnApiResponse
 	DB.Close
@@ -205,9 +204,9 @@ Private Sub PutUserById (id As Int)
 		End If
 	Next
 	' Check conflict user code
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "users"
-	DB.Where = Array("user_slug = ?", "id <> ?")
+	DB.Conditions = Array("user_slug = ?", "id <> ?")
 	DB.Parameters = Array(data.Get("user_slug"), id)
 	DB.Query
 	If DB.Found Then
@@ -243,14 +242,14 @@ Private Sub PutUserById (id As Int)
 	' Return updated row
 	HRM.ResponseCode = 200
 	HRM.ResponseMessage = "User updated successfully"
-	HRM.ResponseObject = DB.First2
+	HRM.ResponseObject = DB.First
 	ReturnApiResponse
 	DB.Close
 End Sub
 
 Private Sub DeleteUserById (id As Int)
 	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.SQL = Main.DBOpen
+	DB.Open
 	DB.Table = "users"
 	' Find row by id
 	DB.Find(id)
