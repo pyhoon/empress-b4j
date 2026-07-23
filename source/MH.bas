@@ -5,7 +5,7 @@ Type=StaticCode
 Version=10.5
 @EndOfDesignText@
 'MiniHTML Helper
-'Version 3.04
+'Version 3.06
 Sub Process_Globals
 	Type AlertInfo (Message As String, Status As String)
 	Type ToastInfo (Entity As String, Action As String, Message As String, Status As String)
@@ -813,66 +813,29 @@ Public Sub GitHubLink As MiniHtml
 End Sub
 
 Public Sub TopicsLink As MiniHtml
-	Dim li1 As MiniHtml = Li
-	li1.cls("nav-item d-block d-lg-block")
-	Dim a1 As MiniHtml = Anchor.up(li1)
-	a1.attr("href", "/topics")
-	a1.cls("nav-link float-end")
-	a1.text("Topics")
-	Dim i1 As MiniHtml = Icon.up(a1)
-	i1.cls("bi bi-tag me-2")
-	i1.attr("title", "Topics")
-	Return li1
+	Return NavLinkItem("Topics", "/topics", "bi bi-tag me-2", "Topics")
 End Sub
 
 Public Sub PagesLink As MiniHtml
-	Dim li1 As MiniHtml = Li
-	li1.cls("nav-item d-block d-lg-block")
-	Dim a1 As MiniHtml = Anchor.up(li1)
-	a1.attr("href", "/pages")
-	a1.cls("nav-link float-end")
-	a1.text("Pages")
-	Dim i1 As MiniHtml = Icon.up(a1)
-	i1.cls("bi bi-tag me-2")
-	i1.attr("title", "Pages")
-	Return li1
+	Return NavLinkItem("Pages", "/pages", "bi bi-tag me-2", "Pages")
 End Sub
 
 Public Sub UsersLink As MiniHtml
-	Dim li1 As MiniHtml = Li
-	li1.cls("nav-item d-block d-lg-block")
-	Dim a1 As MiniHtml = Anchor.up(li1)
-	a1.attr("href", "/users")
-	a1.cls("nav-link float-end")
-	a1.text("Users")
-	Dim i1 As MiniHtml = Icon.up(a1)
-	i1.cls("bi bi-tag me-2")
-	i1.attr("title", "Users")
-	Return li1
+	Return NavLinkItem("Users", "/users", "bi bi-tag me-2", "Users")
 End Sub
 
 Public Sub SignInLink As MiniHtml
-	Dim li1 As MiniHtml = Li
-	li1.cls("nav-item d-block d-lg-block")
-	Dim a1 As MiniHtml = Anchor.up(li1)
-	a1.attr("href", "/sign-in")
-	a1.cls("nav-link float-end")
-	a1.text("Sign In")
-	'Dim i1 As MiniHtml = Icon.up(a1)
-	'i1.cls("bi bi-tag me-2")
-	'i1.attr("title", "Sign In")
-	Return li1
+	Return NavLinkItem("Sign In", "/sign-in", "", "Sign In")
+End Sub
+
+Public Sub SignOutLink As MiniHtml
+	Return NavLinkItem("Sign Out", "/logout", "", "Sign Out")
+End Sub
+
+Public Sub HomeLink As MiniHtml
+	Return NavLinkItem("Home", "/", "bi bi-house me-2", "Home")
 End Sub
 
 Public Sub HelpLink As MiniHtml
-	Dim li1 As MiniHtml = Li
-	li1.cls("nav-item d-block d-lg-block")
-	Dim a1 As MiniHtml = Anchor.up(li1)
-	a1.attr("href", "/help")
-	a1.cls("nav-link float-end")
-	a1.text("API")
-	Dim i1 As MiniHtml = Icon.up(a1)
-	i1.cls("bi bi-gear me-2")
-	i1.attr("title", "API")
-	Return li1
+	Return NavLinkItem("API", "/help", "bi bi-gear me-2", "API")
 End Sub

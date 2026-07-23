@@ -4,9 +4,11 @@ ModulesStructureVersion=1
 Type=Class
 Version=10.5
 @EndOfDesignText@
+' Users Model
+' Version 0.30
 Sub Class_Globals
 	Private DB As MiniORM
-	Type Users (first_name As String, last_name As String, email As String, hash As String, salt As String, admin As Int, active As Int)
+	'Type Users (first_name As String, last_name As String, email As String, hash As String, salt As String, admin As Int, active As Int)
 End Sub
 
 Public Sub Initialize

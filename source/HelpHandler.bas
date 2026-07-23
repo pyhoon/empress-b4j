@@ -116,8 +116,8 @@ Private Sub GenerateHelpPage As String 'ignore
 	'Local assets
 	'head1.cdn("style", "/assets/css/bootstrap.min.css")
 	'head1.cdn("style", "/assets/css/bootstrap-icons.min.css")
-	head1.cdn2("style", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css", _
-	"sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB", "anonymous")
+	head1.cdn("style", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css") _
+	.integrity("sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB").crossorigin("anonymous")
 	head1.cdn("style", "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css")
 	Dim sty1 As MiniHtml = MH.Style.up(head1)
 	Dim cssFolder As String = File.Combine(File.Combine(Main.App.staticfiles.Folder, "assets"), "css")
@@ -261,17 +261,18 @@ Private Sub GenerateHelpPage As String 'ignore
 	caption1.text("Made with")
 	Dim span3 As MiniHtml = MH.Span.up(caption1)
 	span3.sty("color: red")
-	span3.text("?")
+	MH.Icon.up(span3).cls("bi bi-heart")
 	caption1.text(" using Pakai")
 	'Local assets
 	'body1.cdn("script", "/assets/js/bootstrap.min.js")
 	'body1.cdn("script", "/assets/js/htmx.min.js")
 	'body1.cdn3("script", "/assets/js/cdn.min.js", CreateMap("defer": ""))
-	body1.cdn2("script", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js", _
-	"sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y", "anonymous")
-	body1.cdn2("script", "https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js", _
-	"sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz", "anonymous")
-	body1.cdn3("script", "https://cdn.jsdelivr.net/npm/alpinejs@3.15.8/dist/cdn.min.js", CreateMap("defer": ""))	
+	body1.cdn("script", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js") _
+	.integrity("sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y").crossorigin("anonymous")
+	body1.cdn("script", "https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js") _
+	.integrity("sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz").crossorigin("anonymous")
+	'body1.cdn3("script", "https://cdn.jsdelivr.net/npm/alpinejs@3.15.8/dist/cdn.min.js", CreateMap("defer": ""))
+	body1.cdn("script", "https://unpkg.com/alpinejs@3.15.12/dist/cdn.min.js").defer
 
 	Dim script2 As String = AlpineHtmx
 	MH.Script.up(body1).text(script2.SubString2(0, script2.LastIndexOf(CRLF))).multiline

@@ -13,7 +13,7 @@ Public Sub Initialize
 	App = Main.App
 End Sub
 
-Public Sub Show As String
+Public Sub Show (Req As ServletRequest) As String
 	Dim CacheName As String = "SignIn Page"
 	If MC.ExistInCache(App.ctx, CacheName) = False Then
 		MC.WriteToCache(App.ctx, CacheName, SignInPage)
@@ -33,10 +33,12 @@ Public Sub SignInPage As MiniHtml
 	'Local assets
 	'body1.script("$SERVER_URL$/assets/js/bootstrap.min.js")
 	'body1.script("$SERVER_URL$/assets/js/htmx.min.js")
-	body1.cdn2("script", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js", _
-	"sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y", "anonymous")
-	body1.cdn2("script", "https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js", _
-	"sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz", "anonymous")
+	body1.cdn("script", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js") _
+	.integrity("sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y") _
+	.crossorigin("anonymous")
+	body1.cdn("script", "https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js") _
+	.integrity("sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz") _
+	.crossorigin("anonymous")
 	'body1.script("$SERVER_URL$/assets/js/app.js")
 	Return page1
 End Sub
@@ -52,8 +54,8 @@ Private Sub PageHeader As MiniHtml
 	'Local assets
 	'head1.cdn("style", "$SERVER_URL$/assets/css/bootstrap.min.css")
 	'head1.cdn("style", "$SERVER_URL$/assets/css/bootstrap-icons.min.css")
-	head1.cdn2("style", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css", _
-	"sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB", "anonymous")
+	head1.cdn("style", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css") _
+	.integrity("sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB").crossorigin("anonymous")
 	head1.cdn("style", "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css")
 	'head1.cdn("style", "$SERVER_URL$/assets/css/main.css?v=$VERSION$")
 	Dim css1 As MiniCss

@@ -13,10 +13,10 @@ Public Sub Initialize
 	App = Main.App
 End Sub
 
-Public Sub Show As String
+Public Sub Show (Req As ServletRequest) As String
 	Dim CacheName As String = "Index Page"
 	If MC.ExistInCache(App.ctx, CacheName) = False Then
-		MC.WriteToCache(App.ctx, CacheName, IndexPage)
+		MC.WriteToCache(App.ctx, CacheName, IndexPage(Req))
 	End If
 	Dim page1 As MiniHtml = MC.ReadFromCache(App.ctx, CacheName)
 	Dim doc As MiniHtml
@@ -25,20 +25,26 @@ Public Sub Show As String
 	Return doc.ToString
 End Sub
 
-Private Sub IndexPage As MiniHtml
+Private Sub IndexPage (Req As ServletRequest) As MiniHtml
 	Dim main1 As MainView
-    main1.Initialize
-    main1.LoadContent(ContainerContent)
+	main1.Initialize
+	main1.LoadContent(ContainerContent)
 	'main1.LoadSubContent(MH.GitHubLink)
 	'main1.LoadModal(ContainerModal)
 	'main1.LoadToast(ContainerToast)
-    Dim page1 As MiniHtml = main1.Render
+	Dim page1 As MiniHtml = main1.Render
 	Dim navitem1 As MiniHtml = page1.ChildById("nav-item")
-	'MH.TopicsLink.up(navitem1)
-	If App.api.EnableHelp Then
-		MH.HelpLink.up(navitem1)
+	If 1 = Req.GetSession.GetAttribute("admin") Then
+		MH.PagesLink.up(navitem1)
+		MH.TopicsLink.up(navitem1)
+		MH.UsersLink.up(navitem1)
+		If App.api.EnableHelp Then
+			MH.HelpLink.up(navitem1)
+		End If
+		MH.SignOutLink.up(navitem1)
+	Else
+		MH.SignInLink.up(navitem1)
 	End If
-	MH.SignInLink.up(navitem1)
 	Return page1
 End Sub
 

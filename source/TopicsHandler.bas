@@ -43,7 +43,7 @@ Sub Handle (req As ServletRequest, resp As ServletResponse)
 End Sub
 
 Private Sub HandlePage
-	App.WriteHtml2(Response, View.Show, App.ctx)
+	App.WriteHtml2(Response, View.Show(Request), App.ctx)
 End Sub
 
 ' Return table HTML

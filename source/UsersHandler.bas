@@ -5,6 +5,7 @@ Type=Class
 Version=10.3
 @EndOfDesignText@
 ' Users Handler class
+' Version 0.30
 Sub Class_Globals
 	Private App As EndsMeet
 	Private Path As String
@@ -43,7 +44,7 @@ Sub Handle (req As ServletRequest, resp As ServletResponse)
 End Sub
 
 Private Sub HandlePage
-	App.WriteHtml2(Response, View.Show, App.ctx)
+	App.WriteHtml2(Response, View.Show(Request), App.ctx)
 End Sub
 
 ' Return default or search results table

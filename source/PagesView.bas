@@ -13,10 +13,10 @@ Public Sub Initialize
 	App = Main.App
 End Sub
 
-Public Sub Show As String
+Public Sub Show (Req As ServletRequest) As String
 	Dim CacheName As String = "Pages Page"
 	If MC.ExistInCache(App.ctx, CacheName) = False Then
-		MC.WriteToCache(App.ctx, CacheName, PagesPage)
+		MC.WriteToCache(App.ctx, CacheName, PagesPage(Req))
 	End If
 	Dim page1 As MiniHtml = MC.ReadFromCache(App.ctx, CacheName)
 	Dim doc As MiniHtml
@@ -105,7 +105,7 @@ Public Sub RenderedList (data As List) As String
 	Return PagesListFilled(data).build
 End Sub
 
-Private Sub PagesPage As MiniHtml
+Private Sub PagesPage (Req As ServletRequest) As MiniHtml
 	Dim main1 As MainView
 	main1.Initialize
 	main1.LoadContent(ContainerContent)
@@ -114,12 +114,17 @@ Private Sub PagesPage As MiniHtml
 	main1.LoadToast(MH.ContainerToast)
 	Dim page1 As MiniHtml = main1.Render
 	Dim navitem1 As MiniHtml = page1.ChildById("nav-item")
-	MH.TopicsLink.up(navitem1)
-	MH.UsersLink.up(navitem1)
-	If App.api.EnableHelp Then
-		MH.HelpLink.up(navitem1)
-	End If
-	MH.NavLinkItem("Home", "/", "bi bi-house me-2", "Home").up(navitem1)
+	If 1 = Req.GetSession.GetAttribute("admin") Then
+		MH.TopicsLink.up(navitem1)
+		MH.UsersLink.up(navitem1)
+		MH.HomeLink.up(navitem1)
+		If App.api.EnableHelp Then
+			MH.HelpLink.up(navitem1)
+		End If
+		MH.SignOutLink.up(navitem1)
+	Else
+		MH.SignInLink.up(navitem1)
+	End If	
 	Return page1
 End Sub
 

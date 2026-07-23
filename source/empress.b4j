@@ -12,42 +12,47 @@ FileGroup3=config
 FileGroup4=config
 Group=App
 Library1=byteconverter
+Library10=webapiutils
 Library2=encryption
 Library3=endsmeet
 Library4=jcore
-Library5=minihtml
-Library6=minijs
-Library7=miniormutils
-Library8=webapiutils
-Library9=minicss
-Module1=Encryption
-Module10=ORM
-Module11=PagesApiHandler
-Module12=PagesHandler
-Module13=PagesModel
-Module14=PagesView
-Module15=SignInHandler
-Module16=SignInView
-Module17=TopicsApiHandler
-Module18=TopicsHandler
-Module19=TopicsModel
-Module2=FindApiHandler
-Module20=TopicsView
-Module21=UsersApiHandler
-Module22=UsersHandler
-Module23=UsersModel
-Module24=UsersView
-Module25=Utilities
-Module3=HelpHandler
-Module4=HttpsFilter
-Module5=IndexHandler
-Module6=IndexView
-Module7=MainView
-Module8=MC
-Module9=MH
+Library5=minicss
+Library6=minihtml
+Library7=minijs
+Library8=miniormutils
+Library9=pakailanyard
+Module1=AuthFilter
+Module10=IndexView
+Module11=MainView
+Module12=MC
+Module13=MH
+Module14=ORM
+Module15=PagesApiHandler
+Module16=PagesHandler
+Module17=PagesModel
+Module18=PagesView
+Module19=SignInHandler
+Module2=AuthHandler
+Module20=SignInView
+Module21=TopicsApiHandler
+Module22=TopicsHandler
+Module23=TopicsModel
+Module24=TopicsView
+Module25=UsersApiHandler
+Module26=UsersHandler
+Module27=UsersModel
+Module28=UsersView
+Module29=Utilities
+Module3=AuthModel
+Module4=AuthView
+Module5=Encryption
+Module6=FindApiHandler
+Module7=HelpHandler
+Module8=HttpsFilter
+Module9=IndexHandler
 NumberOfFiles=4
-NumberOfLibraries=9
-NumberOfModules=25
+NumberOfLibraries=10
+NumberOfModules=29
 Version=10.5
 @EndOfDesignText@
 #Region Project Attributes
@@ -138,6 +143,17 @@ Sub AppStart (Args() As String)
 	App.Rest("/hx/pages/*", "PagesHandler")
 	App.Rest("/hx/topics/*", "TopicsHandler")
 	App.Rest("/hx/users/*", "UsersHandler")
+	
+	' Auth routes
+	App.Get("/login", "AuthHandler")
+	App.Get("/logout", "AuthHandler")
+	App.Get("/register", "AuthHandler")
+	App.Post("/login", "AuthHandler")
+	App.Post("/register", "AuthHandler")
+
+	' Auth Filter
+	App.srvr.AddFilter("/*", "AuthFilter", False)
+	
 	App.Start
 	App.LogStartupMessage
 	App.ctx.Put("VERSION", VERSION)
