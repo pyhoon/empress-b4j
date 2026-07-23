@@ -217,6 +217,7 @@ Private Sub PutPageById (id As Int)
 		Return
 	End If
 	' Find row by id
+	DB.Open
 	DB.Find(id)
 	If DB.Found = False Then
 		HRM.ResponseCode = 404
@@ -226,6 +227,7 @@ Private Sub PutPageById (id As Int)
 		Return
 	End If
 	' Update row by id
+	DB.Open
 	DB.Reset
 	DB.Columns = Array("topic_id", _
 	"page_slug", _
@@ -238,6 +240,7 @@ Private Sub PutPageById (id As Int)
 	data.GetDefault("page_status", 0), _
 	data.GetDefault("modified_date", WebApiUtils.CurrentDateTime))
 	DB.Id = id
+	DB.ReturnRow = True
 	DB.Save
 	' Return updated row
 	HRM.ResponseCode = 200

@@ -3,15 +3,13 @@ Build1=Default,b4j.empress,SQLite,hu2_acceptall
 Build2=MariaDB,b4j.empress,MariaDB,hu2_acceptall
 Build3=MySQL,b4j.empress,MySQL,hu2_acceptall
 File1=config.example
-File2=help.html
-File3=mariadb.example
-File4=mysql.example
-File5=sqlite.example
+File2=mariadb.example
+File3=mysql.example
+File4=sqlite.example
 FileGroup1=config
-FileGroup2=Default Group
+FileGroup2=config
 FileGroup3=config
 FileGroup4=config
-FileGroup5=config
 Group=App
 Library1=byteconverter
 Library2=encryption
@@ -23,27 +21,33 @@ Library7=miniormutils
 Library8=webapiutils
 Library9=minicss
 Module1=Encryption
-Module10=PagesApiHandler
-Module11=PagesHandler
-Module12=SignInHandler
-Module13=SignInView
-Module14=TopicsApiHandler
-Module15=TopicsHandler
-Module16=UsersApiHandler
-Module17=UsersHandler
-Module18=UsersModel
-Module19=Utilities
+Module10=ORM
+Module11=PagesApiHandler
+Module12=PagesHandler
+Module13=PagesModel
+Module14=PagesView
+Module15=SignInHandler
+Module16=SignInView
+Module17=TopicsApiHandler
+Module18=TopicsHandler
+Module19=TopicsModel
 Module2=FindApiHandler
+Module20=TopicsView
+Module21=UsersApiHandler
+Module22=UsersHandler
+Module23=UsersModel
+Module24=UsersView
+Module25=Utilities
 Module3=HelpHandler
 Module4=HttpsFilter
 Module5=IndexHandler
-Module6=MainView
-Module7=MC
-Module8=MH
-Module9=ORM
-NumberOfFiles=5
+Module6=IndexView
+Module7=MainView
+Module8=MC
+Module9=MH
+NumberOfFiles=4
 NumberOfLibraries=9
-NumberOfModules=19
+NumberOfModules=25
 Version=10.5
 @EndOfDesignText@
 #Region Project Attributes
@@ -162,25 +166,3 @@ Public Sub CurrentDateTime As String
 	DateTime.DateFormat = CurrentDateFormat
 	Return Current
 End Sub
-
-'Public Sub CurrentTimeStamp As String
-'	Select DB.DbType
-'		Case "SQLite"
-'			Return "datetime('Now')"
-'		Case "MariaDB", "MySQL"
-'			Return "NOW()"
-'		Case Else
-'			Return ""
-'	End Select
-'End Sub
-'
-'Public Sub CurrentTimeStampAddMinute (Value As Int) As String
-'	Select DB.DbType
-'		Case "SQLite"
-'			Return $"datetime('Now', '+${Value} minute')"$
-'		Case "MariaDB", "MySQL"
-'			Return $"DATE_ADD(NOW(), INTERVAL ${Value} MINUTE)"$
-'		Case Else
-'			Return ""
-'	End Select
-'End Sub

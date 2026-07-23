@@ -15,7 +15,6 @@ Public Sub MD5 (str As String) As String
 	Dim data() As Byte
 	Dim MD As MessageDigest
 	Dim BC As ByteConverter
-
 	data = BC.StringToBytes(str, "UTF8")
 	data = MD.GetMessageDigest(data, "MD5")
 	Return BC.HexFromBytes(data).ToLowerCase
@@ -25,7 +24,6 @@ Public Sub SHA1 (str As String) As String
 	Dim data() As Byte
 	Dim MD As MessageDigest
 	Dim BC As ByteConverter
-
 	data = BC.StringToBytes(str, "UTF8")
 	data = MD.GetMessageDigest(data, "SHA-1")
 	Return BC.HexFromBytes(data).ToLowerCase
@@ -35,7 +33,6 @@ Public Sub SHA256 (str As String) As String
 	Dim data() As Byte
 	Dim MD As MessageDigest
 	Dim BC As ByteConverter
-
 	data = BC.StringToBytes(str, "UTF8")
 	data = MD.GetMessageDigest(data, "SHA-256")
 	Return BC.HexFromBytes(data).ToLowerCase
@@ -43,17 +40,14 @@ End Sub
 
 Public Sub HMACSHA256 (str As String, key As String) As String
 	Dim data() As Byte
-	Dim MAC As Mac
+	Dim MA As Mac
 	Dim KG As KeyGenerator
 	Dim BC As ByteConverter
-	
 	KG.Initialize("HMACSHA256")
 	KG.KeyFromBytes(key.GetBytes("UTF8"))
-	
-	MAC.Initialise("HMACSHA256", KG.Key)
-	MAC.Update(str.GetBytes("UTF8"))
-	
-	data = MAC.Sign
+	MA.Initialise("HMACSHA256", KG.Key)
+	MA.Update(str.GetBytes("UTF8"))
+	data = MA.Sign
 	Return BC.HexFromBytes(data).ToLowerCase
 End Sub
 

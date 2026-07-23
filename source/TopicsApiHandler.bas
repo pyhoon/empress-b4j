@@ -4,127 +4,89 @@ ModulesStructureVersion=1
 Type=Class
 Version=10.3
 @EndOfDesignText@
-'Api Handler class
-'Version 6.30
+' Topics Api Handler class
+' Version 6.99 rev1
 Sub Class_Globals
-	Private DB As MiniORM
-	Private App As EndsMeet
+	Private Path As String
+	Private Method As String
 	Private Request As ServletRequest
 	Private Response As ServletResponse
 	Private HRM As HttpResponseMessage
-	Private Method As String
-	Private Elements() As String
-	Private ElementId As Int
+	Private Model As TopicsModel
 End Sub
 
 Public Sub Initialize
-	App = Main.App
 	HRM = Main.HRM
-	DB = Main.DB
+	Model.Initialize
 End Sub
 
 Sub Handle (req As ServletRequest, resp As ServletResponse)
 	Request = req
 	Response = resp
+	Path = Request.RequestURI
 	Method = Request.Method.ToUpperCase
-	Dim FullElements() As String = WebApiUtils.GetUriElements(Request.RequestURI)
-	Elements = WebApiUtils.CropElements(FullElements, 3) ' 3 For Api handler
-	If ElementMatch("") Then
-		If App.MethodAvailable2(Method, "/api/topics", Me) Then
-			Select Method
-				Case "GET"
-					Gettopics
-					Return
-				Case "POST"
-					CreateNewtopic
-					Return
-			End Select
-		End If
-		ReturnMethodNotAllow
-		Return
-	Else If ElementMatch("id") Then
-		If App.MethodAvailable2(Method, "/api/topics/*", Me) Then
-			Select Method
-				Case "GET"
-					GettopicById(ElementId)
-					Return
-				Case "PUT"
-					UpdatetopicById(ElementId)
-					Return
-				Case "DELETE"
-					DeletetopicById(ElementId)
-					Return
-			End Select
-		End If
-		ReturnMethodNotAllow
-		Return
+	If Path = "/api/topics" And Method = "GET" Then
+		GetTopics
+	Else If Path = "/api/topics" And Method = "POST" Then
+		PostTopic
+	Else If Path.StartsWith("/api/topics/") And Method = "GET" Then
+		GetTopicById
+	Else If Path.StartsWith("/api/topics/") And Method = "PUT" Then
+		PutTopicById
+	Else If Path.StartsWith("/api/topics/") And Method = "DELETE" Then
+		DeleteTopicById
+	Else
+		WebApiUtils.ReturnBadRequest(HRM, Response)
 	End If
-	ReturnBadRequest
 End Sub
 
-Private Sub ElementMatch (Pattern As String) As Boolean
-	Select Pattern
-		Case ""
-			If Elements.Length = 0 Then
-				Return True
-			End If
-		Case "id"
-			If Elements.Length = 1 Then
-				If IsNumber(Elements(0)) Then
-					ElementId = Elements(0)
-					Return True
-				End If
-			End If
-	End Select
-	Return False
-End Sub
-
-Private Sub ReturnApiResponse
+Private Sub GetTopics
+	Log($"${Method}: ${Path}"$)
+	Dim Data As List = Model.Read
+	If Model.Error.IsInitialized Then
+		HRM.ResponseCode = 422
+		HRM.ResponseError = Model.Error.Message
+	Else
+		HRM.ResponseCode = 200
+		HRM.ResponseData = Data
+	End If
 	WebApiUtils.ReturnHttpResponse(HRM, Response)
 End Sub
 
-Private Sub ReturnBadRequest
-	WebApiUtils.ReturnBadRequest(HRM, Response)
-End Sub
-
-Private Sub ReturnMethodNotAllow
-	WebApiUtils.ReturnMethodNotAllow(HRM, Response)
-End Sub
-
-Private Sub Gettopics
-	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.Open
-	DB.Table = "topics"
-	DB.Query
-	HRM.ResponseCode = 200
-	HRM.ResponseData = DB.Results
-	ReturnApiResponse
-	DB.Close
-End Sub
-
-Private Sub GettopicById (id As Int)
-	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.Open
-	DB.Table = "topics"
-	DB.Find(id)
-	If DB.Found Then
-		HRM.ResponseCode = 200
-		HRM.ResponseObject = DB.First
+Private Sub GetTopicById
+	Log($"${Method}: ${Path}"$)
+	Try
+		Dim id As Int = Path.SubString("/api/topics/".Length)
+	Catch
+		HRM.ResponseCode = 400
+		HRM.ResponseError = "Invalid id value"
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End Try
+	
+	Dim Row As Map = Model.GetRowById(id)
+	If Model.Error.IsInitialized Then
+		HRM.ResponseCode = 422
+		HRM.ResponseError = Model.Error.Message
 	Else
-		HRM.ResponseCode = 404
-		HRM.ResponseError = "Topic not found"
+		If Model.Found Then
+			HRM.ResponseCode = 200
+			HRM.ResponseObject = Row
+		Else
+			HRM.ResponseCode = 404
+			HRM.ResponseError = "Topic not found"
+		End If
 	End If
-	ReturnApiResponse
-	DB.Close
+	WebApiUtils.ReturnHttpResponse(HRM, Response)
 End Sub
 
-Private Sub CreateNewtopic
-	Log($"${Request.Method}: ${Request.RequestURI}"$)
+Private Sub PostTopic
+	Log($"${Method}: ${Path}"$)
 	Dim str As String = WebApiUtils.RequestDataText(Request)
 	If WebApiUtils.ValidateContent(str, HRM.PayloadType) = False Then
 		HRM.ResponseCode = 422
 		HRM.ResponseError = $"Invalid ${HRM.PayloadType} payload"$
-		ReturnApiResponse
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
 		Return
 	End If
 	If HRM.PayloadType = WebApiUtils.MIME_TYPE_XML Then
@@ -132,51 +94,67 @@ Private Sub CreateNewtopic
 	Else
 		Dim data As Map = WebApiUtils.ParseJSON(str)	' JSON payload
 	End If
+	
 	' Check whether required keys are provided
-	Dim RequiredKeys As List = Array As String("topic_name") 
+	Dim RequiredKeys As List = Array As String("topic_name")
 	For Each requiredkey As String In RequiredKeys
 		If data.ContainsKey(requiredkey) = False Then
 			HRM.ResponseCode = 400
 			HRM.ResponseError = $"Key '${requiredkey}' not found"$
-			ReturnApiResponse
+			WebApiUtils.ReturnHttpResponse(HRM, Response)
 			Return
 		End If
 	Next
-	' Check conflict topic name
-	DB.Open
-	DB.Table = "topics"
-	DB.Conditions = Array("topic_name = ?")
-	DB.Parameters = Array(data.Get("topic_name"))
-	DB.Query
-	If DB.Found Then
-		HRM.ResponseCode = 409
-		HRM.ResponseError = "Topic already exist"
-		ReturnApiResponse
-		DB.Close
+	
+	' Check conflict Topic name
+	Dim name As String = data.Get("topic_name")
+	Dim Found As Boolean = Model.FindRowByName(name)
+	If Model.Error.IsInitialized Then
+		HRM.ResponseCode = 422
+		HRM.ResponseError = Model.Error.Message
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
 		Return
 	End If
+	If Found Then
+		HRM.ResponseCode = 409
+		HRM.ResponseError = "Topic already exist"
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End If
+	
 	' Insert new row
-	DB.Reset
-	DB.Columns = Array("topic_name", _
-	"created_date")
-	DB.Parameters = Array(data.Get("topic_name"), _
-	data.GetDefault("created_date", WebApiUtils.CurrentDateTime))
-	DB.Save
+	Model.Create(name, Main.CurrentDateTime)
+	If Model.Error.IsInitialized Then
+		HRM.ResponseCode = 422
+		HRM.ResponseError = Model.Error.Message
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End If
+	
 	' Retrieve new row
 	HRM.ResponseCode = 201
-	HRM.ResponseObject = DB.First
+	HRM.ResponseObject = Model.First
 	HRM.ResponseMessage = "Topic created successfully"
-	ReturnApiResponse
-	DB.Close
+	WebApiUtils.ReturnHttpResponse(HRM, Response)
 End Sub
 
-Private Sub UpdatetopicById (id As Int)
-	Log($"${Request.Method}: ${Request.RequestURI}"$)
+Private Sub PutTopicById
+	Log($"${Method}: ${Path}"$)
+	Try
+		Dim id As Int = Path.SubString("/api/topics/".Length)
+		
+	Catch
+		HRM.ResponseCode = 400
+		HRM.ResponseError = "Invalid id value"
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End Try
+	
 	Dim str As String = WebApiUtils.RequestDataText(Request)
 	If WebApiUtils.ValidateContent(str, HRM.PayloadType) = False Then
 		HRM.ResponseCode = 422
 		HRM.ResponseError = $"Invalid ${HRM.PayloadType} payload"$
-		ReturnApiResponse
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
 		Return
 	End If
 	If HRM.PayloadType = WebApiUtils.MIME_TYPE_XML Then
@@ -184,70 +162,97 @@ Private Sub UpdatetopicById (id As Int)
 	Else
 		Dim data As Map = WebApiUtils.ParseJSON(str)	' JSON payload
 	End If
+	
 	' Check whether required keys are provided
 	If data.ContainsKey("topic_name") = False Then
 		HRM.ResponseCode = 400
 		HRM.ResponseError = "Key 'topic_name' not found"
-		ReturnApiResponse
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
 		Return
 	End If
-	' Check conflict topic name
-	DB.Open
-	DB.Table = "topics"
-	DB.Conditions = Array("topic_name = ?", "id <> ?")
-	DB.Parameters = Array(data.Get("topic_name"), id)
-	DB.Query
-	If DB.Found Then
-		HRM.ResponseCode = 409
-		HRM.ResponseError = "Topic already exist"
-		ReturnApiResponse
-		DB.Close
-		Return
-	End If
+	
 	' Find row by id
-	DB.Find(id)
-	If DB.Found = False Then
+	Dim Found As Boolean = Model.FindRowById(id)
+	If Model.Error.IsInitialized Then
+		HRM.ResponseCode = 422
+		HRM.ResponseError = Model.Error.Message
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End If
+	If Not(Found) Then
 		HRM.ResponseCode = 404
 		HRM.ResponseError = "Topic not found"
-		ReturnApiResponse
-		DB.Close
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
 		Return
 	End If
+	
+	' Check conflict Topic name
+	Dim name As String = data.Get("topic_name")
+	Dim Found As Boolean = Model.FindRowByTopicNameNotEqualId(name, id)
+	If Model.Error.IsInitialized Then
+		HRM.ResponseCode = 422
+		HRM.ResponseError = Model.Error.Message
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End If
+	If Found Then
+		HRM.ResponseCode = 409
+		HRM.ResponseError = "Topic already exist"
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End If
+	
 	' Update row by id
-	DB.Reset
-	DB.Columns = Array("topic_name", _
-	"modified_date")
-	DB.Parameters = Array(data.Get("topic_name"), _
-	data.GetDefault("created_date", WebApiUtils.CurrentDateTime))
-	DB.Id = id
-	DB.Save
+	Model.Update(id, name, Main.CurrentDateTime)
+	If Model.Error.IsInitialized Then
+		HRM.ResponseCode = 422
+		HRM.ResponseError = Model.Error.Message
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End If
+
 	' Return updated row
 	HRM.ResponseCode = 200
 	HRM.ResponseMessage = "Topic updated successfully"
-	HRM.ResponseObject = DB.First
-	ReturnApiResponse
-	DB.Close
+	HRM.ResponseObject = Model.First
+	WebApiUtils.ReturnHttpResponse(HRM, Response)
 End Sub
 
-Private Sub DeletetopicById (id As Int)
-	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	DB.Open
-	DB.Table = "topics"
+Private Sub DeleteTopicById
+	Log($"${Method}: ${Path}"$)
+	Try
+		Dim id As Int = Path.SubString("/api/topics/".Length)
+	Catch
+		HRM.ResponseCode = 400
+		HRM.ResponseError = "Invalid id value"
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End Try
+	
 	' Find row by id
-	DB.Find(id)
-	If DB.Found = False Then
-		HRM.ResponseCode = 404
-		HRM.ResponseError = "Topic not found"
-		ReturnApiResponse
-		DB.Close
+	Dim Found As Boolean = Model.FindRowById(id)
+	If Model.Error.IsInitialized Then
+		HRM.ResponseCode = 422
+		HRM.ResponseError = Model.Error.Message
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
 		Return
 	End If
+	If Not(Found) Then
+		HRM.ResponseCode = 404
+		HRM.ResponseError = "Topic not found"
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End If
+	
 	' Delete row
-	DB.Reset
-	DB.Id = id
-	DB.Delete
+	Model.Delete(id)
+	If Model.Error.IsInitialized Then
+		HRM.ResponseCode = 422
+		HRM.ResponseError = Model.Error.Message
+		WebApiUtils.ReturnHttpResponse(HRM, Response)
+		Return
+	End If
 	HRM.ResponseCode = 200
 	HRM.ResponseMessage = "Topic deleted successfully"
-	ReturnApiResponse
-	DB.Close
+	WebApiUtils.ReturnHttpResponse(HRM, Response)
 End Sub

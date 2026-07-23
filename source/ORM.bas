@@ -1,5 +1,5 @@
 ﻿B4J=true
-Group=App
+Group=Helpers
 ModulesStructureVersion=1
 Type=StaticCode
 Version=10.5
@@ -100,10 +100,24 @@ Private Sub CheckDatabase
 		Main.DB = MDB
 		' Create new tables after database has already created
 		MDB.Open
+		If MDB.TableExists("topics") = False Then
+			Dim Model1 As TopicsModel
+			Model1.Initialize
+			Model1.CreateTopicsTable
+		Else
+			Log("Existed")
+		End If		
+		If MDB.TableExists("pages") = False Then
+			Dim Model2 As PagesModel
+			Model2.Initialize
+			Model2.CreatePagesTable
+		Else
+			Log("Existed")
+		End If
 		If MDB.TableExists("users") = False Then
-			Dim Model As UsersModel
-			Model.Initialize
-			Model.CreateUsersTable
+			Dim Model3 As UsersModel
+			Model3.Initialize
+			Model3.CreateUsersTable
 		Else
 			Log("Existed")
 		End If

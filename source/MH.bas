@@ -1,10 +1,10 @@
 ﻿B4J=true
-Group=App
+Group=Helpers
 ModulesStructureVersion=1
 Type=StaticCode
 Version=10.5
 @EndOfDesignText@
-
+'MiniHTML Helper
 'Version 3.04
 Sub Process_Globals
 	Type AlertInfo (Message As String, Status As String)
@@ -785,4 +785,94 @@ Public Sub AnchorButton (text As String, href As String, cls As String) As MiniH
 	a1.cls("btn " & cls)
 	If text <> "" Then a1.text(text)
 	Return a1
+End Sub
+
+' ============================
+' Custom Components
+' ============================
+Public Sub GitHubLink As MiniHtml
+	Dim div1 As MiniHtml = Div.cls("text-center mb-3")
+	Dim anchor1 As MiniHtml = Anchor.up(div1)
+	anchor1.attr("href", "https://github.com/pyhoon/empress-b4j")
+	anchor1.cls("text-primary mr-1")
+	anchor1.attr("aria-label", "github").attr("title", "GitHub").attr("target", "_blank")
+	Dim svg1 As MiniHtml = Svg.up(anchor1)
+	svg1.attr("aria-hidden", "true")
+	svg1.attr("width", "24").attr("height", "24")
+	svg1.attr("version", "1.1")
+	svg1.attr("viewBox", "0 0 16 16")
+	Dim path1 As MiniHtml = Path.up(svg1)
+	path1.attr("fill-rule", "evenodd")
+	path1.attr("d", "M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z")
+	Dim anchor2 As MiniHtml = Anchor.up(div1)
+	anchor2.attr("href", "https://github.com/pyhoon/empress-b4j")
+	anchor2.sty("text-decoration: none")
+	anchor2.attr("target", "_blank")
+	Span.sty("vertical-align: middle").text("GitHub").up(anchor2)
+	Return div1
+End Sub
+
+Public Sub TopicsLink As MiniHtml
+	Dim li1 As MiniHtml = Li
+	li1.cls("nav-item d-block d-lg-block")
+	Dim a1 As MiniHtml = Anchor.up(li1)
+	a1.attr("href", "/topics")
+	a1.cls("nav-link float-end")
+	a1.text("Topics")
+	Dim i1 As MiniHtml = Icon.up(a1)
+	i1.cls("bi bi-tag me-2")
+	i1.attr("title", "Topics")
+	Return li1
+End Sub
+
+Public Sub PagesLink As MiniHtml
+	Dim li1 As MiniHtml = Li
+	li1.cls("nav-item d-block d-lg-block")
+	Dim a1 As MiniHtml = Anchor.up(li1)
+	a1.attr("href", "/pages")
+	a1.cls("nav-link float-end")
+	a1.text("Pages")
+	Dim i1 As MiniHtml = Icon.up(a1)
+	i1.cls("bi bi-tag me-2")
+	i1.attr("title", "Pages")
+	Return li1
+End Sub
+
+Public Sub UsersLink As MiniHtml
+	Dim li1 As MiniHtml = Li
+	li1.cls("nav-item d-block d-lg-block")
+	Dim a1 As MiniHtml = Anchor.up(li1)
+	a1.attr("href", "/users")
+	a1.cls("nav-link float-end")
+	a1.text("Users")
+	Dim i1 As MiniHtml = Icon.up(a1)
+	i1.cls("bi bi-tag me-2")
+	i1.attr("title", "Users")
+	Return li1
+End Sub
+
+Public Sub SignInLink As MiniHtml
+	Dim li1 As MiniHtml = Li
+	li1.cls("nav-item d-block d-lg-block")
+	Dim a1 As MiniHtml = Anchor.up(li1)
+	a1.attr("href", "/sign-in")
+	a1.cls("nav-link float-end")
+	a1.text("Sign In")
+	'Dim i1 As MiniHtml = Icon.up(a1)
+	'i1.cls("bi bi-tag me-2")
+	'i1.attr("title", "Sign In")
+	Return li1
+End Sub
+
+Public Sub HelpLink As MiniHtml
+	Dim li1 As MiniHtml = Li
+	li1.cls("nav-item d-block d-lg-block")
+	Dim a1 As MiniHtml = Anchor.up(li1)
+	a1.attr("href", "/help")
+	a1.cls("nav-link float-end")
+	a1.text("API")
+	Dim i1 As MiniHtml = Icon.up(a1)
+	i1.cls("bi bi-gear me-2")
+	i1.attr("title", "API")
+	Return li1
 End Sub

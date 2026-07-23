@@ -1,5 +1,5 @@
 ﻿B4J=true
-Group=App
+Group=Helpers
 ModulesStructureVersion=1
 Type=StaticCode
 Version=10.5

@@ -4,446 +4,133 @@ ModulesStructureVersion=1
 Type=Class
 Version=10.3
 @EndOfDesignText@
-' Index Handler class
-' Version 6.30
+' Pages Handler class
 Sub Class_Globals
-	Private DB As MiniORM
 	Private App As EndsMeet
+	Private Path As String
 	Private Method As String
+	Private View As PagesView
+	Private Model As PagesModel
 	Private Request As ServletRequest
 	Private Response As ServletResponse
 End Sub
 
 Public Sub Initialize
 	App = Main.App
-	DB = Main.DB
+	View.Initialize
+	Model.Initialize
 End Sub
 
 Sub Handle (req As ServletRequest, resp As ServletResponse)
 	Request = req
 	Response = resp
-	Method = req.Method
-	Log($"${Request.Method}: ${Request.RequestURI}"$)
-	Dim path As String = req.RequestURI
-	If path = "/pages" Then
-		RenderPage
-	Else If path = "/hx/pages/table" Then
-		HandleTable
-	Else If path = "/hx/pages/list" Then
-		HandlePagesList
-	Else If path = "/hx/pages/search" Then
+	Path = Request.RequestURI
+	Method = Request.Method.ToUpperCase
+	Log($"${Method}: ${Path}"$)
+	If Path = "/pages" Then
+		HandlePage
+	Else If Path = "/hx/pages/search" Then
 		HandleSearch
-	Else If path = "/hx/pages/add" Then
-		HandleAddModal
-	Else If path.StartsWith("/hx/pages/edit/") Then
-		HandleEditModal
-	Else If path.StartsWith("/hx/pages/delete/") Then
-		HandleDeleteModal
+	Else If Path = "/hx/pages/table" Then
+		HandleTable
+	Else If Path = "/hx/pages/list" Then
+		HandleList
+	Else If Path = "/hx/pages/add" Then
+		HandleModalAdd
+	Else If Path.StartsWith("/hx/pages/edit/") Then
+		HandleModalEdit
+	Else If Path.StartsWith("/hx/pages/delete/") Then
+		HandleModalDelete
 	Else
 		HandlePages
 	End If
 End Sub
 
-Private Sub RenderPage
-	Dim main1 As MainView
-	main1.Initialize
-	main1.LoadContent(ContentContainer)
-	main1.LoadSubContent(GitHubLink)
-	main1.LoadModal(ModalContainer)
-	main1.LoadToast(ToastContainer)
-
-	Dim page1 As MiniHtml = main1.Render
-	Dim ulist1 As MiniHtml = FindUListTag(page1)
-	
-	Dim list0 As MiniHtml = MH.Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor0 As MiniHtml = MH.Anchor.attr("href", "/help").up(list0)
-	anchor0.cls("nav-link")
-	anchor0.add(MH.Icon.cls("bi bi-gear mr-2").attr("title", "API"))
-	anchor0.text("API")
-  
-    Dim list1 As MiniHtml = MH.Li.cls("nav-item d-block d-lg-block").up(ulist1)
-    Dim anchor1 As MiniHtml = MH.Anchor.attr("href", "#").up(list1)
-    anchor1.cls("nav-link")
-    anchor1.text("Pages")
-  
-    Dim list2 As MiniHtml = MH.Li.cls("nav-item d-block d-lg-block").up(ulist1)
-    Dim anchor2 As MiniHtml = MH.Anchor.attr("href", "/topics").up(list2)
-    anchor2.cls("nav-link")
-    anchor2.text("Topics")
-	
-	Dim list3 As MiniHtml = MH.Li.cls("nav-item d-block d-lg-block").up(ulist1)
-	Dim anchor3 As MiniHtml = MH.Anchor.attr("href", "/users").up(list3)
-	anchor3.cls("nav-link")
-	anchor3.text("Users")
-
-	Dim doc As MiniHtml
-	doc.Initialize("doctype")
-	doc.Append(page1.build)
-	App.WriteHtml2(Response, doc.ToString, App.ctx)
-End Sub
-
-' Retrieve ulist tag from DOM
-Private Sub FindUListTag (dom As MiniHtml) As MiniHtml
-	Dim body1 As MiniHtml = dom.ChildByIndex(1)
-	Dim nav1 As MiniHtml = body1.ChildByIndex(1)
-	Dim container1 As MiniHtml = nav1.ChildByIndex(0)
-	Dim navbar1 As MiniHtml = container1.ChildByIndex(3)
-	Dim ulist1 As MiniHtml = navbar1.ChildByIndex(0)
-	Return ulist1
-End Sub
-
-Private Sub ContentContainer As MiniHtml
-	Dim content1 As MiniHtml = MH.Div.cls("row mt-3")
-	Dim col12 As MiniHtml = MH.Div.cls("col-md-12").up(content1)
-	Dim form1 As MiniHtml = MH.Form.cls("form mb-3").up(col12)
-	Dim row1 As MiniHtml = MH.Div.cls("row").up(form1)
-	Dim col1 As MiniHtml = MH.Div.cls("col-md-6 col-lg-6").up(row1)
-
-	Dim input_group1 As MiniHtml = col1.add(MH.Div.cls("input-group mb-3"))
-	input_group1.add(MH.Label.attr("for", "keyword").cls("input-group-text mt-2").text("Search"))
-	input_group1.add(MH.Input.attr("type", "text").cls("form-control col-md-6 mt-2").attr("name", "keyword").attr("id", "keyword"))
-
-	Dim searchBtn As MiniHtml = input_group1.add(MH.Button.cls("btn btn-danger btn-md pl-3 pr-3 ml-3 mt-2").text("Submit"))
-	searchBtn.attr("hx-post", "/hx/pages/search")
-	searchBtn.attr("hx-target", "#pages-container")
-	searchBtn.attr("hx-swap", "innerHTML")
-
-	Dim col2 As MiniHtml = MH.Div.cls("col-md-6 col-lg-6").up(row1)
-	Dim div2 As MiniHtml = MH.Div.cls("float-end mt-2").up(col2)
-
-	'Dim anchor1 As MiniHtml = MH.Anchor.up(div2)
-	'anchor1.attr("href", "$SERVER_URL$/topics")
-	'anchor1.cls("btn btn-primary me-2")
-	'anchor1.add(Icon.cls("bi bi-list me-2"))
-	'anchor1.text("Show topic")
-
-	Dim button2 As MiniHtml = MH.Button.up(div2)
-	button2.cls("btn btn-success ml-2")
-	button2.attr("hx-get", "/hx/pages/add")
-	button2.attr("hx-target", "#modal-content")
-	button2.attr("hx-trigger", "click")
-	button2.attr("data-bs-toggle", "modal")
-	button2.attr("data-bs-target", "#modal-container")
-	button2.add(MH.Icon.cls("bi bi-plus-lg me-2"))
-	button2.text("Add Page")
-
-	Dim container1 As MiniHtml = MH.Div.up(col12)
-	container1.id = "pages-container"
-	container1.attr("hx-get", "/hx/pages/table")
-	container1.attr("hx-trigger", "load")
-	container1.text("Loading...")
-	
-	Return content1
-End Sub
-
-Private Sub GitHubLink As MiniHtml
-	Dim div1 As MiniHtml = MH.Div.cls("text-center mb-3")
-	Dim anchor1 As MiniHtml = MH.Anchor.up(div1)
-	anchor1.attr("href", "https://github.com/pyhoon/empress-b4j")
-	anchor1.cls("text-primary mr-1")
-	anchor1.attr("aria-label", "github").attr("title", "GitHub").attr("target", "_blank")
-	Dim svg1 As MiniHtml = MH.Svg.up(anchor1)
-	svg1.attr("aria-hidden", "true")
-	svg1.attr("width", "24").attr("height", "24")
-	svg1.attr("version", "1.1")
-	svg1.attr("viewBox", "0 0 16 16")
-	Dim path1 As MiniHtml = MH.Path.up(svg1)
-	path1.attr("fill-rule", "evenodd")
-	path1.attr("d", "M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z")
-	Dim anchor2 As MiniHtml = MH.Anchor.up(div1)
-	anchor2.attr("href", "https://github.com/pyhoon/empress-b4j")
-	anchor2.sty("text-decoration: none")
-	anchor2.attr("target", "_blank")
-	MH.Span.sty("vertical-align: middle").text("GitHub").up(anchor2)
-	Return div1
-End Sub
-
-Private Sub ModalContainer As MiniHtml
-	Dim modal1 As MiniHtml = MH.Div.attr("id", "modal-container")
-	modal1.cls("modal fade")
-	modal1.attr("tabindex", "-1")
-	modal1.attr("aria-hidden", "true")
-	Dim modalDialog As MiniHtml = MH.Div.up(modal1).cls("modal-dialog modal-dialog-centered")
-	MH.Div.cls("modal-content").attr("id", "modal-content").up(modalDialog)
-	Return modal1
-End Sub
-
-Private Sub ToastContainer As MiniHtml
-	Dim div1 As MiniHtml = MH.Div.cls("position-fixed end-0 p-3")
-	div1.sty("z-index: 2000")
-	div1.sty("bottom: 0%")
-	Dim toast1 As MiniHtml = MH.Div.attr("id", "toast-container").up(div1)
-	toast1.cls("toast align-items-center text-bg-success border-0")
-	toast1.attr("role", "alert")
-	Dim div2 As MiniHtml = MH.Div.cls("d-flex").up(toast1)
-	Dim div3 As MiniHtml = MH.Div.cls("toast-body").attr("id", "toast-body").up(div2)
-	div3.text("Operation successful!")
-	Dim button1 As MiniHtml = MH.Button.attr("type", "button").up(div2)
-	button1.cls("btn-close btn-close-white me-2 m-auto")
-	button1.attr("data-bs-dismiss", "toast")
-	Return div1
-End Sub
-
-' Return table HTML
-Private Sub HandleTable
-	App.WriteHtml(Response, CreatePagesTable.Build)
-End Sub
-
-Private Sub HandlePagesList
-	DB.Open
-	DB.Table = "pages p"
-	DB.Columns = Array("p.id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_body", "p.page_status", "Date(p.created_date) AS created_date", "u.first_name AS author")
-	DB.Join("", "topics t", Array("p.topic_id = t.id"))
-	DB.Join("", "users u", Array("p.created_by = u.id"))
-	DB.OrderBy = CreateMap("p.id": "")
-	DB.Query
-  
-	Dim div1 As MiniHtml = MH.Div
-	For Each row As Map In DB.Results
-		'Dim page_slug As String = row.Get("page_slug")
-		Dim page_body As String = row.Get("page_body")
-		Dim page_title As String = row.Get("page_title")
-		'Dim page_status As String = row.Get("page_status")
-		'Dim topic_name As String = row.Get("topic_name")
-		Dim page_created As String = "created on " & row.Get("created_date")
-		page_created = page_created & " by " & row.Get("author")
-      
-		Dim card1 As MiniHtml = MH.Div.cls("card text-start mb-3")
-		Dim cardbody1 As MiniHtml = MH.Div.cls("card-body").up(card1)
-		MH.H5.cls("card-title").up(cardbody1).text(page_title)
-		MH.H6.cls("card-subtitle mb-2 text-body-secondary").up(cardbody1).text(page_created)
-		MH.P.cls("card-text").up(cardbody1).text(page_body)
-		card1.up(div1)
-	Next
-	DB.Close
-	App.WriteHtml(Response, div1.Build)
+Private Sub HandlePage
+	App.WriteHtml2(Response, View.Show, App.ctx)
 End Sub
 
 ' Search page using keyword
 Private Sub HandleSearch
-	Dim table1 As MiniHtml = MH.Table.cls("table table-bordered table-hover rounded small")
-	Dim thead1 As MiniHtml = table1.add(MH.Thead.cls("table-light"))
-	thead1.add(MH.Th.sty("text-align: right; width: 50px").text("#"))
-	thead1.add(MH.Th.text("Slug"))
-	thead1.add(MH.Th.text("Title"))
-	thead1.add(MH.Th.text("Topic"))
-	thead1.add(MH.Th.sty("text-align: right").text("Status"))
-	thead1.add(MH.Th.sty("text-align: center; width: 120px").text("Actions"))
-	Dim tbody1 As MiniHtml = table1.add(MH.Tbody)
-
-	DB.Open
-	DB.Table = "pages p"
-	DB.Columns = Array("p.id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_status")
-	DB.Join("", "topics t", Array("p.topic_id = t.id"))
 	Dim keyword As String = Request.GetParameter("keyword")
-	If keyword <> "" Then
-		DB.Conditions = Array("p.page_slug LIKE ? Or UPPER(p.page_title) LIKE ? Or UPPER(t.topic_name) LIKE ?")
-		DB.Parameters = Array("%" & keyword & "%", "%" & keyword.ToUpperCase & "%", "%" & keyword.ToUpperCase & "%")
-	End If
-	DB.OrderBy = CreateMap("p.id": "")
-	DB.Query
-	For Each row As Map In DB.Results
-		Dim id As Int = row.Get("id")
-		Dim page_slug As String = row.Get("page_slug")
-		Dim page_title As String = row.Get("page_title")
-		Dim page_status As Int = row.Get("page_status")
-		Dim topic_name As String = row.Get("topic_name")
+	Dim Rows As List = Model.Search(keyword)
+	App.WriteHtml(Response, View.RenderedTable(Rows))
+End Sub
 
-		Dim tr1 As MiniHtml = MH.Tr.up(tbody1)
-		tr1.add(MH.Td.cls("align-middle").sty("text-align: right").text(id))
-		tr1.add(MH.Td.cls("align-middle").text(page_slug))
-		tr1.add(MH.Td.cls("align-middle").text(page_title))
-		tr1.add(MH.Td.cls("align-middle").text(topic_name))
-		tr1.add(MH.Td.cls("align-middle").sty("text-align: right").text(page_status))
-		Dim td1 As MiniHtml = tr1.add(MH.Td.cls("align-middle text-center px-1 py-1"))
+' Return default or search results table
+Private Sub HandleTable
+	Dim keyword As String = Request.GetParameter("keyword")
+	Dim Rows As List = Model.Search(keyword)
+	App.WriteHtml(Response, View.RenderedTable(Rows))
+End Sub
 
-		Dim anchor1 As MiniHtml = MH.Anchor.cls("edit text-primary mx-2").up(td1)
-		anchor1.attr("hx-get", $"/hx/pages/edit/${id}"$)
-		anchor1.attr("hx-target", "#modal-content")
-		anchor1.attr("hx-trigger", "click")
-		anchor1.attr("data-bs-toggle", "modal")
-		anchor1.attr("data-bs-target", "#modal-container")
-		anchor1.add(MH.Icon.cls("bi bi-pencil"))
-		anchor1.attr("title", "Edit")
-		
-		Dim anchor2 As MiniHtml = MH.Anchor.cls("delete text-danger mx-2").up(td1)
-		anchor2.attr("hx-get", $"/hx/pages/delete/${id}"$)
-		anchor2.attr("hx-target", "#modal-content")
-		anchor2.attr("hx-trigger", "click")
-		anchor2.attr("data-bs-toggle", "modal")
-		anchor2.attr("data-bs-target", "#modal-container")
-		anchor2.add(MH.Icon.cls("bi bi-trash3"))
-		anchor2.attr("title", "Delete")
-	Next
-	DB.Close
-	App.WriteHtml(Response, table1.Build)
+Private Sub HandleList
+	Dim Rows As List = Model.List
+	App.WriteHtml(Response, View.RenderedList(Rows))
 End Sub
 
 ' Add modal
-Private Sub HandleAddModal
-	Dim form1 As MiniHtml = MH.Form
-	form1.attr("hx-post", "/hx/pages")
-	form1.attr("hx-target", "#modal-messages")
-	form1.attr("hx-swap", "innerHTML")
-
-	Dim modalHeader As MiniHtml = MH.Div.cls("modal-header").up(form1)
-	modalHeader.add(MH.H5.cls("modal-title").text("Add Page"))
-	modalHeader.add(MH.Button.attr("type", "button").cls("btn-close").attr("data-bs-dismiss", "modal"))
-	
-	Dim modalBody As MiniHtml = MH.Div.cls("modal-body").up(form1)
-	MH.Div.up(modalBody).id = "modal-messages"
-	
-	Dim group1 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
-	MH.Label.attr("for", "topic1").text("Topic ").up(group1).add(MH.Span.cls("text-danger").text("*"))
-	
-	Dim select1 As MiniHtml = CreateTopicsDropdown(-1)
-	select1.id = "topic1"
-	select1.attr("name", "topic_id")
-	select1.up(group1)
-
-	'Dim group2 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
-	'group2.add(Label.text("Slug ")).add(Span.cls("text-danger").text("*"))
-	'group2.add(Input.attr("type", "text").attr("name", "page_slug").cls("form-control").required)
-
-	Dim group3 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
-	group3.add(MH.Label.text("Title ")).add(MH.Span.cls("text-danger").text("*"))
-	group3.add(MH.Input.attr("type", "text").attr("name", "page_title").cls("form-control").required)
-
-	Dim group4 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
-	group4.add(MH.Label.text("Body ")).add(MH.Span.cls("text-danger").text("*"))
-	group4.add(MH.Textarea.attr("rows", "3").attr("name", "page_body").cls("form-control").required)
-
-    Dim group5 As MiniHtml = modalBody.add(MH.Div.cls("form-group"))
-    MH.Label.attr("for", "status").text("Status ").up(group5).add(MH.Span.cls("text-danger").text("*"))
-    Dim select1 As MiniHtml = MH.SelectTag.up(group5).attr("id", "status").attr("name", "status").cls("form-select").required
-    MH.Option.attr("value", "0").text("Draft").up(select1)
-    MH.Option.attr("value", "1").text("Published").up(select1)
-
-	Dim modalFooter As MiniHtml = MH.Div.cls("modal-footer").up(form1)
-	modalFooter.add(MH.Button.attr("type", "submit").cls("btn btn-success px-3").text("Create"))
-	modalFooter.add(MH.Input.attr("type", "button").cls("btn btn-secondary px-3").attr("data-bs-dismiss", "modal").attr("value", "Cancel"))
-	App.WriteHtml(Response, form1.Build)
+Private Sub HandleModalAdd
+	Dim TM As TopicsModel
+	TM.Initialize
+	Dim Topics As List = TM.Read
+	If TM.Error.IsInitialized Then
+		ShowAlert($"Database error: ${TM.Error.Message}"$, "danger")
+		Return
+	End If
+	App.WriteHtml(Response, View.Modal("Add", Topics, Null))
 End Sub
 
 ' Edit modal
-Private Sub HandleEditModal
-	Dim id As String = Request.RequestURI.SubString("/hx/pages/edit/".Length)
-	Dim form1 As MiniHtml = MH.Form
-	form1.attr("hx-put", $"/hx/pages"$)
-	form1.attr("hx-target", "#modal-messages")
-	form1.attr("hx-swap", "innerHTML")
-	
-	DB.Open
-	DB.Table = "pages"
-	DB.Columns = Array("topic_id", "page_slug", "page_title", "page_body", "page_status")
-	DB.WhereParam("id = ?", id)
-	DB.Query
-	If DB.Found Then
-		Dim row As Map = DB.First
-		Dim page_slug As String = row.Get("page_slug")
-		Dim page_title As String = row.Get("page_title")
-		Dim page_body As String = row.Get("page_body")
-		Dim page_status As Int = row.Get("page_status")
-		Dim topic_id As Int = row.Get("topic_id")
-
-		Dim modalHeader As MiniHtml = MH.Div.cls("modal-header").up(form1)
-		MH.H5.cls("modal-title").text("Edit Page").up(modalHeader)
-		MH.Button.attr("type", "button").cls("btn-close").attr("data-bs-dismiss", "modal").up(modalHeader)
-		
-		Dim modalBody As MiniHtml = MH.Div.cls("modal-body").up(form1)
-		MH.Div.attr("id", "modal-messages").up(modalBody)
-		MH.Input.attr("type", "hidden").up(modalBody).attr("name", "id").attr("value", id)
-		
-		Dim group1 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
-		MH.Label.attr("for", "topic2").text("Topic ").up(group1).add(MH.Span.cls("text-danger")).text("*")
-		
-		Dim select1 As MiniHtml = CreateTopicsDropdown(topic_id)
-		select1.id = "topic2"
-		select1.attr("name", "topic_id")
-		select1.up(group1)
-		
-		Dim group2 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
-		group2.add(MH.Label.text("Slug ")).add(MH.Span.cls("text-danger").text("*"))
-		group2.add(MH.Input.attr("type", "text").cls("form-control").attr("name", "page_slug").attr("value", page_slug))
-
-		Dim group3 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
-		group3.add(MH.Label.text("Title ")).add(MH.Span.cls("text-danger").text("*"))
-		group3.add(MH.Input.attr("type", "text").cls("form-control").attr("name", "page_title").attr("value", page_title).required)
-
-		Dim group4 As MiniHtml = MH.Div.cls("form-group").up(modalBody)
-		group4.add(MH.Label.text("Body ")).add(MH.Span.cls("text-danger").text("*"))
-		group4.add(MH.Textarea.attr("rows", "3").cls("form-control").attr("name", "page_body").text(page_body).required)
-
-		Dim group5 As MiniHtml = modalBody.add(MH.Div.cls("form-group"))
-        MH.Label.attr("for", "status").text("Status ").up(group5).add(MH.Span.cls("text-danger").text("*"))
-        Dim select1 As MiniHtml = MH.SelectTag.up(group5).attr("id", "status").attr("name", "page_status").cls("form-select").required
-        Dim option0 As MiniHtml = MH.Option.attr("value", "0").text("Draft").up(select1)
-        Dim option1 As MiniHtml = MH.Option.attr("value", "1").text("Published").up(select1)
-		If page_status = 0 Then option0.selected
-        If page_status = 1 Then option1.selected
-				
-		Dim modalFooter As MiniHtml = MH.Div.cls("modal-footer").up(form1)
-		modalFooter.add(MH.Button.cls("btn btn-primary px-3").text("Update"))
-		modalFooter.add(MH.Input.attr("type", "button").cls("btn btn-secondary px-3").attr("data-bs-dismiss", "modal").attr("value", "Cancel"))
+Private Sub HandleModalEdit
+	Try
+		Dim id As Int = Path.SubString("/hx/pages/edit/".Length)
+	Catch
+		Log(LastException)
+		ShowAlert($"Error: ${LastException.Message}"$, "danger")
+		Return
+	End Try
+	Dim TM As TopicsModel
+	TM.Initialize
+	Dim Topics As List = TM.Read
+	If TM.Error.IsInitialized Then
+		ShowAlert($"Database error: ${TM.Error.Message}"$, "danger")
+		Return
 	End If
-	DB.Close
-	App.WriteHtml(Response, form1.Build)
-End Sub
-
-Private Sub CreateTopicsDropdown (selected As Int) As MiniHtml
-	Dim select1 As MiniHtml = MH.SelectTag.cls("form-select")
-	select1.required
-	select1.attr("hx-get", "/hx/topics/list")
-	Dim option0 As MiniHtml = MH.Option.up(select1).attr("value", "").text("Select topic").disabled
-	If selected < 1 Then option0.selected
-
-	DB.Open
-	DB.Table = "topics"
-	DB.Columns = Array("id", "topic_name")
-	DB.Query
-	For Each row As Map In DB.Results
-		Dim topic_id As Int = row.Get("id")
-		Dim topic_name As String = row.Get("topic_name")
-		Dim option1 As MiniHtml = MH.Option.up(select1).attr("value", topic_id).text(topic_name)
-		If topic_id = selected Then option1.selected
-	Next
-	DB.Close
-	Return select1
+	Dim Page As Map = Model.GetRowById(id)
+	If Model.Error.IsInitialized Then
+		ShowAlert($"Database error: ${Model.Error.Message}"$, "danger")
+		Return
+	End If
+	App.WriteHtml(Response, View.Modal("Edit", Topics, Page))
 End Sub
 
 ' Delete modal
-Private Sub HandleDeleteModal
-	Dim id As String = Request.RequestURI.SubString("/hx/pages/delete/".Length)
-	Dim form1 As MiniHtml = MH.Form
-	form1.attr("hx-delete", $"/hx/pages"$)
-	form1.attr("hx-target", "#modal-messages")
-	form1.attr("hx-swap", "innerHTML")
-		
-	DB.Open
-	DB.Table = "pages"
-	DB.Columns = Array("id", "page_slug", "page_title")
-	DB.WhereParam("id = ?", id)
-	DB.Query
-	If DB.Found Then
-		Dim row As Map = DB.First
-		'Dim page_slug As String = row.Get("page_slug")
-		Dim page_title As String = row.Get("page_title")
-
-		Dim modalHeader As MiniHtml = MH.Div.cls("modal-header").up(form1)
-		MH.H5.cls("modal-title").text("Delete Page").up(modalHeader)
-		MH.Button.attr("type", "button").cls("btn-close").attr("data-bs-dismiss", "modal").up(modalHeader)
-		
-		Dim modalBody As MiniHtml = MH.Div.cls("modal-body").up(form1)
-		MH.Div.attr("id", "modal-messages").up(modalBody)
-		MH.Input.attr("type", "hidden").attr("name", "id").attr("value", id).up(modalBody)
-		MH.P.text($"Delete ${page_title}?"$).up(modalBody)
-		
-		Dim modalFooter As MiniHtml = MH.Div.cls("modal-footer").up(form1)
-		MH.Button.cls("btn btn-danger px-3").text("Delete").up(modalFooter)
-		MH.Input.attr("type", "button").cls("btn btn-secondary px-3").attr("data-bs-dismiss", "modal").attr("value", "Cancel").up(modalFooter)
+Private Sub HandleModalDelete
+	Try
+		Dim id As Int = Path.SubString("/hx/pages/delete/".Length)
+	Catch
+		Log(LastException)
+		ShowAlert($"Error: ${LastException.Message}"$, "danger")
+		Return
+	End Try
+	Dim Page As Map = Model.GetRowById(id)
+	If Model.Error.IsInitialized Then
+		ShowAlert($"Database error: ${Model.Error.Message}"$, "danger")
+		Return
 	End If
-	DB.Close
-	App.WriteHtml(Response, form1.Build)
+	App.WriteHtml(Response, View.Modal("Delete", Null, Page))
+End Sub
+
+Private Sub ShowAlert (Message As String, Status As String)
+	Dim info As AlertInfo = MH.CreateAlertInfo(Message, Status)
+	App.WriteHtml(Response, View.Alert(info))
+End Sub
+
+Private Sub ShowToast (Entity As String, Action As String, Message As String, Status As String)
+	Dim data As List = Model.Read
+	Dim info As ToastInfo = MH.CreateToastInfo(Entity, Action, Message, Status)
+	App.WriteHtml(Response, View.Toast(info, data))
 End Sub
 
 ' Handle CRUD operations
@@ -475,32 +162,23 @@ Private Sub HandlePages
 			End If
 			
 			' Check conflict
-			Try
-				DB.Open
-				DB.Table = "pages"
-				DB.Conditions = Array("page_slug = ?")
-				DB.Parameters = Array(page_slug)
-				DB.Query
-				If DB.Found Then
-					ShowAlert("Page slug already exists!", "warning")
-					DB.Close
-					Return
-				End If
-			Catch
-				Log(LastException)
-				ShowAlert($"Database error: ${LastException.Message}"$, "danger")
-			End Try
+			Dim Found As Boolean = Model.FindRowBySlug(page_slug)
+			If Model.Error.IsInitialized Then
+				ShowAlert($"Database error: ${Model.Error.Message}"$, "danger")
+				Return
+			End If
+			If Found Then
+				ShowAlert("Page slug already exists!", "warning")
+				Return
+			End If
+			
 			' Insert new row
-			Try
-				DB.Reset
-				DB.Columns = Array("topic_id", "page_slug", "page_title", "page_body", "page_status", "created_date")
-				DB.Parameters = Array(topic_id, page_slug, page_title, page_body, page_status, Main.CurrentDateTime)
-				DB.Save
-				ShowToast("Page", "created", "Page created successfully!", "success")
-			Catch
-				ShowAlert($"Database error: ${LastException.Message}"$, "danger")
-			End Try
-			DB.Close
+			Model.Create(topic_id, page_slug, page_title, page_body, page_status, Main.CurrentDateTime)
+			If Model.Error.IsInitialized Then
+				ShowAlert($"Database error: ${Model.Error.Message}"$, "danger")
+				Return
+			End If
+			ShowToast("Page", "created", "Page created successfully!", "success")
 		Case "PUT"
 			' Update
 			Dim id As Int = Request.GetParameter("id")
@@ -514,143 +192,54 @@ Private Sub HandlePages
 				ShowAlert("Page slug must be at least 2 characters long.", "warning")
 				Return
 			End If
-			
-			DB.Open
-			DB.Table = "pages"
-			DB.Find(id)
-			If DB.Found = False Then
-				ShowAlert("Page not found!", "warning")
-				DB.Close
+
+			Dim Found As Boolean = Model.FindRowById(id)
+			If Model.Error.IsInitialized Then
+				ShowAlert($"Database error: ${Model.Error.Message}"$, "danger")
+				Return
+			End If
+			If Not(Found) Then
+				ShowAlert("Id not found!", "warning")
 				Return
 			End If
 
-			DB.Reset
-			DB.Conditions = Array("page_slug = ?", "id <> ?")
-			DB.Parameters = Array(page_slug, id)
-			DB.Query
-			If DB.Found Then
-				ShowAlert("Page slug already exists!", "warning")
-				DB.Close
+			' Check conflict
+			Dim Found As Boolean = Model.FindRowBySlugNotEqualId(page_slug, id)
+			If Model.Error.IsInitialized Then
+				ShowAlert($"Database error: ${Model.Error.Message}"$, "danger")
 				Return
 			End If
-			
+			If Found Then
+				ShowAlert("Page slug already exists!", "warning")
+				Return
+			End If
+
 			' Update row
-			Try
-				DB.Reset
-				DB.Columns = Array("topic_id", "page_slug", "page_title", "page_body", "page_status", "modified_date")
-				DB.Parameters = Array(topic_id, page_slug, page_title, page_body, page_status, Main.CurrentDateTime)
-				DB.Id = id
-				DB.Save
-				ShowToast("Page", "updated", "Page updated successfully!", "info")
-			Catch
-				ShowAlert($"Database error: ${LastException.Message}"$, "danger")
-			End Try
-			DB.Close
+			Model.Update(id, topic_id, page_slug, page_title, page_body, page_status, Main.CurrentDateTime)
+			If Model.Error.IsInitialized Then
+				ShowAlert($"Database error: ${Model.Error.Message}"$, "danger")
+				Return
+			End If
+			ShowToast("Page", "updated", "Page updated successfully!", "info")
 		Case "DELETE"
 			' Delete
 			Dim id As Int = Request.GetParameter("id")
-			
-			DB.Open
-			DB.Table = "pages"
-			DB.Find(id)
-			If DB.Found = False Then
-				ShowAlert("Page not found!", "warning")
-				DB.Close
+			Dim Found As Boolean = Model.FindRowById(id)
+			If Model.Error.IsInitialized Then
+				ShowAlert($"Database error: ${Model.Error.Message}"$, "danger")
 				Return
 			End If
-
+			If Not(Found) Then
+				ShowAlert("Id not found!", "warning")
+				Return
+			End If
+			
 			' Delete row
-			Try
-				DB.Table = "pages"
-				DB.Id = id
-				DB.Delete
-				ShowToast("Page", "deleted", "Page deleted successfully!", "danger")
-			Catch
-				ShowAlert($"Database error: ${LastException.Message}"$, "danger")
-			End Try
-			DB.Close
+			Model.Delete(id)
+			If Model.Error.IsInitialized Then
+				ShowAlert($"Database error: ${Model.Error.Message}"$, "danger")
+				Return
+			End If
+			ShowToast("Page", "deleted", "Page deleted successfully!", "danger")
 	End Select
-End Sub
-
-Private Sub CreatePagesTable As MiniHtml
-	Dim table1 As MiniHtml = MH.Table.cls("table table-bordered table-hover rounded small")
-	Dim thead1 As MiniHtml = table1.add(MH.Thead.cls("table-light"))
-	thead1.add(MH.Th.sty("text-align: right; width: 50px").text("#"))
-	thead1.add(MH.Th.text("Slug"))
-	thead1.add(MH.Th.text("Title"))
-	thead1.add(MH.Th.sty("text-align: center").text("Topic"))
-	thead1.add(MH.Th.sty("text-align: center").text("Status"))
-	thead1.add(MH.Th.sty("text-align: center; width: 120px").text("Actions"))
-	Dim tbody1 As MiniHtml = table1.add(MH.Tbody)
-
-	DB.Open
-	DB.Table = "pages p"
-	DB.Columns = Array("p.id", "p.topic_id", "t.topic_name", "p.page_slug", "p.page_title", "p.page_status")
-	DB.Join("", "topics t", Array("p.topic_id = t.id"))
-	DB.OrderBy = CreateMap("p.id": "")
-	DB.Query
-	For Each row As Map In DB.Results
-		Dim tr1 As MiniHtml = CreatePagesRow(row)
-		tr1.up(tbody1)
-	Next
-	DB.Close
-	Return table1
-End Sub
-
-Private Sub CreatePagesRow (data As Map) As MiniHtml
-	Dim id As Int = data.Get("id")
-	Dim page_slug As String = data.Get("page_slug")
-	Dim page_title As String = data.Get("page_title")
-	Dim page_topic As String = data.Get("topic_name")
-	Dim page_status As String = IIf(1 = data.Get("page_status"), "Published", "Draft")
-
-	Dim tr1 As MiniHtml = MH.Tr
-	tr1.add(MH.Td.cls("align-middle").sty("text-align: right").text(id))
-	tr1.add(MH.Td.cls("align-middle").text(page_slug))
-	tr1.add(MH.Td.cls("align-middle").text(page_title))
-	tr1.add(MH.Td.cls("align-middle text-center").text(page_topic))
-	tr1.add(MH.Td.cls("align-middle text-center").sty("text-align: right").text(page_status))
-	Dim td6 As MiniHtml = MH.Td.cls("align-middle text-center px-1 py-1").up(tr1)
-
-	Dim anchor1 As MiniHtml = MH.Anchor.cls("edit text-primary mx-2").up(td6)
-	anchor1.attr("hx-get", $"/hx/pages/edit/${id}"$)
-	anchor1.attr("hx-target", "#modal-content")
-	anchor1.attr("hx-trigger", "click")
-	anchor1.attr("data-bs-toggle", "modal")
-	anchor1.attr("data-bs-target", "#modal-container")
-	anchor1.add(MH.Icon.cls("bi bi-pencil"))
-	anchor1.attr("title", "Edit")
-
-	Dim anchor2 As MiniHtml = MH.Anchor.cls("delete text-danger mx-2").up(td6)
-	anchor2.attr("hx-get", $"/hx/pages/delete/${id}"$)
-	anchor2.attr("hx-target", "#modal-content")
-	anchor2.attr("hx-trigger", "click")
-	anchor2.attr("data-bs-toggle", "modal")
-	anchor2.attr("data-bs-target", "#modal-container")
-	anchor2.add(MH.Icon.cls("bi bi-trash3"))
-	anchor2.attr("title", "Delete")
-
-	Return tr1
-End Sub
-
-Private Sub ShowAlert (message As String, status As String)
-	Dim div1 As MiniHtml = MH.Div.cls("alert alert-" & status).text(message)
-	App.WriteHtml(Response, div1.Build)
-End Sub
-
-Private Sub ShowToast (entity As String, action As String, message As String, status As String)
-	Dim div1 As MiniHtml = MH.Div.attr("id", "pages-container")
-	div1.attr("hx-swap-oob", "true")
-	div1.add(CreatePagesTable)
-
-	Dim script1 As MiniJs
-	script1.Initialize
-	script1.AddCustomEventDispatch("entity:changed", _
-	CreateMap( _
-	"entity": entity, _
-	"action": action, _
-	"message": message, _
-	"status": status))
-
-	App.WriteHtml(Response, div1.Build & CRLF & script1.Generate)
 End Sub
