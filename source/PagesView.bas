@@ -113,7 +113,8 @@ Private Sub PagesPage (Req As ServletRequest) As MiniHtml
 	main1.LoadModal(MH.ContainerModal)
 	main1.LoadToast(MH.ContainerToast)
 	Dim page1 As MiniHtml = main1.Render
-	Dim navitem1 As MiniHtml = page1.ChildById("nav-item")
+	Dim navbarCollapse As MiniHtml = page1.ChildById("navbarCollapse")
+	Dim navitem1 As MiniHtml = navbarCollapse.ChildByIndex(0)
 	If 1 = Req.GetSession.GetAttribute("admin") Then
 		MH.TopicsLink.up(navitem1)
 		MH.UsersLink.up(navitem1)
@@ -370,6 +371,7 @@ Private Sub ModalEdit As MiniHtml
 	Dim id1 As MiniHtml = MH.Input.up(modalBody)
 	id1.attr("type", "hidden")
 	id1.attr("name", "id")
+	id1.attr("id", "id")
 	Dim group1 As MiniHtml = MH.Div.up(modalBody)
 	group1.cls("form-group")
 	Dim label1 As MiniHtml = MH.Label.up(group1)

@@ -84,7 +84,8 @@ Private Sub UsersPage (Req As ServletRequest) As MiniHtml
 	main1.LoadModal(MH.ContainerModal)
 	main1.LoadToast(MH.ContainerToast)
 	Dim page1 As MiniHtml = main1.Render
-	Dim navitem1 As MiniHtml = page1.ChildById("nav-item")
+	Dim navbarCollapse As MiniHtml = page1.ChildById("navbarCollapse")
+	Dim navitem1 As MiniHtml = navbarCollapse.ChildByIndex(0)
 	If 1 = Req.GetSession.GetAttribute("admin") Then
 		MH.PagesLink.up(navitem1)
 		MH.TopicsLink.up(navitem1)

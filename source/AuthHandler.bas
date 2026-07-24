@@ -64,17 +64,14 @@ Private Sub HandleLogin
 	Dim pass As String = Request.GetParameter("password")
 	
 	Dim row As Map = Model.GetRowByEmailAndPassword(email, pass)
-	'Dim user As String = row.Get("user")
-	'Dim role As String = row.Get("role")
 	Dim user As String = row.Get("first_name") & " " & row.Get("last_name")
 	Dim admin As String = row.Get("admin")
 	If Model.Error.IsInitialized Then
-		ShowRegisterPage("Error querying user: " & Model.Error.Message)
-		'ShowAlert(Model.Error.Message, "danger")
+		ShowLoginPage("Error querying user: " & Model.Error.Message)
 		Return
 	End If
 	If row.Size > 0 Then
-		If 1 = row.Get("admin") Then ' Simple check for now
+		If 1 = row.Get("admin") Then
 			Request.GetSession.SetAttribute("user", user.Trim)
 			Request.GetSession.SetAttribute("admin", admin)
 			Response.SendRedirect("/pages")

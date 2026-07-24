@@ -100,7 +100,6 @@ Private Sub PageBody As MiniHtml
 	
 	Dim navitem1 As MiniHtml = MH.Li.up(navbar1)
 	navitem1.cls("nav-item d-block d-lg-none")
-	navitem1.Id = "nav-item"
 	Dim a1 As MiniHtml = MH.Anchor.up(navitem1)
 	a1.cls("nav-link float-end")
 	a1.attr("href", "https://paypal.me/aeric80/")
