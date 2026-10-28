@@ -41,9 +41,9 @@ Public Sub Login (Message As String) As MiniHtml
 	Dim div1 As MiniHtml = ReadFromCache(CacheName)
 	Dim div2 As MiniHtml = div1.ChildById("alert")
 	If Message = "" Then
-		div2.sty("display: none").text2("")
+		div2.sty("display: none").replace("")
 	Else
-		div2.sty("display: block").text2(Message)
+		div2.sty("display: block").replace(Message)
 	End If
 	Return div1
 End Sub
@@ -56,9 +56,9 @@ Public Sub Register (Message As String) As MiniHtml
 	Dim div1 As MiniHtml = ReadFromCache(CacheName)
 	Dim div2 As MiniHtml = div1.ChildById("alert")
 	If Message = "" Then
-		div2.sty("display: none").text2("")
+		div2.sty("display: none").replace("")
 	Else
-		div2.sty("display: block").text2(Message)
+		div2.sty("display: block").replace(Message)
 	End If
 	Return div1
 End Sub
@@ -71,7 +71,7 @@ Private Sub ContainerLogin As MiniHtml
 	Dim header1 As MiniHtml = MH.Div.up(card1).cls("card-header bg-primary text-white text-center")
 	MH.H3.up(header1).text("Login")
 	Dim body1 As MiniHtml = MH.Div.up(card1).cls("card-body")
-	MH.Div.up(body1).cls("alert alert-danger").sty("display: none").Id = "alert"
+	MH.Div.up(body1).cls("alert alert-danger").sty("display: none").attr("id", "alert")
 	Dim form1 As MiniHtml = MH.Form.up(body1).attr("method", "POST").attr("action", "/login")
 	
 	Dim group1 As MiniHtml = MH.Div.up(form1).cls("mb-3")
@@ -99,7 +99,7 @@ Private Sub ContainerRegister As MiniHtml
 	Dim header1 As MiniHtml = MH.Div.up(card1).cls("card-header bg-success text-white text-center")
 	MH.H3.up(header1).text("Register")
 	Dim body1 As MiniHtml = MH.Div.up(card1).cls("card-body")
-	MH.Div.up(body1).cls("alert alert-danger").sty("display: none").Id = "alert"
+	MH.Div.up(body1).cls("alert alert-danger").sty("display: none").attr("id", "alert")
 	Dim form1 As MiniHtml = MH.Form.up(body1).attr("method", "POST").attr("action", "/register")
 	
 	Dim group1 As MiniHtml = MH.Div.up(form1).cls("mb-3")

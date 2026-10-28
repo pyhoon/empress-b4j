@@ -19,10 +19,7 @@ Public Sub Show (Req As ServletRequest) As String
 		MC.WriteToCache(App.ctx, CacheName, SignInPage)
 	End If
 	Dim page1 As MiniHtml = MC.ReadFromCache(App.ctx, CacheName)
-	Dim doc As MiniHtml
-	doc.Initialize("doctype")
-	doc.Append(page1.build)
-	Return doc.ToString
+	Return page1.build
 End Sub
 
 Public Sub SignInPage As MiniHtml

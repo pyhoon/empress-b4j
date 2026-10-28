@@ -120,7 +120,7 @@ Private Sub GenerateHelpPage As String 'ignore
 	.integrity("sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB").crossorigin("anonymous")
 	head1.cdn("style", "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css")
 	Dim sty1 As MiniHtml = MH.Style.up(head1)
-	Dim cssFolder As String = File.Combine(File.Combine(Main.App.staticfiles.Folder, "assets"), "css")
+	Dim cssFolder As String = File.Combine(File.Combine(Main.App.AssetsFolder, "assets"), "css")
 	If File.Exists(cssFolder, "help.css") Then
 		sty1.text(File.ReadString(cssFolder, "help.css"))
 		CustomTheme = True
@@ -277,10 +277,7 @@ Private Sub GenerateHelpPage As String 'ignore
 	Dim script2 As String = AlpineHtmx
 	MH.Script.up(body1).text(script2.SubString2(0, script2.LastIndexOf(CRLF))).multiline
 	
-	Dim doc As MiniHtml
-	doc.Initialize("doctype")
-	doc.Append(html1.build)
-	Return doc.ToString
+	Return html1.build
 End Sub
 
 Private Sub FindMethod (MethodName As String) As Int
@@ -961,7 +958,7 @@ Private Sub GenerateAccordionBody (section As VerbSection) As MiniHtml
 	div8.attr(":class", "alerts[apiId]?.type")
 	div8.cls("alert")
 	div8.attr("x-text", "alerts[apiId]?.message")
-	div8.attr3("x-transition")
+	div8.bool("x-transition")
 	div8.FormatAttributes = True
 	div8.multiline
 

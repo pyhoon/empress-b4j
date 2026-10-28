@@ -19,10 +19,7 @@ Public Sub Show (Req As ServletRequest) As String
 		MC.WriteToCache(App.ctx, CacheName, UsersPage(Req))
 	End If
 	Dim page1 As MiniHtml = MC.ReadFromCache(App.ctx, CacheName)
-	Dim doc As MiniHtml
-	doc.Initialize("doctype")
-	doc.Append(page1.build)
-	Return doc.ToString
+	Return page1.build
 End Sub
 
 Public Sub Modal (Action As String, Data As Map) As String
@@ -58,7 +55,7 @@ Public Sub Modal (Action As String, Data As Map) As String
 			Dim id1 As MiniHtml = modal1.ChildById("id")
 			id1.attr("value", Data.Get("id"))
 			Dim p1 As MiniHtml = modal1.ChildById("p1")
-			p1.text2($"Delete ${Data.Get("first_name")} ${Data.Get("last_name")} (${Data.Get("email")})?"$)
+			p1.replace($"Delete ${Data.Get("first_name")} ${Data.Get("last_name")} (${Data.Get("email")})?"$)
 			Return modal1.build
 		Case Else
 			Return ""
@@ -145,11 +142,11 @@ Private Sub UsersTableFilled (data As List) As MiniHtml
 	tbody1.Children.Clear
 	For Each row As Map In data
 		Dim tr1 As MiniHtml = MC.ReadFromCache(App.ctx, "Users Table Row") ' bytes()
-		tr1.ChildByIndex(0).text2(row.Get("id"))
-		tr1.ChildByIndex(1).text2(row.Get("first_name"))
-		tr1.ChildByIndex(2).text2(row.Get("last_name"))
-		tr1.ChildByIndex(3).text2(row.Get("email"))
-		tr1.ChildByIndex(4).text2(row.Get("admin"))
+		tr1.ChildByIndex(0).replace(row.Get("id"))
+		tr1.ChildByIndex(1).replace(row.Get("first_name"))
+		tr1.ChildByIndex(2).replace(row.Get("last_name"))
+		tr1.ChildByIndex(3).replace(row.Get("email"))
+		tr1.ChildByIndex(4).replace(row.Get("admin"))
 		tr1.ChildByIndex(5).ChildByIndex(0).attr("hx-get", "/hx/users/edit/" & row.Get("id"))
 		tr1.ChildByIndex(5).ChildByIndex(1).attr("hx-get", "/hx/users/delete/" & row.Get("id"))
 		tr1.up(tbody1)
@@ -471,7 +468,7 @@ Private Sub ModalDelete As MiniHtml
 	id1.attr("type", "hidden")
 	id1.attr("name", "id")
 	id1.attr("id", "id")
-	MH.P.up(modalBody).Id = "p1"
+	MH.P.up(modalBody).attr("id", "p1")
 	
 	Dim modalFooter As MiniHtml = MH.Div.up(form1).cls("modal-footer")
 	

@@ -19,10 +19,7 @@ Public Sub Show (Req As ServletRequest) As String
 		MC.WriteToCache(App.ctx, CacheName, PagesPage(Req))
 	End If
 	Dim page1 As MiniHtml = MC.ReadFromCache(App.ctx, CacheName)
-	Dim doc As MiniHtml
-	doc.Initialize("doctype")
-	doc.Append(page1.build)
-	Return doc.ToString
+	Return page1.build
 End Sub
 
 Public Sub Modal (Action As String, TopicList As List, Data As Map) As String
@@ -82,7 +79,7 @@ Public Sub Modal (Action As String, TopicList As List, Data As Map) As String
 			Dim id1 As MiniHtml = modal1.ChildById("id")
 			id1.attr("value", Data.Get("id"))
 			Dim p1 As MiniHtml = modal1.ChildById("p1")
-			p1.text2($"Delete ${Data.Get("page_title")} (${Data.Get("page_slug")})?"$)
+			p1.replace($"Delete ${Data.Get("page_title")} (${Data.Get("page_slug")})?"$)
 			Return modal1.build
 		Case Else
 			Return ""
@@ -207,11 +204,11 @@ Private Sub PagesTableFilled (data As List) As MiniHtml
 	tbody1.Children.Clear
 	For Each row As Map In data
 		Dim tr1 As MiniHtml = MC.ReadFromCache(App.ctx, "Pages Table Row") ' bytes()
-		tr1.ChildByIndex(0).text2(row.Get("id")).sty("text-align: right")
-		tr1.ChildByIndex(1).text2(row.Get("page_slug"))
-		tr1.ChildByIndex(2).text2(row.Get("page_title"))
-		tr1.ChildByIndex(3).text2(row.Get("topic_name"))
-		tr1.ChildByIndex(4).text2(row.Get("page_status")).sty("text-align: center")
+		tr1.ChildByIndex(0).replace(row.Get("id")).sty("text-align: right")
+		tr1.ChildByIndex(1).replace(row.Get("page_slug"))
+		tr1.ChildByIndex(2).replace(row.Get("page_title"))
+		tr1.ChildByIndex(3).replace(row.Get("topic_name"))
+		tr1.ChildByIndex(4).replace(row.Get("page_status")).sty("text-align: center")
 		tr1.ChildByIndex(5).ChildByIndex(0).attr("hx-get", "/hx/pages/edit/" & row.Get("id"))
 		tr1.ChildByIndex(5).ChildByIndex(1).attr("hx-get", "/hx/pages/delete/" & row.Get("id"))
 		tr1.up(tbody1)
@@ -453,7 +450,7 @@ Private Sub ModalDelete As MiniHtml
 	id1.attr("type", "hidden")
 	id1.attr("name", "id")
 	id1.attr("id", "id")
-	MH.P.up(modalBody).Id = "p1"
+	MH.P.up(modalBody).attr("id", "p1")
 	Dim modalFooter As MiniHtml = MH.Div.up(form1).cls("modal-footer")
 	Dim button1 As MiniHtml = MH.Button.up(modalFooter)
 	button1.cls("btn btn-danger px-3")

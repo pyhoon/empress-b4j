@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token">
@@ -10,8 +10,7 @@
     <link rel="icon" type="image/png" href="/assets/img/favicon.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <style>
-    .btn {
+    <style>    .btn {
       border-radius: 3px;
       font-size: 1em;
     }
@@ -170,17 +169,14 @@
 
     img.dark-mode-ready {
       filter: invert(1);
-    }
-    </style>
-</head>
-<body style="background: #393939" x-data="apiApp">
+    }</style>
+  </head>
+  <body style="background: #393939" x-data="apiApp">
     <nav class="navbar navbar-light navbar-expand-lg sticky-top py-1" style="background-color: yellow">
       <div class="container-fluid">
-        <a class="navbar-brand me-0 me-lg-2" href="#">
-          <i class="bi bi-gear h3"></i></a>
+        <a class="navbar-brand me-0 me-lg-2" href="#"><i class="bi bi-gear h3"></i></a>
         <a class="navbar-brand font-weight-bold" href="#">API Documentation</a>
-        <button class="navbar-toggler d-md-block d-lg-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" style="border: none">
-          <span class="navbar-toggler-icon"></span></button>
+        <button class="navbar-toggler d-md-block d-lg-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" style="border: none"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <ul class="navbar-nav navbar-brand ms-auto mb-md-0">
             <li class="nav-item d-none d-sm-none d-md-block">
@@ -188,11 +184,9 @@
                 <img src="/assets/img/coffee.png" class="my-1" style="height: 36px"></a>
             </li>
             <li class="nav-item d-block d-lg-block">
-              <a href="/" class="nav-link text-dark float-end">Home
-                <i class="bi bi-house me-2" title="Home"></i></a></li>
+              <a href="/" class="nav-link text-dark float-end">Home<i class="bi bi-house me-2" title="Home"></i></a></li>
           </ul>
-        </div>
-      </div>
+        </div></div>
     </nav>
     <div class="text-center font-weight-bold d-block d-sm-block d-md-none" style="background-color: whitesmoke">
       <a href="https://paypal.me/aeric80/" target="_blank">
@@ -222,14 +216,10 @@
             }" @token-updated.window="accessToken = localStorage.getItem('access_token')">
       <div class="p-2">
         <div class="row text-center text-light align-items-center justify-content-center">
-          <h3 class="mb-0" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">EMPRESS CMS</h3>
-          <span class="small">Version: 0.30</span>
-        </div>
+          <h3 class="mb-0" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">EMPRESS CMS</h3>          <span class="small">Version: 0.30</span></div>
         <div class="row mt-3">
           <div class="col-md-12">
-            <h6 class="text-uppercase text-primary">
-              <strong>Users</strong>
-            </h6>
+            <h6 class="text-uppercase text-primary">              <strong>Users</strong></h6>
           </div>
           <div class="accordion">
             <div class="accordion-item">
@@ -238,33 +228,27 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#GetUsers-collapse"
-                        aria-controls="GetUsers-collapse">
-                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read all users
+                        aria-controls="GetUsers-collapse">                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read all users
                 </button>
               </h2>
               <div id="GetUsers-collapse" class="accordion-collapse collapse" aria-labelledby="GetUsers-heading">
                 <div class="accordion-body" x-data="{ apiId: 'GetUsers' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #696969; font-size: small"
                                value="http://127.0.0.1:8080/api/users"
-                               disabled></input>
+                               disabled>
+                        </input>
                       </p>
                       <button class="btn submit-button-green text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -273,15 +257,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -291,7 +271,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -303,32 +284,26 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#GetUserById-collapse"
-                        aria-controls="GetUserById-collapse">
-                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read one user by id
+                        aria-controls="GetUserById-collapse">                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read one user by id
                 </button>
               </h2>
               <div id="GetUserById-collapse" class="accordion-collapse collapse" aria-labelledby="GetUserById-heading">
                 <div class="accordion-body" x-data="{ apiId: 'GetUserById' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/users/{id}"></input>
+                               value="http://127.0.0.1:8080/api/users/{id}">
+                        </input>
                       </p>
                       <button class="btn submit-button-green text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -337,15 +312,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -355,7 +326,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -367,41 +339,31 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#CreateNewUser-collapse"
-                        aria-controls="CreateNewUser-collapse">
-                  <span style="width: 60px" class="badge badge-purple text-secondary py-1 me-2">POST</span>Add new user
+                        aria-controls="CreateNewUser-collapse">                  <span style="width: 60px" class="badge badge-purple text-secondary py-1 me-2">POST</span>Add new user
                 </button>
               </h2>
               <div id="CreateNewUser-collapse" class="accordion-collapse collapse" aria-labelledby="CreateNewUser-heading">
                 <div class="accordion-body" x-data="{ apiId: 'CreateNewUser' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
                       </p>
-                      <p>
-                        <strong>Format</strong>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"first_name": "first_name",<br>&nbsp;&nbsp;"last_name": "last_name",<br>&nbsp;&nbsp;"email": "email",<br>&nbsp;&nbsp;"password": "password"<br>}
-                        </span>
+                      <p>                        <strong>Format</strong>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"first_name": "first_name",<br>&nbsp;&nbsp;"last_name": "last_name",<br>&nbsp;&nbsp;"email": "email",<br>&nbsp;&nbsp;"password": "password"<br>}                        </span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>201 Created<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>201 Created<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #696969; font-size: small"
                                value="http://127.0.0.1:8080/api/users"
-                               disabled></input>
+                               disabled>
+                        </input>
                       </p>
-                      <p>
-                        <strong>Body</strong>
+                      <p>                        <strong>Body</strong>
                         <textarea :id="'body-' + apiId"
                                   rows="6"
                                   class="form-control data-body"
@@ -420,15 +382,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -438,7 +396,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -450,40 +409,30 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#UpdateUserById-collapse"
-                        aria-controls="UpdateUserById-collapse">
-                  <span style="width: 60px" class="badge badge-blue text-secondary py-1 me-2">PUT</span>Update user by id
+                        aria-controls="UpdateUserById-collapse">                  <span style="width: 60px" class="badge badge-blue text-secondary py-1 me-2">PUT</span>Update user by id
                 </button>
               </h2>
               <div id="UpdateUserById-collapse" class="accordion-collapse collapse" aria-labelledby="UpdateUserById-heading">
                 <div class="accordion-body" x-data="{ apiId: 'UpdateUserById' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <p>
-                        <strong>Format</strong>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"first_name": "first_name",<br>&nbsp;&nbsp;"last_name": "last_name",<br>&nbsp;&nbsp;"email": "email",<br>&nbsp;&nbsp;"password": "password"<br>}
-                        </span>
+                      <p>                        <strong>Format</strong>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"first_name": "first_name",<br>&nbsp;&nbsp;"last_name": "last_name",<br>&nbsp;&nbsp;"email": "email",<br>&nbsp;&nbsp;"password": "password"<br>}                        </span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/users/{id}"></input>
+                               value="http://127.0.0.1:8080/api/users/{id}">
+                        </input>
                       </p>
-                      <p>
-                        <strong>Body</strong>
+                      <p>                        <strong>Body</strong>
                         <textarea :id="'body-' + apiId"
                                   rows="6"
                                   class="form-control data-body"
@@ -502,15 +451,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -520,7 +465,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -532,32 +478,26 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#DeleteUserById-collapse"
-                        aria-controls="DeleteUserById-collapse">
-                  <span style="width: 60px" class="badge badge-red text-secondary py-1 me-2">DELETE</span>Delete user by id
+                        aria-controls="DeleteUserById-collapse">                  <span style="width: 60px" class="badge badge-red text-secondary py-1 me-2">DELETE</span>Delete user by id
                 </button>
               </h2>
               <div id="DeleteUserById-collapse" class="accordion-collapse collapse" aria-labelledby="DeleteUserById-heading">
                 <div class="accordion-body" x-data="{ apiId: 'DeleteUserById' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/users/{id}"></input>
+                               value="http://127.0.0.1:8080/api/users/{id}">
+                        </input>
                       </p>
                       <button class="btn submit-button-red text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -566,15 +506,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -584,7 +520,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -594,9 +531,7 @@
         </div>
         <div class="row mt-3">
           <div class="col-md-12">
-            <h6 class="text-uppercase text-primary">
-              <strong>Topics</strong>
-            </h6>
+            <h6 class="text-uppercase text-primary">              <strong>Topics</strong></h6>
           </div>
           <div class="accordion">
             <div class="accordion-item">
@@ -605,33 +540,27 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#GetTopics-collapse"
-                        aria-controls="GetTopics-collapse">
-                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read all topics
+                        aria-controls="GetTopics-collapse">                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read all topics
                 </button>
               </h2>
               <div id="GetTopics-collapse" class="accordion-collapse collapse" aria-labelledby="GetTopics-heading">
                 <div class="accordion-body" x-data="{ apiId: 'GetTopics' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #696969; font-size: small"
                                value="http://127.0.0.1:8080/api/topics"
-                               disabled></input>
+                               disabled>
+                        </input>
                       </p>
                       <button class="btn submit-button-green text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -640,15 +569,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -658,7 +583,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -670,32 +596,26 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#GetTopicById-collapse"
-                        aria-controls="GetTopicById-collapse">
-                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read one topic by id
+                        aria-controls="GetTopicById-collapse">                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read one topic by id
                 </button>
               </h2>
               <div id="GetTopicById-collapse" class="accordion-collapse collapse" aria-labelledby="GetTopicById-heading">
                 <div class="accordion-body" x-data="{ apiId: 'GetTopicById' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/topics/{id}"></input>
+                               value="http://127.0.0.1:8080/api/topics/{id}">
+                        </input>
                       </p>
                       <button class="btn submit-button-green text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -704,15 +624,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -722,7 +638,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -734,41 +651,31 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#CreateNewTopic-collapse"
-                        aria-controls="CreateNewTopic-collapse">
-                  <span style="width: 60px" class="badge badge-purple text-secondary py-1 me-2">POST</span>Add new topic
+                        aria-controls="CreateNewTopic-collapse">                  <span style="width: 60px" class="badge badge-purple text-secondary py-1 me-2">POST</span>Add new topic
                 </button>
               </h2>
               <div id="CreateNewTopic-collapse" class="accordion-collapse collapse" aria-labelledby="CreateNewTopic-heading">
                 <div class="accordion-body" x-data="{ apiId: 'CreateNewTopic' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
                       </p>
-                      <p>
-                        <strong>Format</strong>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"topic_name": "topic_name"<br>}
-                        </span>
+                      <p>                        <strong>Format</strong>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"topic_name": "topic_name"<br>}                        </span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>201 Created<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>201 Created<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #696969; font-size: small"
                                value="http://127.0.0.1:8080/api/topics"
-                               disabled></input>
+                               disabled>
+                        </input>
                       </p>
-                      <p>
-                        <strong>Body</strong>
+                      <p>                        <strong>Body</strong>
                         <textarea :id="'body-' + apiId"
                                   rows="6"
                                   class="form-control data-body"
@@ -784,15 +691,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -802,7 +705,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -814,40 +718,30 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#UpdateTopicById-collapse"
-                        aria-controls="UpdateTopicById-collapse">
-                  <span style="width: 60px" class="badge badge-blue text-secondary py-1 me-2">PUT</span>Update topic by id
+                        aria-controls="UpdateTopicById-collapse">                  <span style="width: 60px" class="badge badge-blue text-secondary py-1 me-2">PUT</span>Update topic by id
                 </button>
               </h2>
               <div id="UpdateTopicById-collapse" class="accordion-collapse collapse" aria-labelledby="UpdateTopicById-heading">
                 <div class="accordion-body" x-data="{ apiId: 'UpdateTopicById' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <p>
-                        <strong>Format</strong>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"topic_name": "topic_name"<br>}
-                        </span>
+                      <p>                        <strong>Format</strong>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"topic_name": "topic_name"<br>}                        </span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/topics/{id}"></input>
+                               value="http://127.0.0.1:8080/api/topics/{id}">
+                        </input>
                       </p>
-                      <p>
-                        <strong>Body</strong>
+                      <p>                        <strong>Body</strong>
                         <textarea :id="'body-' + apiId"
                                   rows="6"
                                   class="form-control data-body"
@@ -863,15 +757,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -881,7 +771,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -893,32 +784,26 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#DeleteTopicById-collapse"
-                        aria-controls="DeleteTopicById-collapse">
-                  <span style="width: 60px" class="badge badge-red text-secondary py-1 me-2">DELETE</span>Delete topic by id
+                        aria-controls="DeleteTopicById-collapse">                  <span style="width: 60px" class="badge badge-red text-secondary py-1 me-2">DELETE</span>Delete topic by id
                 </button>
               </h2>
               <div id="DeleteTopicById-collapse" class="accordion-collapse collapse" aria-labelledby="DeleteTopicById-heading">
                 <div class="accordion-body" x-data="{ apiId: 'DeleteTopicById' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/topics/{id}"></input>
+                               value="http://127.0.0.1:8080/api/topics/{id}">
+                        </input>
                       </p>
                       <button class="btn submit-button-red text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -927,15 +812,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -945,7 +826,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -955,9 +837,7 @@
         </div>
         <div class="row mt-3">
           <div class="col-md-12">
-            <h6 class="text-uppercase text-primary">
-              <strong>Pages</strong>
-            </h6>
+            <h6 class="text-uppercase text-primary">              <strong>Pages</strong></h6>
           </div>
           <div class="accordion">
             <div class="accordion-item">
@@ -966,33 +846,27 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#GetPages-collapse"
-                        aria-controls="GetPages-collapse">
-                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read all pages
+                        aria-controls="GetPages-collapse">                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read all pages
                 </button>
               </h2>
               <div id="GetPages-collapse" class="accordion-collapse collapse" aria-labelledby="GetPages-heading">
                 <div class="accordion-body" x-data="{ apiId: 'GetPages' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #696969; font-size: small"
                                value="http://127.0.0.1:8080/api/pages"
-                               disabled></input>
+                               disabled>
+                        </input>
                       </p>
                       <button class="btn submit-button-green text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -1001,15 +875,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -1019,7 +889,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1031,32 +902,26 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#GetPageById-collapse"
-                        aria-controls="GetPageById-collapse">
-                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read one page by id
+                        aria-controls="GetPageById-collapse">                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Read one page by id
                 </button>
               </h2>
               <div id="GetPageById-collapse" class="accordion-collapse collapse" aria-labelledby="GetPageById-heading">
                 <div class="accordion-body" x-data="{ apiId: 'GetPageById' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/pages/{id}"></input>
+                               value="http://127.0.0.1:8080/api/pages/{id}">
+                        </input>
                       </p>
                       <button class="btn submit-button-green text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -1065,15 +930,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -1083,7 +944,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1095,41 +957,31 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#PostPage-collapse"
-                        aria-controls="PostPage-collapse">
-                  <span style="width: 60px" class="badge badge-purple text-secondary py-1 me-2">POST</span>Add new page
+                        aria-controls="PostPage-collapse">                  <span style="width: 60px" class="badge badge-purple text-secondary py-1 me-2">POST</span>Add new page
                 </button>
               </h2>
               <div id="PostPage-collapse" class="accordion-collapse collapse" aria-labelledby="PostPage-heading">
                 <div class="accordion-body" x-data="{ apiId: 'PostPage' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
                       </p>
-                      <p>
-                        <strong>Format</strong>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;"topic_id": 1,<br>&nbsp;"page_slug": "page-slug",<br>&nbsp;"page_title": "Page Title",<br>&nbsp;"page_body": "Sample body",<br>&nbsp;"page_status": 0<br>}
-                        </span>
+                      <p>                        <strong>Format</strong>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;"topic_id": 1,<br>&nbsp;"page_slug": "page-slug",<br>&nbsp;"page_title": "Page Title",<br>&nbsp;"page_body": "Sample body",<br>&nbsp;"page_status": 0<br>}                        </span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>201 Created<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>201 Created<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #696969; font-size: small"
                                value="http://127.0.0.1:8080/api/pages"
-                               disabled></input>
+                               disabled>
+                        </input>
                       </p>
-                      <p>
-                        <strong>Body</strong>
+                      <p>                        <strong>Body</strong>
                         <textarea :id="'body-' + apiId"
                                   rows="6"
                                   class="form-control data-body"
@@ -1149,15 +1001,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -1167,7 +1015,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1179,40 +1028,30 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#PutPageById-collapse"
-                        aria-controls="PutPageById-collapse">
-                  <span style="width: 60px" class="badge badge-blue text-secondary py-1 me-2">PUT</span>Update page by id
+                        aria-controls="PutPageById-collapse">                  <span style="width: 60px" class="badge badge-blue text-secondary py-1 me-2">PUT</span>Update page by id
                 </button>
               </h2>
               <div id="PutPageById-collapse" class="accordion-collapse collapse" aria-labelledby="PutPageById-heading">
                 <div class="accordion-body" x-data="{ apiId: 'PutPageById' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <p>
-                        <strong>Format</strong>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;"topic_id": 1,<br>&nbsp;"page_slug": "page-slug",<br>&nbsp;"page_title": "Page Title",<br>&nbsp;"page_body": "Sample body",<br>&nbsp;"page_status": 10<br>}
-                        </span>
+                      <p>                        <strong>Format</strong>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;"topic_id": 1,<br>&nbsp;"page_slug": "page-slug",<br>&nbsp;"page_title": "Page Title",<br>&nbsp;"page_body": "Sample body",<br>&nbsp;"page_status": 10<br>}                        </span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/pages/{id}"></input>
+                               value="http://127.0.0.1:8080/api/pages/{id}">
+                        </input>
                       </p>
-                      <p>
-                        <strong>Body</strong>
+                      <p>                        <strong>Body</strong>
                         <textarea :id="'body-' + apiId"
                                   rows="6"
                                   class="form-control data-body"
@@ -1232,15 +1071,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -1250,7 +1085,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1262,32 +1098,26 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#DeletePageById-collapse"
-                        aria-controls="DeletePageById-collapse">
-                  <span style="width: 60px" class="badge badge-red text-secondary py-1 me-2">DELETE</span>Delete page by id
+                        aria-controls="DeletePageById-collapse">                  <span style="width: 60px" class="badge badge-red text-secondary py-1 me-2">DELETE</span>Delete page by id
                 </button>
               </h2>
               <div id="DeletePageById-collapse" class="accordion-collapse collapse" aria-labelledby="DeletePageById-heading">
                 <div class="accordion-body" x-data="{ apiId: 'DeletePageById' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/pages/{id}"></input>
+                               value="http://127.0.0.1:8080/api/pages/{id}">
+                        </input>
                       </p>
                       <button class="btn submit-button-red text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -1296,15 +1126,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -1314,7 +1140,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1324,9 +1151,7 @@
         </div>
         <div class="row mt-3">
           <div class="col-md-12">
-            <h6 class="text-uppercase text-primary">
-              <strong>Find</strong>
-            </h6>
+            <h6 class="text-uppercase text-primary">              <strong>Find</strong></h6>
           </div>
           <div class="accordion">
             <div class="accordion-item">
@@ -1335,33 +1160,27 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#GetAllPages-collapse"
-                        aria-controls="GetAllPages-collapse">
-                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Search all pages
+                        aria-controls="GetAllPages-collapse">                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Search all pages
                 </button>
               </h2>
               <div id="GetAllPages-collapse" class="accordion-collapse collapse" aria-labelledby="GetAllPages-heading">
                 <div class="accordion-body" x-data="{ apiId: 'GetAllPages' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #696969; font-size: small"
                                value="http://127.0.0.1:8080/api/find"
-                               disabled></input>
+                               disabled>
+                        </input>
                       </p>
                       <button class="btn submit-button-green text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -1370,15 +1189,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -1388,7 +1203,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1400,32 +1216,26 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#GetPagesByTopicId-collapse"
-                        aria-controls="GetPagesByTopicId-collapse">
-                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Search all pages by topic id
+                        aria-controls="GetPagesByTopicId-collapse">                  <span style="width: 60px" class="badge badge-green text-secondary py-1 me-2">GET</span>Search all pages by topic id
                 </button>
               </h2>
               <div id="GetPagesByTopicId-collapse" class="accordion-collapse collapse" aria-labelledby="GetPagesByTopicId-heading">
                 <div class="accordion-body" x-data="{ apiId: 'GetPagesByTopicId' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">id [Int]</span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong><br/>200 Success<br/>400 Bad Request<br/>404 Not found<br/>405 Method not allowed<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #363636; font-size: small"
-                               value="http://127.0.0.1:8080/api/find/pages-by-topic-id/{id}"></input>
+                               value="http://127.0.0.1:8080/api/find/pages-by-topic-id/{id}">
+                        </input>
                       </p>
                       <button class="btn submit-button-green text-white col-md-6 col-lg-4 p-2 float-end null"
                               style="cursor: pointer; padding-bottom: 60px"
@@ -1434,15 +1244,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -1452,7 +1258,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1464,41 +1271,31 @@
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#SearchByKeywords-collapse"
-                        aria-controls="SearchByKeywords-collapse">
-                  <span style="width: 60px" class="badge badge-purple text-secondary py-1 me-2">POST</span>Search pages by keyword
+                        aria-controls="SearchByKeywords-collapse">                  <span style="width: 60px" class="badge badge-purple text-secondary py-1 me-2">POST</span>Search pages by keyword
                 </button>
               </h2>
               <div id="SearchByKeywords-collapse" class="accordion-collapse collapse" aria-labelledby="SearchByKeywords-heading">
                 <div class="accordion-body" x-data="{ apiId: 'SearchByKeywords' }">
                   <div class="row">
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Parameters</strong>
-                        <br>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
+                      <p>                        <strong>Parameters</strong><br>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">Not required</span>
                       </p>
-                      <p>
-                        <strong>Format</strong>
-                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"keyword": "text"<br>}
-                        </span>
+                      <p>                        <strong>Format</strong>                        <span class="form-control" style="background-color: #636363; color: white; height: fit-content; vertical-align: text-top; font-size: small">{<br>&nbsp;&nbsp;"keyword": "text"<br>}                        </span>
                       </p>
-                      <div class="mt-3">
-                        <strong>Status Code</strong>200 Success<br/>400 Bad Request<br/>404 Not found<br/>422 Error execute query
+                      <div class="mt-3">                        <strong>Status Code</strong>200 Success<br/>400 Bad Request<br/>404 Not found<br/>422 Error execute query
                       </div>
                     </div>
                     <div class="col-md-3 p-2">
-                      <p>
-                        <strong>Path</strong>
-                        <br>
+                      <p>                        <strong>Path</strong><br>
                         <input :id="'path-' + apiId"
                                type="text"
                                class="form-control data-path text-light"
                                style="background-color: #696969; font-size: small"
                                value="http://127.0.0.1:8080/api/find"
-                               disabled></input>
+                               disabled>
+                        </input>
                       </p>
-                      <p>
-                        <strong>Body</strong>
+                      <p>                        <strong>Body</strong>
                         <textarea :id="'body-' + apiId"
                                   rows="6"
                                   class="form-control data-body"
@@ -1514,15 +1311,11 @@
                               hx-target="this"
                               hx-swap="none"
                               @click="resetUI(apiId)"
-                              @htmx:after-request="handleResponse($event, apiId)">
-                        <span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>
-                        <strong>Submit</strong>
+                              @htmx:after-request="handleResponse($event, apiId)"><span class="htmx-indicator spinner-border spinner-border-sm me-2"></span>                        <strong>Submit</strong>
                       </button>
                     </div>
                     <div class="col-md-6 p-2">
-                      <p>
-                        <strong>Response</strong>
-                        <br>
+                      <p>                        <strong>Response</strong><br>
                         <textarea rows="10"
                                   :id="'response-' + apiId"
                                   class="form-control response-area"
@@ -1532,7 +1325,8 @@
                            :class="alerts[apiId]?.type"
                            class="alert"
                            x-text="alerts[apiId]?.message"
-                           x-transition></div>
+                           x-transition>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1545,10 +1339,7 @@
     <div class="bottom"></div>
     <footer class="footer pl-4 pt-2 pb-2">
       <div class="footer small text-light text-center d-md-block" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">
-        <caption>Copyright Computerise System Solutions 2026
-          <br>Made with
-          <span style="color: red">
-            <i class="bi bi-heart"></i></span> using Pakai
+        <caption>Copyright Computerise System Solutions 2026<br>Made with<span style="color: red"><i class="bi bi-heart"></i></span> using Pakai
         </caption>
       </div>
     </footer>
@@ -1684,5 +1475,5 @@
         }
     });
     </script>
-</body>
+  </body>
 </html>
